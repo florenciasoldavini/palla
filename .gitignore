@@ -10,6 +10,8 @@ web-build/
 expo-env.d.ts
 
 # Native
+/android
+/ios
 .kotlin/
 *.orig.*
 *.jks
@@ -30,18 +32,18 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local environment values (templates remain tracked)
+# local env files
 .env
-.env*.local
+.env.*
 !.env.example
-!.env.preview.example
-!.env.production.example
+supabase/functions/.env
+supabase/.temp/
 
 # typescript
 *.tsbuildinfo
 
-example
+app-example
+.vercel
 
-# generated native folders
-/ios
-/android
+# Added by ggshield
+.cache_ggshield

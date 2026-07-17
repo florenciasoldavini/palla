@@ -1,7 +1,67 @@
 {
+  // Format on save
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Auto-save configuration
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  // Disable ESLint formatting (let Prettier handle it)
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.organizeImports": "explicit",
-    "source.sortMembers": "explicit"
-  }
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always"
+  },
+
+  // File-specific settings
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  // ESLint settings
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+
+  // Prettier settings - explicitly disable trailing commas
+  "prettier.requireConfig": true,
+  "prettier.useEditorConfig": false,
+  "prettier.trailingComma": "none",
+  "prettier.tabWidth": 2,
+  "prettier.semi": true,
+  "prettier.singleQuote": false,
+
+  // Supabase Edge Functions use Deno instead of the Expo TypeScript runtime.
+  "deno.config": "./supabase/functions/deno.json",
+  "deno.enable": true,
+  "deno.enablePaths": ["./supabase/functions"],
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ]
 }

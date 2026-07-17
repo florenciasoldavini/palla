@@ -8,12 +8,12 @@
     "scheme": "palla",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.palla.app",
+      "bundleIdentifier": "com.florenciasoldavini.palla",
       "config": {
         "usesNonExemptEncryption": false
       },
       "icon": "./assets/expo.icon",
-      "supportsTablet": false
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -22,31 +22,79 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "package": "com.palla.app",
-      "predictiveBackGestureEnabled": false
+      "package": "com.florenciasoldavini.palla",
+      "edgeToEdgeEnabled": true
     },
     "web": {
+      "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "florencia-soldavini",
+          "project": "palla"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F7F6F2",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 76,
+          "resizeMode": "contain",
+          "backgroundColor": "#F7F6F2"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Palla to access your photo library so you can choose a profile photo."
         }
       ],
       "expo-secure-store",
       "expo-notifications",
-      "@sentry/react-native",
-      "expo-localization"
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Geist-Black.ttf",
+            "./assets/fonts/Geist-Bold.ttf",
+            "./assets/fonts/Geist-ExtraBold.ttf",
+            "./assets/fonts/Geist-ExtraLight.ttf",
+            "./assets/fonts/Geist-Light.ttf",
+            "./assets/fonts/Geist-Medium.ttf",
+            "./assets/fonts/Geist-Regular.ttf",
+            "./assets/fonts/Geist-SemiBold.ttf",
+            "./assets/fonts/Geist-Thin.ttf",
+            "./assets/fonts/JetBrainsMono-Bold.ttf",
+            "./assets/fonts/JetBrainsMono-BoldItalic.ttf",
+            "./assets/fonts/JetBrainsMono-ExtraBold.ttf",
+            "./assets/fonts/JetBrainsMono-ExtraBoldItalic.ttf",
+            "./assets/fonts/JetBrainsMono-ExtraLight.ttf",
+            "./assets/fonts/JetBrainsMono-ExtraLightItalic.ttf",
+            "./assets/fonts/JetBrainsMono-Italic.ttf",
+            "./assets/fonts/JetBrainsMono-Light.ttf",
+            "./assets/fonts/JetBrainsMono-LightItalic.ttf",
+            "./assets/fonts/JetBrainsMono-Medium.ttf",
+            "./assets/fonts/JetBrainsMono-MediumItalic.ttf",
+            "./assets/fonts/JetBrainsMono-Regular.ttf",
+            "./assets/fonts/JetBrainsMono-SemiBold.ttf",
+            "./assets/fonts/JetBrainsMono-SemiBoldItalic.ttf",
+            "./assets/fonts/JetBrainsMono-Thin.ttf",
+            "./assets/fonts/JetBrainsMono-ThinItalic.ttf"
+          ]
+        }
+      ]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {}
+    },
+    "owner": "florenciasoldavini"
   }
 }

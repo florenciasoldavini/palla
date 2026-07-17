@@ -1,0 +1,100 @@
+{
+  "sourceFile": ".env.local",
+  "variables": {
+    "EXPO_PUBLIC_SUPABASE_URL": {
+      "section": "Frontend / Public",
+      "example": "https://your-project-ref.supabase.co",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": {
+      "example": "sb_publishable_your_publishable_key",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_SITE_URL": {
+      "comment": "Public app base URL for auth redirects and shared web links.",
+      "example": "https://palla.vercel.app",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_SENTRY_DSN": {
+      "section": "Observability / Public",
+      "example": "https://public-key@o0000000000000000.ingest.us.sentry.io/0000000000000000",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_POSTHOG_KEY": {
+      "example": "phc_your_project_key",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_POSTHOG_HOST": {
+      "example": "https://us.i.posthog.com",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_APP_ENV": {
+      "section": "Runtime",
+      "comment": "Distinguishes development, preview, and production telemetry.",
+      "example": "development"
+    },
+    "SENTRY_ORG": {
+      "section": "Sentry / Optional Build-Time Source Maps",
+      "example": "your-sentry-org-slug"
+    },
+    "SENTRY_PROJECT": {
+      "example": "palla"
+    },
+    "SENTRY_AUTH_TOKEN": {
+      "example": "sntrys_your_auth_token",
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "sensitive"
+      }
+    },
+    "RESEND_API_KEY": {
+      "section": "Email / Server",
+      "example": "re_your_resend_api_key"
+    },
+    "EMAIL_FROM": {
+      "example": "Palla <onboarding@resend.dev>"
+    },
+    "EMAIL_REPLY_TO": {
+      "example": "hello@example.com"
+    },
+    "SITE_URL": {
+      "example": "https://palla.vercel.app"
+    }
+  }
+}
