@@ -12,7 +12,7 @@ import {
   type AppIconSize
 } from "@/components/icons";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
-import { getSansFontStyle } from "@/theme/fonts";
+import { getMonoFontStyle } from "@/theme/fonts";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import {
@@ -29,7 +29,7 @@ import Animated, {
   withTiming
 } from "react-native-reanimated";
 
-type ButtonBaseColor = "accent" | "danger" | "neutral";
+type ButtonBaseColor = "accent" | "danger" | "essential" | "neutral";
 export type ButtonColor = ButtonBaseColor | "success" | "warning";
 export type ButtonVariant = "solid" | "bordered" | "ghost";
 export type ButtonSize = "sm" | "md" | "lg" | "iconLg";
@@ -116,6 +116,21 @@ const colorConfig: Record<
     solidIconColor: atomPalette.accentText,
     solidTextColor: atomPalette.accentText
   },
+  essential: {
+    action: "primary",
+    borderedClassName:
+      "bg-primary-0 border-primary-500 data-[hover=true]:bg-primary-50 data-[hover=true]:border-primary-600 data-[active=true]:bg-primary-100",
+    borderedIconColor: atomPalette.accent,
+    borderedTextColor: atomPalette.accent,
+    ghostClassName:
+      "bg-transparent border-transparent data-[hover=true]:bg-primary-50 data-[active=true]:bg-primary-100",
+    ghostIconColor: atomPalette.accent,
+    ghostTextColor: atomPalette.accent,
+    solidClassName:
+      "bg-primary-400 border-primary-400 data-[hover=true]:bg-primary-300 data-[hover=true]:border-primary-300 data-[active=true]:bg-primary-500 data-[active=true]:border-primary-500",
+    solidIconColor: atomPalette.brandText,
+    solidTextColor: atomPalette.brandText
+  },
   neutral: {
     action: "secondary",
     borderedClassName:
@@ -175,7 +190,7 @@ const AnimatedButton = Animated.createAnimatedComponent(Button);
 
 export function AppButton({
   children,
-  color = "accent",
+  color = "neutral",
   fullWidth = true,
   icon,
   iconAfter = true,
@@ -231,7 +246,7 @@ export function AppButton({
     letterSpacing: sizeConfig.textToken.letterSpacing,
     lineHeight: sizeConfig.textToken.lineHeight,
     textTransform: sizeConfig.textToken.textTransform,
-    ...getSansFontStyle(sizeConfig.textToken.fontWeight)
+    ...getMonoFontStyle(sizeConfig.textToken.fontWeight)
   };
   const webCursorStyle =
     Platform.OS === "web"

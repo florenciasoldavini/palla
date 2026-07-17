@@ -1,38 +1,39 @@
 const primitiveColors = {
   neutral: {
     0: "#ffffff",
-    25: "#fbf9f8",
-    50: "#f5f3f3",
-    100: "#efeded",
-    150: "#e9e8e7",
-    200: "#e4e2e2",
-    300: "#dbdad9"
+    25: "#fbf8ff",
+    50: "#f4f2fd",
+    100: "#eeedf7",
+    150: "#e8e7f1",
+    200: "#e3e1ec",
+    300: "#dad9e3"
   },
   ink: {
-    950: "#121212",
-    900: "#1b1c1c",
-    800: "#232425",
-    700: "#303031",
-    600: "#434656",
-    500: "#5f5e5e",
-    400: "#737688",
-    300: "#8d91a2",
-    200: "#c3c5d9",
-    100: "#e7e8ef",
-    50: "#f2f0f0"
+    950: "#0d0e12",
+    900: "#1a1b22",
+    800: "#2f3038",
+    700: "#3a3b43",
+    600: "#444932",
+    500: "#5e5e5e",
+    400: "#757a60",
+    300: "#9ca087",
+    200: "#c5c9ac",
+    100: "#e2e2e2",
+    50: "#f1effa"
   },
-  blue: {
-    50: "#f3f6ff",
-    100: "#e3e6ff",
-    200: "#dce1ff",
-    300: "#b6c4ff",
-    400: "#8ba4ff",
-    500: "#0055ff",
-    600: "#004dea",
-    700: "#0041c8",
-    800: "#0039b3",
-    900: "#001551",
-    950: "#000a33"
+  volt: {
+    0: "#fbffe8",
+    50: "#f7ffd5",
+    100: "#efffa8",
+    200: "#e7ff7a",
+    300: "#ddff45",
+    400: "#d4ff00",
+    500: "#b0d500",
+    600: "#8faa00",
+    700: "#6f8400",
+    800: "#536600",
+    900: "#3e4c00",
+    950: "#171e00"
   },
   error: {
     50: "#fff1ef",
@@ -107,20 +108,26 @@ const semanticColors = {
     secondary: primitiveColors.ink[600],
     muted: primitiveColors.ink[400],
     inverse: primitiveColors.ink[50],
-    accent: primitiveColors.blue[500]
+    accent: primitiveColors.volt[800]
   },
   border: {
     subtle: primitiveColors.neutral[200],
     default: primitiveColors.ink[200],
     strong: primitiveColors.ink[400],
-    accent: primitiveColors.blue[500]
+    accent: primitiveColors.volt[400]
   },
   action: {
     primary: {
-      bg: primitiveColors.blue[500],
-      bgHover: primitiveColors.blue[600],
-      bgPressed: primitiveColors.blue[700],
+      bg: primitiveColors.ink[900],
+      bgHover: primitiveColors.ink[800],
+      bgPressed: primitiveColors.ink[950],
       text: primitiveColors.neutral[0]
+    },
+    essential: {
+      bg: primitiveColors.volt[400],
+      bgHover: primitiveColors.volt[300],
+      bgPressed: primitiveColors.volt[500],
+      text: primitiveColors.volt[950]
     },
     secondary: {
       bg: primitiveColors.neutral[0],
@@ -153,106 +160,107 @@ const semanticColors = {
   },
   icon: {
     default: primitiveColors.ink[400],
-    active: primitiveColors.blue[500]
+    active: primitiveColors.volt[800]
   }
 };
 
 const fontFamilies = {
   web: {
-    sans: "Geist",
-    mono: "JetBrains Mono"
+    sans: "Hanken Grotesk",
+    mono: "Geist"
   },
   native: {
-    sans: "Geist",
-    mono: "JetBrains Mono"
+    sans: "Hanken Grotesk",
+    mono: "Geist"
   }
 };
 
 const typeScale = {
   displayXl: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 72,
-    lineHeight: 79,
-    fontWeight: "900",
-    letterSpacing: -2.88
+    fontSize: 48,
+    lineHeight: 56,
+    fontWeight: "700",
+    letterSpacing: -1.92
   },
   headlineLg: {
     fontFamily: fontFamilies.web.sans,
     fontSize: 48,
-    lineHeight: 58,
-    fontWeight: "900",
-    letterSpacing: -0.96
+    lineHeight: 56,
+    fontWeight: "700",
+    letterSpacing: -1.92
   },
   headlineLgMobile: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "900",
-    letterSpacing: -0.64
+    fontSize: 28,
+    lineHeight: 36,
+    fontWeight: "600",
+    letterSpacing: -0.56
   },
   headlineMd: {
     fontFamily: fontFamilies.web.sans,
     fontSize: 24,
-    lineHeight: 31,
-    fontWeight: "800",
+    lineHeight: 32,
+    fontWeight: "600",
     letterSpacing: -0.24
   },
   hero: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 40,
-    lineHeight: 48,
-    fontWeight: "900",
-    letterSpacing: -1
+    fontSize: 32,
+    lineHeight: 40,
+    fontWeight: "700",
+    letterSpacing: -0.8
   },
   title: {
     fontFamily: fontFamilies.web.sans,
     fontSize: 32,
-    lineHeight: 38,
-    fontWeight: "900",
-    letterSpacing: -0.8
+    lineHeight: 40,
+    fontWeight: "600",
+    letterSpacing: -0.64
   },
   section: {
     fontFamily: fontFamilies.web.sans,
     fontSize: 24,
-    lineHeight: 31,
-    fontWeight: "800",
-    letterSpacing: -0.4
+    lineHeight: 32,
+    fontWeight: "600",
+    letterSpacing: -0.24
   },
   card: {
     fontFamily: fontFamilies.web.sans,
     fontSize: 20,
-    lineHeight: 27,
-    fontWeight: "800",
-    letterSpacing: -0.2
+    lineHeight: 28,
+    fontWeight: "600",
+    letterSpacing: -0.1
   },
   bodyLg: {
     fontFamily: fontFamilies.web.sans,
     fontSize: 18,
-    lineHeight: 29,
+    lineHeight: 28,
     fontWeight: "400"
   },
   bodyMd: {
     fontFamily: fontFamilies.web.sans,
     fontSize: 16,
-    lineHeight: 26,
+    lineHeight: 24,
     fontWeight: "400"
   },
   bodySm: {
     fontFamily: fontFamilies.web.sans,
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 20,
     fontWeight: "400"
   },
   caption: {
-    fontFamily: fontFamilies.web.sans,
+    fontFamily: fontFamilies.web.mono,
     fontSize: 12,
-    lineHeight: 18,
-    fontWeight: "500"
+    lineHeight: 16,
+    fontWeight: "500",
+    letterSpacing: 0.6
   },
   meta: {
     fontFamily: fontFamilies.web.mono,
     fontSize: 12,
-    lineHeight: 18,
+    lineHeight: 16,
     fontWeight: "500"
   },
   eyebrow: {
@@ -260,22 +268,22 @@ const typeScale = {
     fontSize: 12,
     lineHeight: 16,
     fontWeight: "500",
-    letterSpacing: 1.08,
+    letterSpacing: 0.6,
     textTransform: "uppercase"
   },
   label: {
     fontFamily: fontFamilies.web.mono,
     fontSize: 14,
-    lineHeight: 18,
+    lineHeight: 20,
     fontWeight: "500",
-    letterSpacing: 0.42,
+    letterSpacing: 0.28,
     textTransform: "uppercase"
   },
   labelUi: {
-    fontFamily: fontFamilies.web.sans,
+    fontFamily: fontFamilies.web.mono,
     fontSize: 14,
-    lineHeight: 14,
-    fontWeight: "600",
+    lineHeight: 20,
+    fontWeight: "500",
     letterSpacing: 0.28
   },
   labelMono: {
@@ -286,24 +294,24 @@ const typeScale = {
     letterSpacing: 0.6
   },
   buttonSm: {
-    fontFamily: fontFamilies.web.sans,
+    fontFamily: fontFamilies.web.mono,
     fontSize: 14,
     lineHeight: 18,
-    fontWeight: "600",
+    fontWeight: "500",
     letterSpacing: 0.3
   },
   buttonMd: {
-    fontFamily: fontFamilies.web.sans,
+    fontFamily: fontFamilies.web.mono,
     fontSize: 15,
     lineHeight: 18,
-    fontWeight: "600",
+    fontWeight: "500",
     letterSpacing: 0.3
   },
   buttonLg: {
-    fontFamily: fontFamilies.web.sans,
+    fontFamily: fontFamilies.web.mono,
     fontSize: 16,
     lineHeight: 20,
-    fontWeight: "600",
+    fontWeight: "500",
     letterSpacing: 0.3
   },
   linkMono: {
@@ -368,15 +376,15 @@ const semanticSpacing = {
 
 const radius = {
   none: 0,
-  sm: 8,
+  sm: 4,
   md: 12,
-  lg: 18,
+  lg: 16,
   xl: 24,
-  full: 999
+  full: 9999
 };
 
 const layout = {
-  maxWidthContent: 1440,
+  maxWidthContent: 1200,
   maxWidthFormNative: 760,
   maxWidthFormWeb: 540,
   breakpointTablet: 768,
@@ -384,18 +392,18 @@ const layout = {
   marginDesktop: 64,
   marginTablet: 40,
   marginMobile: 20,
-  gutterDefault: 24
+  gutterDefault: 16
 };
 
 const border = {
   widthDefault: 1,
   widthStrong: 1,
-  widthFocus: 1
+  widthFocus: 2
 };
 
 const shadows = {
-  card: "0px 8px 24px rgba(27, 28, 28, 0.06)",
-  floating: "0px 20px 40px rgba(27, 28, 28, 0.08)"
+  card: "0px 1px 2px rgba(26, 27, 34, 0.04)",
+  floating: "0px 20px 40px rgba(26, 27, 34, 0.06)"
 };
 
 const motion = {
@@ -450,18 +458,18 @@ function createVarScale(prefix, scale) {
 
 const gluestackScales = {
   primary: {
-    0: "#f7f9ff",
-    50: "#edf1ff",
-    100: primitiveColors.blue[100],
-    200: primitiveColors.blue[200],
-    300: primitiveColors.blue[300],
-    400: primitiveColors.blue[400],
-    500: primitiveColors.blue[500],
-    600: primitiveColors.blue[600],
-    700: primitiveColors.blue[700],
-    800: primitiveColors.blue[800],
-    900: primitiveColors.blue[900],
-    950: primitiveColors.blue[950]
+    0: primitiveColors.volt[0],
+    50: primitiveColors.volt[50],
+    100: primitiveColors.volt[100],
+    200: primitiveColors.volt[200],
+    300: primitiveColors.volt[300],
+    400: primitiveColors.volt[400],
+    500: primitiveColors.volt[800],
+    600: primitiveColors.volt[700],
+    700: primitiveColors.volt[900],
+    800: primitiveColors.ink[900],
+    900: primitiveColors.ink[950],
+    950: primitiveColors.volt[950]
   },
   secondary: {
     0: primitiveColors.neutral[0],
@@ -471,25 +479,25 @@ const gluestackScales = {
     300: primitiveColors.neutral[150],
     400: primitiveColors.neutral[200],
     500: primitiveColors.neutral[300],
-    600: "#cbc9c8",
-    700: "#b7b5b4",
-    800: "#a3a1a0",
-    900: "#8f8d8c",
-    950: "#7b7978"
+    600: "#c6c6c6",
+    700: "#a8a8a8",
+    800: "#7f7f7f",
+    900: primitiveColors.ink[500],
+    950: primitiveColors.ink[900]
   },
   tertiary: {
-    0: "#f3f4f6",
-    50: "#eaebee",
-    100: "#d7dae1",
-    200: "#c3c5d9",
-    300: "#a8abb8",
-    400: "#8d91a2",
-    500: primitiveColors.ink[400],
-    600: primitiveColors.ink[600],
-    700: primitiveColors.ink[500],
-    800: primitiveColors.ink[700],
-    900: primitiveColors.ink[900],
-    950: primitiveColors.ink[950]
+    0: "#f5fbff",
+    50: "#edf8fd",
+    100: "#d8f2ff",
+    200: "#cde7f3",
+    300: "#b1cad7",
+    400: "#8ba4af",
+    500: "#6d858f",
+    600: "#576f7a",
+    700: "#4a626d",
+    800: "#324a54",
+    900: "#17323d",
+    950: "#041e28"
   },
   error: primitiveColors.error,
   success: primitiveColors.success,
@@ -555,7 +563,7 @@ const gluestackThemeVarsLight = {
   "--color-background-success": hexToRgbChannels(semanticColors.bg.success),
   "--color-background-muted": hexToRgbChannels(semanticColors.bg.muted),
   "--color-background-info": hexToRgbChannels(semanticColors.bg.info),
-  "--color-indicator-primary": hexToRgbChannels(primitiveColors.blue[500]),
+  "--color-indicator-primary": hexToRgbChannels(primitiveColors.volt[400]),
   "--color-indicator-info": hexToRgbChannels(primitiveColors.info[500]),
   "--color-indicator-error": hexToRgbChannels(primitiveColors.error[500])
 };

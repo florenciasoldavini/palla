@@ -134,7 +134,7 @@ function getTextAreaBorderColor({
   }
 
   if (isFocused) {
-    return atomPalette.accent;
+    return atomPalette.focus;
   }
 
   if (isHovered) {

@@ -26,7 +26,8 @@ const toneStyles: Record<CardTone, ViewStyle> = {
   },
   raised: {
     backgroundColor: atomPalette.surfaceRaised,
-    borderColor: atomPalette.border
+    borderColor: atomPalette.border,
+    boxShadow: "0 8px 24px rgba(26, 27, 34, 0.05)"
   },
   inverse: {
     backgroundColor: atomPalette.text,
@@ -59,6 +60,7 @@ export function AppCard({
       style={StyleSheet.flatten([
         {
           borderRadius: atomCardRadius,
+          borderCurve: "continuous",
           overflow: "hidden"
         },
         toneStyles[tone],

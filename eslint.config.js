@@ -6,7 +6,7 @@ module.exports = defineConfig([
   expoConfig,
   eslintPluginPrettierRecommended,
   {
-    ignores: ["dist/*", "supabase/functions/**"]
+    ignores: ["dist/*", "expo-env.d.ts", "supabase/functions/**"]
   },
   {
     files: ["components/ui/**/*"],
@@ -21,6 +21,7 @@ module.exports = defineConfig([
     }
   },
   {
+    files: ["**/*.{ts,tsx}"],
     rules: {
       "react/no-unescaped-entities": "off",
       "@typescript-eslint/no-unused-vars": [

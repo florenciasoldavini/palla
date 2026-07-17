@@ -94,13 +94,13 @@ export default function VerifyEmailScreen() {
   const resendLabel =
     cooldownSeconds > 0
       ? `Resend in ${cooldownSeconds}s`
-      : "Resend Verification Link";
+      : "Resend verification link";
 
   return (
     <AuthShell
       description="Confirm your email address before entering Palla."
-      panelTag="Access / Verify Email"
-      title="Check Your Email"
+      panelTag="One last step"
+      title="Check your email"
     >
       <View style={{ gap: atomSpacing[6] }}>
         <View style={{ gap: atomSpacing[3] }}>
@@ -156,7 +156,7 @@ export default function VerifyEmailScreen() {
           <AppText style={{ textAlign: "center" }} tone="muted">
             Already verified it?
           </AppText>
-          <AppLink href="/sign-in">Sign In</AppLink>
+          <AppLink href="/sign-in">Sign in</AppLink>
         </View>
       </View>
     </AuthShell>

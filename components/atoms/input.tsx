@@ -198,8 +198,8 @@ export function TextField({
           pointerEvents="none"
           style={[
             {
-              backgroundColor: `${atomPalette.accent}05`,
-              borderColor: `${atomPalette.accent}24`,
+              backgroundColor: `${atomPalette.focus}08`,
+              borderColor: `${atomPalette.focus}55`,
               borderRadius: config.radius + 2,
               borderWidth: 1,
               bottom: -2,
@@ -654,7 +654,7 @@ function getFieldBorderColor({
   }
 
   if (isFocused) {
-    return atomPalette.accent;
+    return atomPalette.focus;
   }
 
   if (isHovered) {
@@ -684,7 +684,7 @@ function getFieldIconColor({
   }
 
   if (isFocused) {
-    return atomPalette.accent;
+    return atomPalette.focus;
   }
 
   if (isHovered) {

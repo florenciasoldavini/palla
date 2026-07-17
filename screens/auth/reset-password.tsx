@@ -157,8 +157,8 @@ export default function ResetPasswordScreen() {
           ? "Set a new password for your account."
           : "Request a secure reset link."
       }
-      panelTag={mode === "update" ? "Recovery / Update" : "Recovery / Request"}
-      title={mode === "update" ? "Update Your Password" : "Reset Your Password"}
+      panelTag={mode === "update" ? "Secure your account" : "Account recovery"}
+      title={mode === "update" ? "Update your password" : "Reset your password"}
     >
       <View style={{ gap: atomSpacing[6] }}>
         <View style={{ gap: atomSpacing[4] }}>
@@ -184,7 +184,7 @@ export default function ResetPasswordScreen() {
                     field.onChange(value);
                     setFormError(null);
                   }}
-                  placeholder="name@company.com"
+                  placeholder="player@example.com"
                   required
                   size={authFieldSize}
                   type="text"

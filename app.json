@@ -42,10 +42,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76,
-          "resizeMode": "contain",
-          "backgroundColor": "#F7F6F2"
+          "backgroundColor": "#FBF8FF"
         }
       ],
       [
@@ -60,31 +57,14 @@
         "expo-font",
         {
           "fonts": [
-            "./assets/fonts/Geist-Black.ttf",
+            "./assets/fonts/HankenGrotesk-Regular.ttf",
+            "./assets/fonts/HankenGrotesk-Medium.ttf",
+            "./assets/fonts/HankenGrotesk-SemiBold.ttf",
+            "./assets/fonts/HankenGrotesk-Bold.ttf",
             "./assets/fonts/Geist-Bold.ttf",
-            "./assets/fonts/Geist-ExtraBold.ttf",
-            "./assets/fonts/Geist-ExtraLight.ttf",
-            "./assets/fonts/Geist-Light.ttf",
             "./assets/fonts/Geist-Medium.ttf",
             "./assets/fonts/Geist-Regular.ttf",
-            "./assets/fonts/Geist-SemiBold.ttf",
-            "./assets/fonts/Geist-Thin.ttf",
-            "./assets/fonts/JetBrainsMono-Bold.ttf",
-            "./assets/fonts/JetBrainsMono-BoldItalic.ttf",
-            "./assets/fonts/JetBrainsMono-ExtraBold.ttf",
-            "./assets/fonts/JetBrainsMono-ExtraBoldItalic.ttf",
-            "./assets/fonts/JetBrainsMono-ExtraLight.ttf",
-            "./assets/fonts/JetBrainsMono-ExtraLightItalic.ttf",
-            "./assets/fonts/JetBrainsMono-Italic.ttf",
-            "./assets/fonts/JetBrainsMono-Light.ttf",
-            "./assets/fonts/JetBrainsMono-LightItalic.ttf",
-            "./assets/fonts/JetBrainsMono-Medium.ttf",
-            "./assets/fonts/JetBrainsMono-MediumItalic.ttf",
-            "./assets/fonts/JetBrainsMono-Regular.ttf",
-            "./assets/fonts/JetBrainsMono-SemiBold.ttf",
-            "./assets/fonts/JetBrainsMono-SemiBoldItalic.ttf",
-            "./assets/fonts/JetBrainsMono-Thin.ttf",
-            "./assets/fonts/JetBrainsMono-ThinItalic.ttf"
+            "./assets/fonts/Geist-SemiBold.ttf"
           ]
         }
       ]

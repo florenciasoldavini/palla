@@ -5,6 +5,7 @@ import {
   AppText,
   Screen
 } from "@/components/atoms";
+import { PallaWordmark } from "@/components/brand/palla-wordmark";
 import {
   atomControlHeights,
   atomControlRadius,
@@ -29,7 +30,7 @@ const palette = {
   inverseOnSurface: atomPalette.textInverse,
   outline: atomPalette.borderStrong,
   outlineVariant: atomPalette.border,
-  primary: atomPalette.accent,
+  primary: atomPalette.brand,
   inversePrimary: atomPalette.accentHover,
   onPrimary: atomPalette.accentText
 } as const;
@@ -142,7 +143,7 @@ export function AuthShell({
   title,
   description,
   hidePanelHeader = false,
-  panelTag = "Access / Palla"
+  panelTag = "Member access"
 }: {
   children: ReactNode;
   description: string;
@@ -156,10 +157,12 @@ export function AuthShell({
       <View
         style={{
           alignSelf: "center",
+          gap: atomSpacing[5],
           maxWidth: authCardMaxWidth,
           width: "100%"
         }}
       >
+        <PallaWordmark compact />
         <AppCard
           padding="md"
           style={{
@@ -180,7 +183,7 @@ export function AuthShell({
               <HStack className="items-center justify-between gap-3">
                 <MonoLabel>{panelTag}</MonoLabel>
                 <AppText tone="subtle" variant="meta">
-                  SYSTEM / ENTRY
+                  SOCIAL PADEL
                 </AppText>
               </HStack>
             </View>
@@ -193,8 +196,9 @@ export function AuthShell({
               <View
                 style={{
                   backgroundColor: palette.primary,
-                  height: 2,
-                  width: atomSpacing[24]
+                  borderRadius: atomRadii.full,
+                  height: 4,
+                  width: atomSpacing[12]
                 }}
               />
               <View>{children}</View>

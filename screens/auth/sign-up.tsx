@@ -30,16 +30,15 @@ import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 
 const googleLogo = require("@/assets/images/auth/google-logo.png");
-const appleLogo = require("@/assets/images/auth/apple-logo.png");
 
 export default function SignUpScreen() {
   const router = useRouter();
   const { authError } = useContext(AuthContext);
   const [formError, setFormError] = useState<string | null>(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [loadingAction, setLoadingAction] = useState<
-    "apple" | "email" | "google" | null
-  >(null);
+  const [loadingAction, setLoadingAction] = useState<"email" | "google" | null>(
+    null
+  );
   const form = useForm<EmailSignupInput>({
     defaultValues: {
       email: "",
@@ -105,11 +104,11 @@ export default function SignUpScreen() {
     }
   });
 
-  async function signUpWithProvider(provider: "apple" | "google") {
+  async function signUpWithGoogle() {
     try {
-      setLoadingAction(provider);
+      setLoadingAction("google");
       setFormError(null);
-      await startOAuthSignIn(provider);
+      await startOAuthSignIn("google");
     } catch (error) {
       const message = getSupabaseErrorMessage(error);
       setFormError(message);
@@ -121,8 +120,8 @@ export default function SignUpScreen() {
   return (
     <AuthShell
       description="Create your Palla account."
-      panelTag="Access / New Session"
-      title="Create Account"
+      panelTag="Join the community"
+      title="Create your account"
     >
       <View style={{ gap: atomSpacing[6] }}>
         {authError ? (
@@ -144,24 +143,7 @@ export default function SignUpScreen() {
               isDisabled={isBusy}
               layout="icon"
               loading={loadingAction === "google"}
-              onPress={() => {
-                void signUpWithProvider("google");
-              }}
-              shape="pill"
-              size={authSocialButtonSize}
-              color="neutral"
-              variant="bordered"
-            />
-            <AppButton
-              accessibilityLabel="Continue with Apple"
-              fullWidth={false}
-              imageSource={appleLogo}
-              isDisabled={isBusy}
-              layout="icon"
-              loading={loadingAction === "apple"}
-              onPress={() => {
-                void signUpWithProvider("apple");
-              }}
+              onPress={() => void signUpWithGoogle()}
               shape="pill"
               size={authSocialButtonSize}
               color="neutral"
@@ -187,7 +169,7 @@ export default function SignUpScreen() {
                   field.onChange(value);
                   setFormError(null);
                 }}
-                placeholder="name@company.com"
+                placeholder="player@example.com"
                 required
                 size={authFieldSize}
                 type="text"

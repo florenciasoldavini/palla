@@ -2,9 +2,10 @@ import {
   canFinishSplash,
   getSplashFadeDuration
 } from "@/components/splash/splash-state";
+import { PallaWordmark } from "@/components/brand/palla-wordmark";
+import { atomPalette } from "@/components/atoms/theme";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Text } from "react-native";
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -77,7 +78,7 @@ export function AnimatedSplash({ appReady, onFinish }: AnimatedSplashProps) {
       style={[
         {
           alignItems: "center",
-          backgroundColor: "#F7F6F2",
+          backgroundColor: atomPalette.background,
           bottom: 0,
           justifyContent: "center",
           left: 0,
@@ -90,16 +91,7 @@ export function AnimatedSplash({ appReady, onFinish }: AnimatedSplashProps) {
       ]}
     >
       <Animated.View style={contentStyle}>
-        <Text
-          style={{
-            color: "#171717",
-            fontFamily: "Geist-SemiBold",
-            fontSize: 42,
-            letterSpacing: -1.5
-          }}
-        >
-          Palla
-        </Text>
+        <PallaWordmark />
       </Animated.View>
     </Animated.View>
   );

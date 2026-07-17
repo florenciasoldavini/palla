@@ -19,10 +19,10 @@ type WelcomeToPallaEmailProps = {
 };
 
 const body = {
-  backgroundColor: "#fbf9f8",
-  color: "#1b1c1c",
+  backgroundColor: "#fbf8ff",
+  color: "#1a1b22",
   fontFamily:
-    "Geist, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    "'Hanken Grotesk', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   margin: "0",
   padding: "0"
 };
@@ -34,24 +34,24 @@ const page = {
 };
 
 const wordmark = {
-  color: "#737688",
-  fontFamily: "'JetBrains Mono', 'SFMono-Regular', Consolas, monospace",
-  fontSize: "12px",
-  letterSpacing: "0.08em",
+  color: "#1a1b22",
+  fontSize: "18px",
+  fontWeight: "800",
+  letterSpacing: "-0.02em",
   margin: "0 0 20px",
   textTransform: "uppercase" as const
 };
 
 const card = {
   backgroundColor: "#ffffff",
-  border: "1px solid #e4e2e2",
-  borderRadius: "18px",
+  border: "1px solid #e3e1ec",
+  borderRadius: "24px",
   padding: "32px"
 };
 
 const eyebrow = {
-  color: "#0055ff",
-  fontFamily: "'JetBrains Mono', 'SFMono-Regular', Consolas, monospace",
+  color: "#536600",
+  fontFamily: "Geist, Inter, -apple-system, BlinkMacSystemFont, sans-serif",
   fontSize: "12px",
   letterSpacing: "0.08em",
   margin: "0 0 12px",
@@ -59,7 +59,7 @@ const eyebrow = {
 };
 
 const heading = {
-  color: "#121212",
+  color: "#1a1b22",
   fontSize: "28px",
   fontWeight: "800",
   lineHeight: "1.18",
@@ -67,7 +67,7 @@ const heading = {
 };
 
 const paragraph = {
-  color: "#434656",
+  color: "#43444c",
   fontSize: "16px",
   lineHeight: "1.6",
   margin: "0 0 18px"
@@ -79,8 +79,8 @@ const ctaWrap = {
 };
 
 const cta = {
-  backgroundColor: "#0055ff",
-  borderRadius: "12px",
+  backgroundColor: "#1a1b22",
+  borderRadius: "16px",
   color: "#ffffff",
   display: "inline-block",
   fontSize: "15px",
@@ -90,19 +90,19 @@ const cta = {
 };
 
 const divider = {
-  borderColor: "#efeded",
+  borderColor: "#e3e1ec",
   margin: "28px 0 20px"
 };
 
 const fallbackLabel = {
-  color: "#737688",
+  color: "#757a60",
   fontSize: "13px",
   lineHeight: "1.5",
   margin: "0 0 8px"
 };
 
 const fallbackUrl = {
-  color: "#434656",
+  color: "#43444c",
   fontSize: "12px",
   lineHeight: "1.5",
   margin: "0",
@@ -110,7 +110,7 @@ const fallbackUrl = {
 };
 
 const footer = {
-  color: "#737688",
+  color: "#757a60",
   fontSize: "12px",
   lineHeight: "1.5",
   margin: "20px 0 0",

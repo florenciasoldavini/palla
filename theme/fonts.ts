@@ -15,19 +15,21 @@ export const fontFamilies = {
 } as const;
 
 const nativeSansFamilies = {
-  "400": "Geist-Regular",
-  "500": "Geist-Medium",
-  "600": "Geist-SemiBold",
-  "800": "Geist-Bold",
-  "900": "Geist-Black"
+  "400": "HankenGrotesk-Regular",
+  "500": "HankenGrotesk-Medium",
+  "600": "HankenGrotesk-SemiBold",
+  "700": "HankenGrotesk-Bold",
+  "800": "HankenGrotesk-Bold",
+  "900": "HankenGrotesk-Bold"
 } as const;
 
 const nativeMonoFamilies = {
-  "400": "JetBrainsMono-Regular",
-  "500": "JetBrainsMono-Medium",
-  "600": "JetBrainsMono-SemiBold",
-  "800": "JetBrainsMono-Bold",
-  "900": "JetBrainsMono-Bold"
+  "400": "Geist-Regular",
+  "500": "Geist-Medium",
+  "600": "Geist-SemiBold",
+  "700": "Geist-Bold",
+  "800": "Geist-Bold",
+  "900": "Geist-Bold"
 } as const;
 
 type SansWeight = keyof typeof nativeSansFamilies;

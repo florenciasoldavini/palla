@@ -600,7 +600,7 @@ function AvatarPicker({
         <CameraIcon color={atomPalette.textSubtle} size="lg" />
       )}
       <View style={profileStyles.avatarPickerBadge}>
-        <CameraIcon color={atomPalette.accentText} size="sm" />
+        <CameraIcon color={atomPalette.brandText} size="sm" />
       </View>
     </Pressable>
   );
@@ -624,7 +624,7 @@ const profileStyles = StyleSheet.create({
   },
   avatarPickerBadge: {
     alignItems: "center",
-    backgroundColor: atomPalette.accent,
+    backgroundColor: atomPalette.brand,
     borderColor: atomPalette.surface,
     borderRadius: atomRadii.full,
     borderWidth: 2,

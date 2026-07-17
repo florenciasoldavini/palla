@@ -31,16 +31,15 @@ import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 
 const googleLogo = require("@/assets/images/auth/google-logo.png");
-const appleLogo = require("@/assets/images/auth/apple-logo.png");
 
 export default function SignInScreen() {
   const router = useRouter();
   const { authError } = useContext(AuthContext);
   const [formError, setFormError] = useState<string | null>(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [loadingAction, setLoadingAction] = useState<
-    "apple" | "email" | "google" | null
-  >(null);
+  const [loadingAction, setLoadingAction] = useState<"email" | "google" | null>(
+    null
+  );
   const form = useForm<LoginInput>({
     defaultValues: {
       email: "",
@@ -97,11 +96,11 @@ export default function SignInScreen() {
     }
   });
 
-  async function signInWithProvider(provider: "apple" | "google") {
+  async function signInWithGoogle() {
     try {
-      setLoadingAction(provider);
+      setLoadingAction("google");
       setFormError(null);
-      await startOAuthSignIn(provider);
+      await startOAuthSignIn("google");
     } catch (error) {
       const message = getSupabaseErrorMessage(error);
       setFormError(message);
@@ -113,8 +112,8 @@ export default function SignInScreen() {
   return (
     <AuthShell
       description="Access your Palla account."
-      panelTag="Access / Sign In"
-      title="Welcome Back"
+      panelTag="Player access"
+      title="Welcome back"
     >
       <View style={{ gap: atomSpacing[6] }}>
         {authError ? (
@@ -136,24 +135,7 @@ export default function SignInScreen() {
               isDisabled={isBusy}
               layout="icon"
               loading={loadingAction === "google"}
-              onPress={() => {
-                void signInWithProvider("google");
-              }}
-              shape="pill"
-              size={authSocialButtonSize}
-              color="neutral"
-              variant="bordered"
-            />
-            <AppButton
-              accessibilityLabel="Continue with Apple"
-              fullWidth={false}
-              imageSource={appleLogo}
-              isDisabled={isBusy}
-              layout="icon"
-              loading={loadingAction === "apple"}
-              onPress={() => {
-                void signInWithProvider("apple");
-              }}
+              onPress={() => void signInWithGoogle()}
               shape="pill"
               size={authSocialButtonSize}
               color="neutral"
@@ -234,7 +216,7 @@ export default function SignInScreen() {
             }}
             size={authFieldSize}
           >
-            Sign In
+            Sign in
           </AppButton>
           {formError ? (
             <FieldMessage tone="error">{formError}</FieldMessage>
@@ -242,9 +224,9 @@ export default function SignInScreen() {
         </View>
 
         <AuthFooterLink
-          actionLabel="Create an Account"
+          actionLabel="Create an account"
           href="/sign-up"
-          prompt="New to the platform?"
+          prompt="New to Palla?"
         />
       </View>
     </AuthShell>
