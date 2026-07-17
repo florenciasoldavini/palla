@@ -12,7 +12,7 @@ The application supports iOS, Android, and static web output from the same Expo 
 - React Hook Form and Zod for forms
 - NativeWind and Gluestack-based reusable UI primitives
 - SecureStore-backed native sessions
-- Expo Notifications, Sentry, and PostHog dependencies
+- Expo Notifications and Sentry dependencies
 - Vitest-ready unit testing and Supabase database test structure
 - EAS build profiles, Vercel static web output, environment synchronization, CI, ESLint, and Prettier
 
@@ -60,4 +60,4 @@ Routes are separated into `(auth)`, `(player)`, and `(organizer)` groups. Busine
 
 Development, preview, and production values are described in `env-sync.config.json`. `.env.local` is ignored and remains the local source of truth. Regenerate `.env.example` with `npm run env:example`.
 
-No production Supabase, EAS, Vercel, Sentry, or PostHog project identifiers are committed.
+No production Supabase, EAS, Vercel, or Sentry project identifiers are committed.

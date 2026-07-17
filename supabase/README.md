@@ -2,7 +2,7 @@
 
 Palla uses Supabase for authentication, PostgreSQL, Row Level Security, Realtime, Storage, and Edge Functions.
 
-The imported foundation contains only the reusable user profile/auth bootstrap, its owner-scoped avatar storage policies, and the welcome-email workflow. It does not contain Palla session, registration, cancellation, waitlist, attendance, payment, notification, or review tables.
+No database schema is defined yet. The welcome-email Edge Function is retained for future use and requires the eventual user profile schema to include a nullable `welcome_email_sent_at` timestamp.
 
 Add product schema through feature-specific migrations only when each feature is implemented. Every table in an exposed schema must enable RLS and include authorization tests.
 

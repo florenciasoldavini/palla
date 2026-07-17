@@ -15,7 +15,7 @@ Primary user modes are player, organizer, and unauthenticated explorer. Web redu
 - TanStack Query for server state
 - React Hook Form with Zod for production forms
 - NativeWind and the reusable UI primitives under `components/`
-- Expo SecureStore, Expo Notifications, Sentry, and PostHog
+- Expo SecureStore, Expo Notifications, and Sentry
 - npm, ESLint, Prettier, and Vitest
 
 ## Architecture

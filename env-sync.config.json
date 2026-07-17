@@ -44,26 +44,6 @@
         "visibility": "plaintext"
       }
     },
-    "EXPO_PUBLIC_POSTHOG_KEY": {
-      "example": "phc_your_project_key",
-      "vercel": {
-        "environments": ["development", "preview", "production"]
-      },
-      "eas": {
-        "environments": ["development", "preview", "production"],
-        "visibility": "plaintext"
-      }
-    },
-    "EXPO_PUBLIC_POSTHOG_HOST": {
-      "example": "https://us.i.posthog.com",
-      "vercel": {
-        "environments": ["development", "preview", "production"]
-      },
-      "eas": {
-        "environments": ["development", "preview", "production"],
-        "visibility": "plaintext"
-      }
-    },
     "EXPO_PUBLIC_APP_ENV": {
       "section": "Runtime",
       "comment": "Distinguishes development, preview, and production telemetry.",

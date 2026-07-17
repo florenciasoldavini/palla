@@ -93,7 +93,10 @@
       "typedRoutes": true
     },
     "extra": {
-      "router": {}
+      "router": {},
+      "eas": {
+        "projectId": "96d4f9c0-039c-4a09-9e0a-1626afbcf9cd"
+      }
     },
     "owner": "florenciasoldavini"
   }
