@@ -1,5 +1,5 @@
 import { atomPalette, atomTypeScale } from "@/components/atoms/theme";
-import { getMonoFontStyle } from "@/theme/fonts";
+import { getSansFontStyle } from "@/theme/fonts";
 import { Link, type LinkProps } from "expo-router";
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -53,7 +53,7 @@ export function AppLink({
                 letterSpacing: linkToken.letterSpacing,
                 textDecorationLine: isHovered || pressed ? "underline" : "none",
                 textTransform: linkToken.textTransform,
-                ...getMonoFontStyle(linkToken.fontWeight)
+                ...getSansFontStyle(linkToken.fontWeight)
               } as TextStyle,
               style
             ]}

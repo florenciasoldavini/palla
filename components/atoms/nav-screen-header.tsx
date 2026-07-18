@@ -1,4 +1,3 @@
-import { Breadcrumb } from "@/components/atoms/breadcrumb";
 import { AppHeading } from "@/components/atoms/heading";
 import { AppText } from "@/components/atoms/text";
 import { atomSpacing } from "@/components/atoms/theme";
@@ -18,10 +17,11 @@ export function NavScreenHeader({
 }) {
   return (
     <View style={[{ gap: atomSpacing[3] }, style]}>
-      <Breadcrumb
-        items={[{ label: breadcrumbLabel ?? title }]}
-        showTrailingSeparator
-      />
+      {breadcrumbLabel ? (
+        <AppText tone="accent" variant="label">
+          {breadcrumbLabel}
+        </AppText>
+      ) : null}
       <AppHeading variant="hero">{title}</AppHeading>
       {typeof description === "string" ? (
         <AppText tone="muted">{description}</AppText>

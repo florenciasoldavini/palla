@@ -121,29 +121,22 @@ export default function SignInScreen() {
         ) : null}
 
         <View style={{ gap: authFormStackGap }}>
-          <View
-            style={{
-              flexDirection: "row",
-              gap: atomSpacing[3],
-              justifyContent: "center"
-            }}
-          >
+          <View style={{ gap: atomSpacing[3] }}>
             <AppButton
               accessibilityLabel="Continue with Google"
-              fullWidth={false}
               imageSource={googleLogo}
               isDisabled={isBusy}
-              layout="icon"
               loading={loadingAction === "google"}
               onPress={() => void signInWithGoogle()}
-              shape="pill"
               size={authSocialButtonSize}
               color="neutral"
               variant="bordered"
-            />
+            >
+              Continue with Google
+            </AppButton>
           </View>
 
-          <AuthDivider label="OR CONTINUE WITH EMAIL" />
+          <AuthDivider label="or continue with email" />
 
           <Controller
             control={control}
@@ -154,7 +147,7 @@ export default function SignInScreen() {
                 autoComplete="email"
                 errorText={fieldState.error?.message}
                 keyboardType="email-address"
-                label="Email Address"
+                label="Email address"
                 leftIcon={AtSignIcon}
                 onBlur={field.onBlur}
                 onChangeText={(value) => {
@@ -180,7 +173,7 @@ export default function SignInScreen() {
                 autoCapitalize="none"
                 autoComplete="password"
                 errorText={fieldState.error?.message}
-                label="Secure Password"
+                label="Password"
                 leftIcon={LockIcon}
                 onBlur={field.onBlur}
                 onChangeText={(value) => {

@@ -11,10 +11,8 @@ import {
   atomControlRadius,
   atomLayout,
   atomPalette,
-  atomRadii,
   atomSpacing
 } from "@/components/atoms/theme";
-import { HStack } from "@/components/ui/hstack";
 import type { LinkProps } from "expo-router";
 import type { ReactNode } from "react";
 import { Platform, View } from "react-native";
@@ -39,14 +37,6 @@ export const authCardMaxWidth = Platform.select({
   default: atomLayout.maxWidthFormNative,
   web: 440
 });
-
-function MonoLabel({ children }: { children: ReactNode }) {
-  return (
-    <AppText tone="muted" variant="eyebrow">
-      {children}
-    </AppText>
-  );
-}
 
 export function AuthStatusMessage({
   children,
@@ -113,10 +103,7 @@ export function AuthFooterLink({
   return (
     <View
       style={{
-        borderTopColor: authPalette.outlineVariant,
-        borderTopWidth: 1,
-        marginTop: atomSpacing[2],
-        paddingTop: atomSpacing[5]
+        paddingTop: atomSpacing[2]
       }}
     >
       <View
@@ -153,77 +140,47 @@ export function AuthShell({
   title: string;
 }) {
   return (
-    <Screen centered keyboardSafe>
+    <Screen
+      keyboardSafe
+      contentContainerStyle={{ paddingBottom: atomSpacing[8] }}
+    >
       <View
         style={{
           alignSelf: "center",
-          gap: atomSpacing[5],
+          gap: atomSpacing[8],
           maxWidth: authCardMaxWidth,
           width: "100%"
         }}
       >
         <PallaWordmark compact />
-        <AppCard
-          padding="md"
-          style={{
-            borderRadius: authCardRadius,
-            padding: 0,
-            width: "100%"
-          }}
-        >
-          {hidePanelHeader ? null : (
-            <View
-              style={{
-                borderBottomColor: palette.outlineVariant,
-                borderBottomWidth: 1,
-                paddingHorizontal: atomSpacing[5],
-                paddingVertical: atomSpacing[3]
-              }}
-            >
-              <HStack className="items-center justify-between gap-3">
-                <MonoLabel>{panelTag}</MonoLabel>
-                <AppText tone="subtle" variant="meta">
-                  SOCIAL PADEL
-                </AppText>
-              </HStack>
-            </View>
-          )}
-          <View style={{ padding: atomSpacing[5] }}>
-            <View style={{ gap: atomSpacing[4] }}>
-              {eyebrow ? <MonoLabel>{eyebrow}</MonoLabel> : null}
-              <AppHeading variant="title">{title}</AppHeading>
-              <AppText tone="muted">{description}</AppText>
-              <View
-                style={{
-                  backgroundColor: palette.primary,
-                  borderRadius: atomRadii.full,
-                  height: 4,
-                  width: atomSpacing[12]
-                }}
-              />
-              <View>{children}</View>
-            </View>
-          </View>
-        </AppCard>
+        <View style={{ gap: atomSpacing[3] }}>
+          {!hidePanelHeader ? (
+            <AppText tone="accent" variant="label">
+              {panelTag}
+            </AppText>
+          ) : null}
+          {eyebrow ? (
+            <AppText tone="accent" variant="label">
+              {eyebrow}
+            </AppText>
+          ) : null}
+          <AppHeading variant="title">{title}</AppHeading>
+          <AppText tone="muted">{description}</AppText>
+        </View>
+        <View>{children}</View>
       </View>
     </Screen>
   );
 }
 
 export const authPalette = palette;
-export const authCardRadius = atomRadii.xl;
+export const authCardRadius = atomControlRadius;
 export const authControlHeight = atomControlHeights.lg;
 export const authControlRadius = atomControlRadius;
-export const authFormStackGap = atomSpacing[6];
+export const authFormStackGap = atomSpacing[4];
 export const authFormControlSize = Platform.select({
   default: "lg",
   web: "sm"
 }) as "sm" | "lg";
-export const authFieldSize = Platform.select({
-  default: "lg",
-  web: "md"
-}) as "md" | "lg";
-export const authSocialButtonSize = Platform.select({
-  default: "iconLg",
-  web: "md"
-}) as "md" | "iconLg";
+export const authFieldSize = "lg" as const;
+export const authSocialButtonSize = "lg" as const;

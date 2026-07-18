@@ -36,9 +36,9 @@ const toneStyles: Record<CardTone, ViewStyle> = {
 };
 
 const paddingStyles: Record<CardPadding, ViewStyle> = {
-  sm: { padding: atomSpacing[4] },
-  md: { padding: atomSpacing[5] },
-  lg: { padding: atomSpacing[6] }
+  sm: { padding: atomSpacing[3] },
+  md: { padding: atomSpacing[4] },
+  lg: { padding: atomSpacing[5] }
 };
 
 export function AppCard({

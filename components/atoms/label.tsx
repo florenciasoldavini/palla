@@ -28,11 +28,11 @@ export function FieldLabel({
           gap: atomSpacing[1]
         }}
       >
-        <AppText tone="subtle" variant="formLabel">
+        <AppText tone="muted" variant="formLabel">
           {children}
         </AppText>
         {!required ? (
-          <AppText tone="subtle" variant="formLabel" style={{ opacity: 0.72 }}>
+          <AppText tone="subtle" variant="formLabel">
             (optional)
           </AppText>
         ) : null}

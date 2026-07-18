@@ -42,10 +42,13 @@ const variantStyles: Record<TextVariant, TextStyle> = {
   bodySm: sansTypeStyle("bodySm"),
   caption: sansTypeStyle("caption"),
   formLabel: {
-    ...monoTypeStyle("labelMono"),
-    textTransform: "uppercase"
+    ...sansTypeStyle("bodySm"),
+    fontWeight: "500"
   },
-  label: monoTypeStyle("label"),
+  label: {
+    ...sansTypeStyle("bodySm"),
+    fontWeight: "600"
+  },
   meta: monoTypeStyle("meta"),
   eyebrow: monoTypeStyle("eyebrow")
 };

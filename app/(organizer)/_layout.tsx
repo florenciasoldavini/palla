@@ -5,6 +5,7 @@ export default function OrganizerLayout() {
     <Stack
       screenOptions={{
         headerBackButtonDisplayMode: "minimal",
+        headerShown: false,
         headerShadowVisible: false
       }}
     >

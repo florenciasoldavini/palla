@@ -206,31 +206,31 @@ const typeScale = {
   },
   hero: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: "700",
     letterSpacing: -0.8
   },
   title: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 32,
-    lineHeight: 40,
-    fontWeight: "600",
-    letterSpacing: -0.64
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: "700",
+    letterSpacing: -0.56
   },
   section: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: "600",
-    letterSpacing: -0.24
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: "700",
+    letterSpacing: -0.2
   },
   card: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: "600",
-    letterSpacing: -0.1
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: "700",
+    letterSpacing: -0.08
   },
   bodyLg: {
     fontFamily: fontFamilies.web.sans,
@@ -240,87 +240,85 @@ const typeScale = {
   },
   bodyMd: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 22,
     fontWeight: "400"
   },
   bodySm: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: "400"
   },
   caption: {
-    fontFamily: fontFamilies.web.mono,
+    fontFamily: fontFamilies.web.sans,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: "500",
-    letterSpacing: 0.6
+    letterSpacing: 0
   },
   meta: {
     fontFamily: fontFamilies.web.mono,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 11,
+    lineHeight: 15,
     fontWeight: "500"
   },
   eyebrow: {
     fontFamily: fontFamilies.web.mono,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 11,
+    lineHeight: 15,
     fontWeight: "500",
-    letterSpacing: 0.6,
+    letterSpacing: 0.4,
     textTransform: "uppercase"
   },
   label: {
-    fontFamily: fontFamilies.web.mono,
-    fontSize: 14,
-    lineHeight: 20,
+    fontFamily: fontFamilies.web.sans,
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: "500",
-    letterSpacing: 0.28,
-    textTransform: "uppercase"
+    letterSpacing: 0
   },
   labelUi: {
-    fontFamily: fontFamilies.web.mono,
-    fontSize: 14,
-    lineHeight: 20,
+    fontFamily: fontFamilies.web.sans,
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: "500",
-    letterSpacing: 0.28
+    letterSpacing: 0
   },
   labelMono: {
-    fontFamily: fontFamilies.web.mono,
-    fontSize: 12,
-    lineHeight: 12,
-    fontWeight: "500",
-    letterSpacing: 0.6
-  },
-  buttonSm: {
-    fontFamily: fontFamilies.web.mono,
-    fontSize: 14,
-    lineHeight: 18,
-    fontWeight: "500",
-    letterSpacing: 0.3
-  },
-  buttonMd: {
-    fontFamily: fontFamilies.web.mono,
-    fontSize: 15,
-    lineHeight: 18,
-    fontWeight: "500",
-    letterSpacing: 0.3
-  },
-  buttonLg: {
-    fontFamily: fontFamilies.web.mono,
-    fontSize: 16,
-    lineHeight: 20,
-    fontWeight: "500",
-    letterSpacing: 0.3
-  },
-  linkMono: {
-    fontFamily: fontFamilies.web.mono,
+    fontFamily: fontFamilies.web.sans,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: "500",
-    letterSpacing: 0.96,
-    textTransform: "uppercase"
+    letterSpacing: 0
+  },
+  buttonSm: {
+    fontFamily: fontFamilies.web.sans,
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: "600",
+    letterSpacing: 0
+  },
+  buttonMd: {
+    fontFamily: fontFamilies.web.sans,
+    fontSize: 15,
+    lineHeight: 18,
+    fontWeight: "600",
+    letterSpacing: 0
+  },
+  buttonLg: {
+    fontFamily: fontFamilies.web.sans,
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: "600",
+    letterSpacing: 0
+  },
+  linkMono: {
+    fontFamily: fontFamilies.web.sans,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "600",
+    letterSpacing: 0
   },
   tabLabel: {
     fontFamily: fontFamilies.web.sans,
@@ -391,7 +389,7 @@ const layout = {
   breakpointDesktop: 1280,
   marginDesktop: 64,
   marginTablet: 40,
-  marginMobile: 20,
+  marginMobile: 16,
   gutterDefault: 16
 };
 
@@ -420,14 +418,14 @@ const motion = {
 
 const controls = {
   heights: {
-    sm: 44,
-    md: 52,
-    lg: 58,
-    iconLg: 68
+    sm: 40,
+    md: 44,
+    lg: 48,
+    iconLg: 48
   },
   radius: {
-    control: radius.lg,
-    card: radius.xl
+    control: radius.md,
+    card: radius.md
   }
 };
 

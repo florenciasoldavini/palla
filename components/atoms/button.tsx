@@ -12,7 +12,7 @@ import {
   type AppIconSize
 } from "@/components/icons";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
-import { getMonoFontStyle } from "@/theme/fonts";
+import { getSansFontStyle } from "@/theme/fonts";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import {
@@ -226,6 +226,7 @@ export function AppButton({
   const pressScale = useSharedValue(1);
   const sizeConfig = sizeMap[size];
   const config = getButtonVisualConfig(color, variant);
+  const surfaceStyle = getButtonSurfaceStyle(color, variant);
   const isVisuallyDisabled = Boolean(isDisabled || loading);
   const isInteractionDisabled = Boolean(
     loading || (isDisabled && !onDisabledPress)
@@ -246,7 +247,7 @@ export function AppButton({
     letterSpacing: sizeConfig.textToken.letterSpacing,
     lineHeight: sizeConfig.textToken.lineHeight,
     textTransform: sizeConfig.textToken.textTransform,
-    ...getMonoFontStyle(sizeConfig.textToken.fontWeight)
+    ...getSansFontStyle(sizeConfig.textToken.fontWeight)
   };
   const webCursorStyle =
     Platform.OS === "web"
@@ -311,9 +312,17 @@ export function AppButton({
       style={[
         StyleSheet.flatten([
           {
+            alignItems: "center",
+            backgroundColor: surfaceStyle.backgroundColor,
+            borderColor: surfaceStyle.borderColor,
             borderRadius: shape === "pill" ? atomRadii.full : sizeConfig.radius,
+            borderWidth: surfaceStyle.borderWidth,
+            flexDirection: "row",
+            gap: 8,
+            height: sizeConfig.height,
+            justifyContent: "center",
             minHeight: sizeConfig.height,
-            paddingHorizontal: layout === "icon" ? 0 : undefined,
+            paddingHorizontal: layout === "icon" ? 0 : 16,
             width: buttonWidth
           },
           isVisuallyDisabled
@@ -353,6 +362,57 @@ export function AppButton({
       ) : null}
     </AnimatedButton>
   );
+}
+
+function getButtonSurfaceStyle(
+  color: ButtonColor,
+  variant: ButtonVariant
+): Pick<ViewStyle, "backgroundColor" | "borderColor" | "borderWidth"> {
+  if (variant === "ghost") {
+    return {
+      backgroundColor: "transparent",
+      borderColor: "transparent",
+      borderWidth: 0
+    };
+  }
+
+  if (variant === "bordered") {
+    const borderColor =
+      color === "danger"
+        ? atomPalette.error
+        : color === "success"
+          ? atomPalette.success
+          : color === "warning"
+            ? atomPalette.warning
+            : color === "accent" || color === "essential"
+              ? atomPalette.accent
+              : atomPalette.border;
+
+    return {
+      backgroundColor: atomPalette.surface,
+      borderColor,
+      borderWidth: 1
+    };
+  }
+
+  const backgroundColor =
+    color === "essential"
+      ? atomPalette.brand
+      : color === "accent"
+        ? atomPalette.accent
+        : color === "danger"
+          ? atomPalette.error
+          : color === "success"
+            ? atomPalette.success
+            : color === "warning"
+              ? atomPalette.warning
+              : atomPalette.text;
+
+  return {
+    backgroundColor,
+    borderColor: backgroundColor,
+    borderWidth: 1
+  };
 }
 
 function getButtonVisualConfig(color: ButtonColor, variant: ButtonVariant) {

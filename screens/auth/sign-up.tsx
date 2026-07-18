@@ -129,29 +129,22 @@ export default function SignUpScreen() {
         ) : null}
 
         <View style={{ gap: authFormStackGap }}>
-          <View
-            style={{
-              flexDirection: "row",
-              gap: atomSpacing[3],
-              justifyContent: "center"
-            }}
-          >
+          <View style={{ gap: atomSpacing[3] }}>
             <AppButton
               accessibilityLabel="Continue with Google"
-              fullWidth={false}
               imageSource={googleLogo}
               isDisabled={isBusy}
-              layout="icon"
               loading={loadingAction === "google"}
               onPress={() => void signUpWithGoogle()}
-              shape="pill"
               size={authSocialButtonSize}
               color="neutral"
               variant="bordered"
-            />
+            >
+              Continue with Google
+            </AppButton>
           </View>
 
-          <AuthDivider label="OR CREATE WITH EMAIL" />
+          <AuthDivider label="or create with email" />
 
           <Controller
             control={control}

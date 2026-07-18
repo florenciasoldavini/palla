@@ -137,10 +137,6 @@ export function TextField({
           cursor: isDisabled ? "not-allowed" : "text"
         } as unknown as TextStyle)
       : null;
-  const inputLineHeight =
-    Platform.OS === "web"
-      ? atomTypeScale.bodyMd.lineHeight
-      : atomTypeScale.bodyMd.fontSize + 4;
   const truncateStyle = truncate
     ? ({
         overflow: "hidden",
@@ -154,7 +150,9 @@ export function TextField({
     color: atomPalette.text,
     fontSize: atomTypeScale.bodyMd.fontSize,
     letterSpacing: 0,
-    lineHeight: inputLineHeight,
+    ...(Platform.OS === "web"
+      ? { lineHeight: atomTypeScale.bodyMd.lineHeight }
+      : null),
     ...getSansFontStyle(atomTypeScale.bodyMd.fontWeight)
   } satisfies TextStyle;
   const displayValue =
@@ -221,20 +219,26 @@ export function TextField({
           }}
           size={config.input}
           style={{
+            alignItems: "center",
             backgroundColor: isDisabled
               ? atomPalette.surfaceLow
               : atomPalette.surface,
             borderColor,
             borderRadius: config.radius,
+            borderWidth: 1,
+            flexDirection: "row",
             height: config.minHeight,
             minHeight: config.minHeight,
+            overflow: "hidden",
             ...webRootCursorStyle
           }}
         >
           {leftIcon ? (
             <InputSlot
               style={{
+                alignItems: "center",
                 height: config.minHeight,
+                justifyContent: "center",
                 minWidth: atomSpacing[10],
                 paddingLeft: atomSpacing[4]
               }}
@@ -297,10 +301,12 @@ export function TextField({
               placeholderTextColor={atomPalette.textPlaceholder}
               style={{
                 ...inputTextStyle,
-                height: config.minHeight,
+                flex: 1,
                 paddingHorizontal: inputPaddingHorizontal,
                 paddingVertical: 0,
-                textAlignVertical: "center",
+                ...(Platform.OS === "android"
+                  ? { textAlignVertical: "center" as const }
+                  : null),
                 ...truncateStyle,
                 ...webInputCursorStyle
               }}
@@ -309,7 +315,14 @@ export function TextField({
             />
           )}
           {rightSlot ? (
-            <InputSlot style={{ paddingRight: atomSpacing[4] }}>
+            <InputSlot
+              style={{
+                alignItems: "center",
+                height: config.minHeight,
+                justifyContent: "center",
+                paddingRight: atomSpacing[3]
+              }}
+            >
               {rightSlot}
             </InputSlot>
           ) : null}

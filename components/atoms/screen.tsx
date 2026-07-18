@@ -147,7 +147,7 @@ export function Screen({
           {
             flex: 1,
             paddingBottom: insets.bottom + atomSpacing[6],
-            paddingTop: insets.top + atomSpacing[6]
+            paddingTop: insets.top + atomSpacing[4]
           },
           contentContainerStyle
         ]}
@@ -167,7 +167,7 @@ export function Screen({
           flexGrow: 1,
           justifyContent: centered ? "center" : undefined,
           paddingBottom: insets.bottom + keyboardBottomPadding,
-          paddingTop: insets.top + atomSpacing[6]
+          paddingTop: insets.top + atomSpacing[4]
         },
         contentContainerStyle
       ]}
