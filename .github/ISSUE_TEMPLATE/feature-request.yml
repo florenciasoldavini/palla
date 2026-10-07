@@ -1,0 +1,81 @@
+name: Feature request
+description: Propose a product outcome grounded in a real user or workflow need.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem before prescribing an implementation. Palla is mobile-first and every accepted feature must account for web, iOS, and Android behavior.
+
+  - type: dropdown
+    id: target-user
+    attributes:
+      label: Primary user
+      options:
+        - Player
+        - Session organizer
+        - Explorer
+        - Club administrator
+        - Developer or maintainer
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What is difficult today, who experiences it, and why is it worth solving?
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe the user-visible result without over-specifying the implementation.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform-scope
+    attributes:
+      label: Platform scope
+      options:
+        - Shared across web, iOS, and Android
+        - Web-specific
+        - iOS-specific
+        - Android-specific
+        - Platform scope needs investigation
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: List observable conditions that would make the request complete.
+      placeholder: |
+        - [ ] Users can...
+        - [ ] Loading, empty, and error states are covered
+        - [ ] Web, iOS, and Android behavior is verified
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and additional context
+      description: Note current workarounds, rejected approaches, dependencies, examples, or mockups.
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmation
+      options:
+        - label: I searched existing issues and did not find the same request.
+          required: true
+        - label: This request describes a user or workflow need, not only a preferred technical implementation.
+          required: true

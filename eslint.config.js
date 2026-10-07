@@ -1,21 +1,51 @@
-const { defineConfig } = require('eslint/config');
-const expoConfig = require('eslint-config-expo/flat');
-const prettierConfig = require('eslint-config-prettier/flat');
+const { defineConfig } = require("eslint/config");
+const expoConfig = require("eslint-config-expo/flat");
+const eslintPluginPrettierRecommended = require("eslint-plugin-prettier/recommended");
 
 module.exports = defineConfig([
   expoConfig,
-  prettierConfig,
+  eslintPluginPrettierRecommended,
   {
-    ignores: ['dist/**', '.expo/**', 'nativewind-env.d.ts'],
-    rules: {
-      'import/order': [
-        'error',
-        {
-          alphabetize: { caseInsensitive: true, order: 'asc' },
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type'],
-          'newlines-between': 'always',
-        },
-      ],
-    },
+    ignores: ["dist/*", "expo-env.d.ts", "supabase/functions/**"]
   },
+  {
+    files: ["components/ui/**/*"],
+    rules: {
+      "prettier/prettier": "off"
+    }
+  },
+  {
+    files: ["app/**/*"],
+    rules: {
+      "prettier/prettier": ["error", { tabWidth: 2 }]
+    }
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "react/no-unescaped-entities": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          args: "all",
+          argsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+          vars: "all",
+          varsIgnorePattern: "^_"
+        }
+      ]
+    }
+  },
+  {
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: "./tsconfig.json"
+        }
+      }
+    }
+  }
 ]);

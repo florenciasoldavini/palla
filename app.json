@@ -8,12 +8,12 @@
     "scheme": "palla",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.palla.app",
+      "bundleIdentifier": "com.florenciasoldavini.palla",
       "config": {
         "usesNonExemptEncryption": false
       },
       "icon": "./assets/expo.icon",
-      "supportsTablet": false
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
@@ -22,31 +22,62 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "package": "com.palla.app",
-      "predictiveBackGestureEnabled": false
+      "package": "com.florenciasoldavini.palla",
+      "edgeToEdgeEnabled": true
     },
     "web": {
+      "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "florencia-soldavini",
+          "project": "palla"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F7F6F2",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#062C22"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Palla to access your photo library so you can choose a profile photo."
         }
       ],
       "expo-secure-store",
       "expo-notifications",
-      "@sentry/react-native",
-      "expo-localization"
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/HankenGrotesk-Regular.ttf",
+            "./assets/fonts/HankenGrotesk-Medium.ttf",
+            "./assets/fonts/HankenGrotesk-SemiBold.ttf",
+            "./assets/fonts/HankenGrotesk-Bold.ttf",
+            "./assets/fonts/Geist-Bold.ttf",
+            "./assets/fonts/Geist-Medium.ttf",
+            "./assets/fonts/Geist-Regular.ttf",
+            "./assets/fonts/Geist-SemiBold.ttf"
+          ]
+        }
+      ]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "96d4f9c0-039c-4a09-9e0a-1626afbcf9cd"
+      }
+    },
+    "owner": "florenciasoldavini"
   }
 }

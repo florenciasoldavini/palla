@@ -1,13 +1,9 @@
-# Supabase workspace
+# Supabase
 
-Database migrations, Edge Functions, generated database types, and local Supabase configuration will live here once the first backend capability is designed.
+Palla uses Supabase for authentication, PostgreSQL, Row Level Security, Realtime, Storage, and Edge Functions.
 
-No schema has been generated for the bootstrap. Before adding the first migration:
+No database schema is defined yet. The welcome-email Edge Function is retained for future use and requires the eventual user profile schema to include a nullable `welcome_email_sent_at` timestamp.
 
-1. initialize or link the project with the current Supabase CLI;
-2. create migration files through the CLI;
-3. enable RLS on every exposed table and add explicit grants and policies;
-4. generate TypeScript database types into `src/types`;
-5. run Supabase security and performance advisors.
+Add product schema through feature-specific migrations only when each feature is implemented. Every table in an exposed schema must enable RLS and include authorization tests.
 
-New Supabase projects may not expose newly created tables to the Data API automatically, so grants and Data API settings must be reviewed alongside RLS.
+Client applications use only the public project URL and publishable key. Secret keys, service-role credentials, email credentials, paid-provider credentials, and privileged workflows must remain in trusted server environments.
