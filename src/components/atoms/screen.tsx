@@ -1,5 +1,6 @@
+import { NavigationChromeContext } from "@/components/navigation/chrome-context";
 import { atomLayout, atomPalette, atomSpacing } from "@/components/atoms/theme";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -32,6 +33,7 @@ export function Screen({
   style?: StyleProp<ViewStyle>;
 }) {
   const insets = useSafeAreaInsets();
+  const hasNavigationHeader = useContext(NavigationChromeContext);
   const { width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -147,7 +149,7 @@ export function Screen({
           {
             flex: 1,
             paddingBottom: insets.bottom + atomSpacing[6],
-            paddingTop: insets.top + atomSpacing[4]
+            paddingTop: (hasNavigationHeader ? 0 : insets.top) + atomSpacing[4]
           },
           contentContainerStyle
         ]}
@@ -167,7 +169,7 @@ export function Screen({
           flexGrow: 1,
           justifyContent: centered ? "center" : undefined,
           paddingBottom: insets.bottom + keyboardBottomPadding,
-          paddingTop: insets.top + atomSpacing[4]
+          paddingTop: (hasNavigationHeader ? 0 : insets.top) + atomSpacing[4]
         },
         contentContainerStyle
       ]}

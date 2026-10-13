@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-13T16:21:12.573Z",
+  "generatedAt": "2026-10-13T22:01:36.756Z",
   "title": "Design System: Palla",
   "extensions": {
     "colorMeta": {
@@ -517,6 +517,14 @@
       "buttonLg": {
         "displayName": "buttonLg",
         "purpose": "Shared source typography role."
+      },
+      "navigationLabel": {
+        "displayName": "Navigation label",
+        "purpose": "Persistent role tab labels; regular at rest, semibold when selected."
+      },
+      "navigationLabelActive": {
+        "displayName": "Selected navigation label",
+        "purpose": "Selected role destination."
       }
     },
     "shadows": [
@@ -681,6 +689,22 @@
       "description": "Selected Player radio panel; sample preserves current card tracking.",
       "html": "<button class=\"ds-mode\" role=\"radio\" aria-checked=\"true\"><svg class=\"ds-mode-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/></svg><span class=\"ds-mode-copy\"><span class=\"ds-mode-title\">Player</span><span class=\"ds-mode-body\">Find sessions and meet people on court.</span></span><span class=\"ds-radio\" aria-hidden=\"true\"><span class=\"ds-radio-dot\"></span></span></button>",
       "css": ".ds-mode{display:flex;align-items:flex-start;gap:20px;padding:24px;min-height:144px;border:2px solid #536600;border-radius:12px;background:#f7ffd5;color:#1a1b22;text-align:left;cursor:pointer}.ds-mode-icon{width:36px;height:36px;flex-shrink:0;color:#536600}.ds-mode-copy{flex:1;display:flex;flex-direction:column;gap:8px}.ds-mode-title{font-family:\"Hanken Grotesk\",sans-serif;font-size:24px;font-weight:600;line-height:30px;letter-spacing:-.08px}.ds-mode-body{font-family:\"Hanken Grotesk\",sans-serif;font-size:15px;font-weight:400;line-height:22px;color:#444932}.ds-radio{width:24px;height:24px;flex-shrink:0;margin-top:4px;border:2px solid #536600;border-radius:9999px;display:flex;align-items:center;justify-content:center;box-sizing:border-box}.ds-radio-dot{width:12px;height:12px;border-radius:9999px;background:#536600}.ds-mode:focus-visible{outline:auto}"
+    },
+    {
+      "name": "Role bottom navigation",
+      "kind": "nav",
+      "refersTo": "role-navigation",
+      "description": "Native three-tab navigation. Player sample; organizer labels/icons differ as recorded in the brief. HTML is a visual sample, not application routing.",
+      "html": "<nav class=\"ds-role-nav\" aria-label=\"Player\"><button class=\"ds-role-item\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.35-4.35\"/></svg><span>Discover</span></button><button class=\"ds-role-item\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M8 2v4M16 2v4M3 10h18\"/><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/></svg><span>My games</span></button><button class=\"ds-role-item\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M6 21v-2a6 6 0 0 1 12 0v2\"/></svg><span>Profile</span></button></nav>",
+      "css": ".ds-role-nav{display:flex;gap:12px;min-height:76px;padding:6px;background:#ffffff;border-top:1px solid #e3e1ec}.ds-role-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 0;border:0;border-radius:12px;background:transparent;color:#5e5e5e;font-family:\"Hanken Grotesk\",sans-serif;font-size:12px;line-height:17px;font-weight:400;cursor:pointer;overflow:hidden}.ds-role-item svg{width:24px;height:24px}.ds-role-item[aria-current=\"page\"]{background:#f7ffd5;color:#536600;font-weight:600}.ds-role-item:hover{opacity:.85}.ds-role-item:active{opacity:.7}.ds-role-item:focus-visible{outline:2px solid #536600;outline-offset:2px}"
+    },
+    {
+      "name": "Navigation header",
+      "kind": "nav",
+      "refersTo": "navigation-header",
+      "description": "Native canvas header with Palla identity and 48-unit notification target. Wordmark text here is schematic; production uses the existing PallaWordmark asset. Safe-area inset is added at runtime; no unread badge exists.",
+      "html": "<header class=\"ds-nav-header\"><span class=\"ds-nav-wordmark\">Palla</span><button class=\"ds-nav-bell\" aria-label=\"Notifications\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4\"/></svg></button></header>",
+      "css": ".ds-nav-header{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 24px;background:#fbf8ff;color:#1a1b22}.ds-nav-wordmark{font-family:\"Hanken Grotesk\",sans-serif;font-size:28px;font-weight:700}.ds-nav-bell{display:flex;align-items:center;justify-content:center;width:48px;height:48px;padding:0;border:0;border-radius:24px;background:#f4f2fd;color:#1a1b22;cursor:pointer}.ds-nav-bell svg{width:24px;height:24px}.ds-nav-bell:hover,.ds-nav-bell:active{background:#eeedf7}.ds-nav-bell:focus-visible{outline:2px solid #536600;outline-offset:2px}"
     }
   ],
   "narrative": {

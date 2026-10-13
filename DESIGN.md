@@ -99,6 +99,16 @@ typography:
     fontWeight: 500
     lineHeight: "18px"
     letterSpacing: "0px"
+  navigationLabel:
+    fontFamily: "Hanken Grotesk"
+    fontSize: "12px"
+    fontWeight: 400
+    lineHeight: "17px"
+  navigationLabelActive:
+    fontFamily: "Hanken Grotesk"
+    fontSize: "12px"
+    fontWeight: 600
+    lineHeight: "17px"
   buttonSm:
     fontFamily: "Hanken Grotesk"
     fontSize: "14px"
@@ -178,6 +188,35 @@ components:
     backgroundColor: "{colors.surface-low}"
     rounded: "{rounded.lg}"
     padding: "4px"
+  role-navigation:
+    backgroundColor: "{colors.surface}"
+    height: "76px"
+    padding: "6px 0px"
+  role-navigation-item:
+    textColor: "{colors.text-muted}"
+    typography: "{typography.navigationLabel}"
+    rounded: "{rounded.md}"
+    padding: "4px 0px"
+  role-navigation-item-active:
+    backgroundColor: "{colors.selection-lime}"
+    textColor: "{colors.olive}"
+    typography: "{typography.navigationLabelActive}"
+    rounded: "{rounded.md}"
+    padding: "4px 0px"
+  navigation-header:
+    backgroundColor: "{colors.canvas}"
+    height: "64px"
+    padding: "0px 24px"
+  notification-button:
+    backgroundColor: "{colors.surface-low}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.xl}"
+    size: "48px"
+  notification-button-pressed:
+    backgroundColor: "{colors.surface-raised}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.xl}"
+    size: "48px"
   mode-choice:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
@@ -209,7 +248,7 @@ The system is spacious enough for mobile touch and compact enough for repeated s
 
 Palla targets native iOS and Android. UI and flow testing must use iOS Simulator and Android Emulator; existing web styles and captures are legacy compatibility evidence, not acceptance targets.
 
-This records incumbent source and the approved onboarding extension. The normative source remains `src/theme/tokens.js`; React Native aliases live in `src/components/atoms/theme.ts`. Frontmatter mirrors those values, and component state/motion details extend them in `.impeccable/design.json`. Sizes are CSS pixels on web and logical units in native layouts.
+This records incumbent source, the approved onboarding extension, and the shipped role-navigation chrome. The normative source remains `src/theme/tokens.js`; React Native aliases live in `src/components/atoms/theme.ts`. Frontmatter mirrors those values, and component state/motion details extend them in `.impeccable/design.json`. Sizes are CSS pixels on web and logical units in native layouts.
 
 ## Colors
 
@@ -275,6 +314,10 @@ Selectable chips are bordered pills with 48-unit targets. Selected chips use oli
 
 SegmentedTabs uses a low-surface bordered track, equally sized 48-unit tabs, and an ink or olive selected indicator with inverse text. The indicator alone moves using the shared thumb duration. Labels can wrap. The preview sidecar records visual samples; it does not implement app navigation.
 
+Role navigation uses Expo Router Tabs with three equally weighted destinations per role. Each destination combines a 24-unit outline icon with a Hanken Grotesk navigation label; selected labels use the active weight. A pale selection-lime rounded tile and olive icon/text identify the active destination. Inactive icon/text uses muted text. The white bar has a subtle one-unit top border and no elevation. Item margins are 6 units horizontally, with medium rounding applied to both the item and native pressable so the selected fill clips consistently. Native PlatformPressable preserves navigator events and interaction behavior.
+
+The bar grows to `max(76, 72 × fontScale)` units plus the bottom safe-area inset, with 6 units top padding and `6 + bottomInset` bottom padding. It hides when the keyboard opens. Labels remain below their icons. Shared header content is 64 units high plus the top safe-area inset, with 24-unit horizontal padding, the established Palla wordmark, and a 48-unit circular notification target. Its 24-unit bell uses ink on a low surface; pressing raises the surface tone. Notifications use a separate stack screen with Back. The role destinations and deferred content scope are recorded in `.impeccable/navigation-brief.md`.
+
 ### Onboarding radio panels
 
 Approved option A uses white unselected panels and a pale lime selected panel with olive outline. Panels have 24px padding, a 144-unit minimum height, line icons, title/body text, and a trailing radio circle. Selection is exposed explicitly; arrow keys move selection on web. The player form has three steps; the organizer form has two and finishes after the name. The form shows a mode-specific step count, adds Back after mode selection, keeps Sign out available, preserves drafts, and shows failures inline. Approved category option C uses guided radio choices with a category selector and separate beginner/unknown answers; the category question appears only in player onboarding. Organizer access is immediate after saving.
@@ -296,3 +339,5 @@ Approved option A uses white unselected panels and a pale lime selected panel wi
 - Don't replace the approved stacked onboarding choices with a new composition.
 
 Evidence: source tokens/atoms and `docs/design-system.md`; approved direction in `.impeccable/onboarding-brief.md`. Web review captures are under `.impeccable/review/` (onboarding mobile/name/desktop and signup mobile/desktop). These are development evidence, not shipping imagery or native-device verification. The option mock's generation prompt is `.impeccable/mocks/onboarding-options.prompt.txt`. No shipping raster was added, and no CLI detector or measurement tool ran.
+
+Role-navigation evidence: shared source under `src/components/navigation/`, approved `.impeccable/mocks/role-navigation.png` with the later Search-icon amendment, and native player/organizer captures under `.impeccable/review/native/navigation/`. Preview tests exercise the shipped navigator without authenticated account writes; precise coverage and limits are recorded in `docs/native-testing.md`. No browser validation or CLI visual detector ran for navigation.
