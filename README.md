@@ -2,7 +2,7 @@
 
 Mobile-first platform for discovering, organizing, and joining recurring social padel sessions (canchas abiertas).
 
-The application supports iOS, Android, and static web output from the same Expo Router foundation.
+Palla targets native iOS and Android. The Expo foundation retains legacy web output, but browser use is not a product requirement.
 
 ## Foundation
 
@@ -17,6 +17,14 @@ The application supports iOS, Android, and static web output from the same Expo 
 - EAS build profiles, Vercel static web output, environment synchronization, CI, ESLint, and Prettier
 
 Product-specific session features and database tables are intentionally not implemented yet.
+
+## Product plan
+
+- [Design system](docs/design-system.md)
+- [MVP scope and decisions](docs/mvp.md)
+- [Domain contracts and database plan](docs/domain-model.md)
+
+Feature-owned `domain.ts` files contain TypeScript models and Zod record/input schemas. Account onboarding now uses the implemented `profiles` and `organizers` tables; session screens still use illustrative data. See [account onboarding](docs/onboarding.md) for setup and verification details.
 
 ## Requirements
 
@@ -33,7 +41,7 @@ npm run env:check
 npm start
 ```
 
-Use `npm run ios`, `npm run android`, or `npm run web` for a platform-specific development target.
+Use `npm run ios` and `npm run android` for native development. Validate UI and flows on both iOS Simulator and Android Emulator. Do not substitute browser testing.
 
 ## Verification
 
@@ -41,20 +49,18 @@ Use `npm run ios`, `npm run android`, or `npm run web` for a platform-specific d
 npm run verify
 ```
 
-The verification pipeline checks environment documentation, TypeScript, linting, unit tests, formatting, and the static web export.
+The verification pipeline checks environment documentation, TypeScript, linting, unit tests, and formatting. Native UI/flow validation on both iOS Simulator and Android Emulator is required separately; passing this pipeline does not establish native behavior. See [native testing](docs/native-testing.md) for checks, evidence, and current blockers.
 
 ## Architecture
 
-- `app/` contains Expo Router routes only.
-- `features/` owns feature components, hooks, repositories, services, validation, and types.
-- `components/` contains genuinely reusable UI primitives.
-- `screens/` composes feature and shared UI for routes.
-- `lib/` contains configured infrastructure clients.
-- `repositories/` owns shared external transport and persistence helpers.
-- `services/` owns cross-feature workflows.
+- `src/app/` contains Expo Router routes and layouts only.
+- `src/features/` owns each feature's screens, components, hooks, repositories, services, validation, and types.
+- `src/components/` contains genuinely reusable design-system, brand, and application-shell components.
+- `src/infrastructure/` contains shared persistence and external-service adapters.
+- `src/lib/` contains configured infrastructure clients.
 - `supabase/` contains Edge Functions, migrations, and database tests.
 
-Routes are separated into `(auth)`, `(player)`, and `(organizer)` groups. Business logic must remain outside route files.
+Routes are separated into `(auth)`, `(player)`, and `(organizer)` groups. Route files adapt URLs to feature-owned screens; business logic remains outside the route tree.
 
 ## Environments
 

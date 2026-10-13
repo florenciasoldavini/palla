@@ -7,15 +7,12 @@ const rootDir = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   resolve: {
     alias: {
-      "@": resolve(rootDir)
+      "@": resolve(rootDir, "src"),
+      "@assets": resolve(rootDir, "assets")
     }
   },
   test: {
     environment: "node",
-    include: [
-      "components/**/*.test.ts",
-      "features/**/*.test.ts",
-      "lib/**/*.test.ts"
-    ]
+    include: ["src/**/*.test.ts"]
   }
 });

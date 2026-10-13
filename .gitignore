@@ -47,3 +47,6 @@ app-example
 
 # Added by ggshield
 .cache_ggshield
+
+# Generated local design and native QA evidence
+.impeccable/review/

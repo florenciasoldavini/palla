@@ -17,8 +17,7 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 type UserEmailState = {
-  email: string;
-  first_name: string;
+  first_name: string | null;
   welcome_email_sent_at: string | null;
 };
 
@@ -129,11 +128,11 @@ async function handler(req: Request) {
 
   const sentAt = new Date().toISOString();
   const { data: claimedUser, error: claimError } = await adminSupabase
-    .from("users")
+    .from("profiles")
     .update({ welcome_email_sent_at: sentAt })
     .eq("id", authUser.id)
     .is("welcome_email_sent_at", null)
-    .select("email, first_name, welcome_email_sent_at")
+    .select("first_name, welcome_email_sent_at")
     .maybeSingle();
 
   const claimedEmailState = claimedUser as UserEmailState | null;
@@ -147,8 +146,8 @@ async function handler(req: Request) {
 
   if (!claimedEmailState) {
     const { data: existingUser, error: existingUserError } = await adminSupabase
-      .from("users")
-      .select("email, first_name, welcome_email_sent_at")
+      .from("profiles")
+      .select("first_name, welcome_email_sent_at")
       .eq("id", authUser.id)
       .maybeSingle();
 
@@ -204,7 +203,7 @@ async function handler(req: Request) {
     },
     body: JSON.stringify({
       from: emailFrom,
-      to: claimedEmailState.email,
+      to: authUser.email,
       subject: "Welcome to Palla",
       html: await renderWelcomeToPallaEmail({ appUrl, name }),
       ...(emailReplyTo ? { reply_to: emailReplyTo } : {})
@@ -215,7 +214,7 @@ async function handler(req: Request) {
 
   if (!response.ok) {
     await adminSupabase
-      .from("users")
+      .from("profiles")
       .update({ welcome_email_sent_at: null })
       .eq("id", authUser.id)
       .eq("welcome_email_sent_at", sentAt);
