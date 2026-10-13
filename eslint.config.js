@@ -9,13 +9,13 @@ module.exports = defineConfig([
     ignores: ["dist/*", "expo-env.d.ts", "supabase/functions/**"]
   },
   {
-    files: ["components/ui/**/*"],
+    files: ["src/components/ui/**/*"],
     rules: {
       "prettier/prettier": "off"
     }
   },
   {
-    files: ["app/**/*"],
+    files: ["src/app/**/*"],
     rules: {
       "prettier/prettier": ["error", { tabWidth: 2 }]
     }
