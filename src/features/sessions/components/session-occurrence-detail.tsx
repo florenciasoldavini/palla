@@ -49,7 +49,8 @@ export function SessionOccurrenceDetail({
   onBack,
   onEdit,
   onCancel,
-  preview = false
+  preview = false,
+  attendance
 }: {
   session: PadelSession;
   venue?: Venue;
@@ -60,6 +61,7 @@ export function SessionOccurrenceDetail({
   onEdit: () => void;
   onCancel: () => void;
   preview?: boolean;
+  attendance: (between: React.ReactNode) => React.ReactNode;
 }) {
   const [soon, setSoon] = useState<string | null>(null);
   const { fontScale, width } = useWindowDimensions();
@@ -221,7 +223,7 @@ export function SessionOccurrenceDetail({
             />
           </View>
         </AppCard>
-        <OccurrencePlaceholders onSoon={setSoon} />
+        {attendance(<OccurrencePlaceholders onSoon={setSoon} />)}
         <AppCard surface="panel" style={{ gap: sp[3] }}>
           <AppHeading variant="section">Session information</AppHeading>
           {venue?.address && <AppText>{venue.address}</AppText>}

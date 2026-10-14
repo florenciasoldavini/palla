@@ -1,7 +1,11 @@
+import { AttendanceSections } from "@/features/registrations/components/organizer-attendance";
+import type { Attendee } from "@/features/registrations/domain";
+import { useEffect, useState } from "react";
+import { AppButton } from "@/components/atoms";
+import { Alert, View } from "react-native";
 import { SessionOccurrenceDetail } from "@/features/sessions/components/session-occurrence-detail";
 import type { PadelSession } from "@/features/sessions/domain";
 import { useRouter } from "expo-router";
-import { Alert } from "react-native";
 const sample: PadelSession = {
   id: "11111111-1111-4111-8111-111111111111",
   organizer_id: "11111111-1111-4111-8111-111111111112",
@@ -36,10 +40,76 @@ const sample: PadelSession = {
 };
 export default function OccurrencePreview() {
   const router = useRouter();
+  const [attendees, setAttendees] = useState<Attendee[]>(initialAttendees);
+  const [busyId, setBusyId] = useState<string>();
+  const [mode, setMode] = useState<
+    "normal" | "empty" | "loading" | "error" | "cancelled"
+  >("normal");
+  useEffect(() => {
+    if (mode !== "loading") return;
+    const timer = setTimeout(() => setMode("normal"), 4000);
+    return () => clearTimeout(timer);
+  }, [mode]);
   return (
     <SessionOccurrenceDetail
       preview
-      session={sample}
+      attendance={(between) => (
+        <>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+            {(
+              ["normal", "empty", "loading", "error", "cancelled"] as const
+            ).map((state) => (
+              <AppButton
+                key={state}
+                size="sm"
+                fullWidth={false}
+                variant="ghost"
+                accessibilityLabel={`Preview attendance ${state}`}
+                onPress={() => setMode(state)}
+              >
+                {state}
+              </AppButton>
+            ))}
+          </View>
+          <AttendanceSections
+            between={between}
+            attendees={mode === "empty" ? [] : attendees}
+            loading={mode === "loading"}
+            error={
+              mode === "error"
+                ? "We couldn’t save this arrival. Reload attendees and try again."
+                : null
+            }
+            disabled={mode === "cancelled"}
+            busyId={busyId}
+            timeZone="America/Argentina/Buenos_Aires"
+            onRetry={() => setMode("normal")}
+            onChange={async (row, arrived) => {
+              setBusyId(row.id);
+              await new Promise((resolve) => setTimeout(resolve, 600));
+              setAttendees((rows) =>
+                rows.map((value) =>
+                  value.id === row.id
+                    ? {
+                        ...value,
+                        checked_in_at: arrived
+                          ? new Date().toISOString()
+                          : null,
+                        checked_in_by: arrived ? sample.organizer_id : null,
+                        updated_at: new Date().toISOString()
+                      }
+                    : value
+                )
+              );
+              setBusyId(undefined);
+            }}
+          />
+        </>
+      )}
+      session={{
+        ...sample,
+        status: mode === "cancelled" ? "cancelled" : sample.status
+      }}
       venue={{
         id: sample.venue_id,
         name: "Sunset Athletic Club",
@@ -71,3 +141,30 @@ export default function OccurrencePreview() {
     />
   );
 }
+
+const initialAttendees: Attendee[] = [
+  ["Alex", "Rivera", 6],
+  ["Carlos", "M.", 7],
+  ["Elena", "G.", 6]
+].map(([first, last, category], index) => ({
+  id: `22222222-2222-4222-8222-22222222222${index}`,
+  session_id: sample.id,
+  player_id: `33333333-3333-4333-8333-33333333333${index}`,
+  status: "confirmed",
+  joined_at: sample.created_at,
+  waitlist_sequence: null,
+  confirmed_at: sample.created_at,
+  checked_in_at: null,
+  checked_in_by: null,
+  cancelled_at: null,
+  cancelled_by: null,
+  cancellation_reason: null,
+  created_at: sample.created_at,
+  updated_at: sample.updated_at,
+  player: {
+    first_name: String(first),
+    last_name: String(last),
+    playing_category: Number(category),
+    avatar_url: null
+  }
+}));

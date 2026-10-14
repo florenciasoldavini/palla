@@ -1,3 +1,4 @@
+import { OrganizerAttendance } from "@/features/registrations/components/organizer-attendance";
 import {
   AppButton,
   AppText,
@@ -86,6 +87,15 @@ export default function SessionOccurrenceScreen() {
   return (
     <>
       <SessionOccurrenceDetail
+        attendance={(between) => (
+          <OrganizerAttendance
+            key={session.id}
+            sessionId={session.id}
+            timeZone={series?.timezone ?? "America/Argentina/Buenos_Aires"}
+            published={session.status === "published"}
+            between={between}
+          />
+        )}
         session={session}
         venue={query.data?.venues.find((v) => v.id === session.venue_id)}
         weekly={weekly}
