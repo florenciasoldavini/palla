@@ -3,6 +3,11 @@ export * from "@/components/atoms/badge";
 export * from "@/components/atoms/breadcrumb";
 export * from "@/components/atoms/card";
 export * from "@/components/atoms/empty-state";
+export * from "@/components/atoms/error-state";
+export type {
+  StateVariant,
+  StateAction
+} from "@/components/atoms/content-state";
 export * from "@/components/atoms/field-message";
 export * from "@/components/atoms/heading";
 export * from "@/components/atoms/input";

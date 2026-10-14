@@ -8,10 +8,7 @@ import {
 import { atomPalette as c, atomSpacing as sp } from "@/components/atoms/theme";
 import type { PadelSession } from "@/features/sessions/domain";
 import type { Venue } from "@/features/venues/domain";
-import {
-  OccurrencePlaceholders,
-  PlaceholderAction
-} from "./occurrence-placeholders";
+import { PlaceholderAction } from "./occurrence-placeholders";
 import {
   ArrowLeft,
   Calendar,
@@ -50,7 +47,8 @@ export function SessionOccurrenceDetail({
   onEdit,
   onCancel,
   preview = false,
-  attendance
+  attendance,
+  waitlist
 }: {
   session: PadelSession;
   venue?: Venue;
@@ -62,6 +60,7 @@ export function SessionOccurrenceDetail({
   onCancel: () => void;
   preview?: boolean;
   attendance: (between: React.ReactNode) => React.ReactNode;
+  waitlist: React.ReactNode;
 }) {
   const [soon, setSoon] = useState<string | null>(null);
   const { fontScale, width } = useWindowDimensions();
@@ -223,7 +222,7 @@ export function SessionOccurrenceDetail({
             />
           </View>
         </AppCard>
-        {attendance(<OccurrencePlaceholders onSoon={setSoon} />)}
+        {attendance(waitlist)}
         <AppCard surface="panel" style={{ gap: sp[3] }}>
           <AppHeading variant="section">Session information</AppHeading>
           {venue?.address && <AppText>{venue.address}</AppText>}

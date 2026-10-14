@@ -314,6 +314,10 @@ All sizes provide a minimum 48-unit target and grow with type. Default padding i
 
 White/default, low/muted, and raised tones use an explicit one-unit border in the subtle border color; inverse cards use their own surface color. The width comes from the native style, rather than relying on the NativeWind class. All share continuous rounded corners. Default cards use large rounding and medium padding. Padding variants follow the shared scale: small (12px), medium (16px), large (20px). AppCard’s optional `surface` prop selects durable surface roles: panel uses extra-large rounding with 24-unit padding; inset and row use large rounding with 16-unit padding. Tonal nesting is part of the approved aesthetic: lavender inset blocks can sit inside white panels. Raised tone alone adds the shared raised shadow.
 
+### Empty and error states
+
+EmptyState and ErrorState reuse the current light surfaces, headings, body copy, decorative line icons and action styles. Panel states center content inside a section card; inline states keep failures beside retained data with a ghost action; fullScreen states center content without an enclosing card. Use contained inside an existing panel. Inline layouts stack above a 1.2 font scale or below 360 units of width so text and actions remain readable. Errors identify a failed request and offer optional busy/disabled retry; empty states explain the absence of items and offer an action only when useful. Component usage is documented in `docs/ui-states.md`; this addition changes no palette or typography tokens.
+
 ### Inputs / Fields
 
 White fields use a subtle border and rounded corners, shifting to default border on hover and olive on focus. Error text and border identify invalid state; disabled fields use low surfaces. Fields begin at a 48-unit minimum and expand with font scale. Labels, optional markers, helper messages, and errors retain accessible associations. Text inputs and textareas expose meaningful accessibilityLabel and aria-label values. Errors remain readable text and announce updates politely.

@@ -23,7 +23,8 @@ export function useSessionMutations() {
   const onSuccess = async () => {
     await Promise.all([
       client.invalidateQueries({ queryKey: organizerSessionsKey(user?.id) }),
-      client.invalidateQueries({ queryKey: ["organizer-roster", user?.id] })
+      client.invalidateQueries({ queryKey: ["organizer-roster", user?.id] }),
+      client.invalidateQueries({ queryKey: ["organizer-waitlist", user?.id] })
     ]);
   };
   return {

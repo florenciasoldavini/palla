@@ -1,6 +1,6 @@
 # Organizer attendance
 
-Current scope is organizer-only: read confirmed attendees for an occurrence, mark an arrival, and undo a mistaken arrival. Player registration screens, joining/cancelling APIs, invitations, QR scanning, automatic waitlist promotion, and notification delivery remain deferred.
+Current scope is organizer-only: read confirmed attendees for an occurrence, mark an arrival, and undo a mistaken arrival. Player registration screens, joining/cancelling APIs, invitations, QR scanning, and notification delivery remain deferred. Organizer waitlist promotion is implemented separately; see [organizer waitlists](organizer-waitlists.md).
 
 ## Backend
 
@@ -23,3 +23,7 @@ Organizer session cancellation changes confirmed/waitlisted entries to cancelled
 The existing occurrence-detail Active roster and Court check-in sections now consume the organizer roster through a TanStack Query hook. Mark arrived saves through the attendance RPC; confirmed undo clears the arrival. Actions are disabled during saves and outside published sessions, and failures show a friendly reload message. The development occurrence preview exercises the same presentation components with simulated writes. Native verification details are recorded in `docs/native-testing.md`; fixture tests do not establish live account persistence.
 
 Deployment: migration applied to the Palla Supabase project. Remote checks confirmed RLS enabled, authenticated SELECT only, no authenticated direct UPDATE, no anonymous SELECT, and no anonymous attendance RPC access. `npm run verify` passed 58 tests, typecheck and formatting; lint retains 13 existing warnings. SQL fixtures and last-place concurrency test passed locally.
+
+## Active roster presentation
+
+Player rows use category tags alongside names and ghost message/options icon buttons, matching the supplied Stitch reference without the You badge or Confirmed chip. Available avatar URLs render with initials as fallback. Message/options controls explain that their actions are coming soon; they do not send messages or change registrations. Payment tracking is not implemented: real roster rows show a neutral Coming soon label. The development occurrence preview alone shows illustrative paid checkmarks and amounts.

@@ -1,3 +1,4 @@
+import type { ButtonColor } from "@/components/atoms/button";
 import {
   AppButton,
   AppHeading,
@@ -19,6 +20,7 @@ export function SessionConfirmation({
   description,
   children,
   confirmLabel,
+  confirmColor = "danger",
   keepLabel,
   busy = false,
   error,
@@ -30,6 +32,7 @@ export function SessionConfirmation({
   description: string;
   children?: ReactNode;
   confirmLabel: string;
+  confirmColor?: ButtonColor;
   keepLabel: string;
   busy?: boolean;
   error?: string | null;
@@ -79,7 +82,7 @@ export function SessionConfirmation({
               {error}
             </AppText>
           )}
-          <AppButton color="danger" loading={busy} onPress={onConfirm}>
+          <AppButton color={confirmColor} loading={busy} onPress={onConfirm}>
             {confirmLabel}
           </AppButton>
           <AppButton variant="bordered" isDisabled={busy} onPress={onClose}>

@@ -43,6 +43,10 @@ Button foreground/background states resolve in one component styling path. Inlin
 
 All interactive surfaces need visible keyboard focus on web. Native touch targets have a minimum 48-unit area; compact-looking controls must preserve that target. Text can wrap in buttons and segmented controls. Single-line truncation belongs only to intentionally bounded metadata.
 
+### Empty and error states
+
+`EmptyState` and `ErrorState` share the existing card, heading, body and button primitives. Use `panel` for a section, `inline` beside retained data, and `fullScreen` for unavailable screen content. Set `contained` inside an existing card to avoid another enclosing panel. Inline layouts stack above a 1.2 font scale or below 360 units of window width. Copy distinguishes an empty result from a failed request; optional actions give a relevant next step. Retry supports busy and disabled states. Placement and API examples are in `docs/ui-states.md`; native evidence and limits are in `docs/native-testing.md`.
+
 ## Forms
 
 Text and numeric fields and textareas generate stable IDs shared by their labels and helper/error messages. Web inputs announce labels, required/invalid state, and descriptions. Native inputs provide accessible names and hints. Label-less fields must supply an accessible label through the caller.

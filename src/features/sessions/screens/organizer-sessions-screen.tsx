@@ -4,6 +4,7 @@ import {
   AppHeading,
   AppText,
   EmptyState,
+  ErrorState,
   Screen,
   SegmentedTabs,
   SkeletonBlock
@@ -14,6 +15,7 @@ import { sessionErrorMessage } from "@/features/sessions/services/organizer-sess
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
+import { CalendarDays, FileText } from "lucide-react-native";
 import { PlusIcon } from "@/components/icons";
 export default function OrganizerSessionsScreen() {
   const query = useOrganizerSessions();
@@ -50,21 +52,28 @@ export default function OrganizerSessionsScreen() {
             { value: "past", label: "Past" }
           ]}
         />
+        {query.isError && query.data && (
+          <ErrorState
+            variant="inline"
+            title="Couldn’t refresh sessions"
+            description="Your last loaded list is shown below."
+            onRetry={() => void query.refetch()}
+            retrying={query.isFetching}
+          />
+        )}
         {query.isPending ? (
           <>
             <SkeletonBlock height={140} />
             <SkeletonBlock height={140} />
           </>
-        ) : query.isError ? (
-          <>
-            <AppText tone="danger">{sessionErrorMessage(query.error)}</AppText>
-            <AppButton
-              loading={query.isFetching}
-              onPress={() => void query.refetch()}
-            >
-              Retry
-            </AppButton>
-          </>
+        ) : query.isError && !query.data ? (
+          <ErrorState
+            variant="fullScreen"
+            title="Sessions couldn’t load"
+            description={sessionErrorMessage(query.error)}
+            onRetry={() => void query.refetch()}
+            retrying={query.isFetching}
+          />
         ) : filter === "drafts" ? (
           drafts.length ? (
             drafts.map((d) => (
@@ -91,6 +100,8 @@ export default function OrganizerSessionsScreen() {
             ))
           ) : (
             <EmptyState
+              icon={FileText}
+              variant="fullScreen"
               title="No drafts yet"
               description="Save your progress while you arrange the details."
             />
@@ -136,6 +147,8 @@ export default function OrganizerSessionsScreen() {
           ))
         ) : (
           <EmptyState
+            variant="fullScreen"
+            icon={CalendarDays}
             title={
               filter === "upcoming"
                 ? "Your next session starts here"
