@@ -74,9 +74,9 @@ typography:
     letterSpacing: "-0.24px"
   bodyMd:
     fontFamily: "Hanken Grotesk"
-    fontSize: "15px"
+    fontSize: "16px"
     fontWeight: 400
-    lineHeight: "22px"
+    lineHeight: "24px"
   bodySm:
     fontFamily: "Hanken Grotesk"
     fontSize: "13px"
@@ -90,15 +90,25 @@ typography:
     letterSpacing: "0px"
   meta:
     fontFamily: "Geist"
-    fontSize: "11px"
+    fontSize: "12px"
     fontWeight: 500
-    lineHeight: "15px"
+    lineHeight: "16px"
   label:
+    fontFamily: "Geist"
+    fontSize: "14px"
+    fontWeight: 600
+    lineHeight: "20px"
+    letterSpacing: "0.28px"
+  navigationLabel:
     fontFamily: "Hanken Grotesk"
-    fontSize: "13px"
-    fontWeight: 500
-    lineHeight: "18px"
-    letterSpacing: "0px"
+    fontSize: "12px"
+    fontWeight: 400
+    lineHeight: "17px"
+  navigationLabelActive:
+    fontFamily: "Hanken Grotesk"
+    fontSize: "12px"
+    fontWeight: 600
+    lineHeight: "17px"
   buttonSm:
     fontFamily: "Hanken Grotesk"
     fontSize: "14px"
@@ -167,7 +177,19 @@ components:
     padding: "0px 16px"
   card:
     backgroundColor: "{colors.surface}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.lg}"
+    padding: "16px"
+  card-panel:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.xl}"
+    padding: "24px"
+  card-inset:
+    backgroundColor: "{colors.surface-low}"
+    rounded: "{rounded.lg}"
+    padding: "16px"
+  card-row:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.lg}"
     padding: "16px"
   chip:
     backgroundColor: "{colors.surface}"
@@ -178,6 +200,35 @@ components:
     backgroundColor: "{colors.surface-low}"
     rounded: "{rounded.lg}"
     padding: "4px"
+  role-navigation:
+    backgroundColor: "{colors.surface}"
+    height: "76px"
+    padding: "6px 0px"
+  role-navigation-item:
+    textColor: "{colors.text-muted}"
+    typography: "{typography.navigationLabel}"
+    rounded: "{rounded.md}"
+    padding: "4px 0px"
+  role-navigation-item-active:
+    backgroundColor: "{colors.selection-lime}"
+    textColor: "{colors.olive}"
+    typography: "{typography.navigationLabelActive}"
+    rounded: "{rounded.md}"
+    padding: "4px 0px"
+  navigation-header:
+    backgroundColor: "{colors.canvas}"
+    height: "64px"
+    padding: "0px 24px"
+  notification-button:
+    backgroundColor: "{colors.surface-low}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.xl}"
+    size: "48px"
+  notification-button-pressed:
+    backgroundColor: "{colors.surface-raised}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.xl}"
+    size: "48px"
   mode-choice:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
@@ -194,22 +245,22 @@ components:
 
 ## Overview
 
-**Creative North Star: "Palla's established light interface"**
+**Creative North Star: "Palla’s Stitch-inspired club interface"**
 
-Palla's established light interface uses a pale lavender canvas, white panels, dark ink, and lime essential actions. Hanken Grotesk carries headings and everyday interface text; proportional Geist supports compact metadata. The existing wordmark anchors the identity.
+Palla’s Stitch-inspired club interface uses a pale lavender canvas, white panels, nested lavender blocks, dark ink, and lime essential actions. Hanken Grotesk carries headings and everyday interface text; proportional Geist supports compact metadata. The existing wordmark anchors the identity.
 
-The system is spacious enough for mobile touch and compact enough for repeated session management. Shared semantic tokens and reusable components carry the same visual roles across iOS, Android, and web; screen-specific composition may adapt without changing the palette.
+The system keeps the color and font character of the user’s Stitch references while correcting spacing, alignment, and mobile readability. Shared semantic tokens and reusable components carry the same visual roles across native iOS and Android; screen-specific composition may adapt without changing the palette.
 
 **Key Characteristics:**
 
 - Light-only lavender and white surfaces.
 - Lime actions and olive readable emphasis.
-- Rounded controls, restrained borders, and shallow elevation.
+- Rounded white panels with nested lavender blocks and compact roster rows.
 - Readable, scalable text and scrollable mobile forms.
 
 Palla targets native iOS and Android. UI and flow testing must use iOS Simulator and Android Emulator; existing web styles and captures are legacy compatibility evidence, not acceptance targets.
 
-This records incumbent source and the approved onboarding extension. The normative source remains `src/theme/tokens.js`; React Native aliases live in `src/components/atoms/theme.ts`. Frontmatter mirrors those values, and component state/motion details extend them in `.impeccable/design.json`. Sizes are CSS pixels on web and logical units in native layouts.
+This records incumbent source, the approved onboarding extension, role-navigation chrome, organizer-session implementation, and the approved Stitch-inspired foundation update applied to occurrence details. Existing screens inherit the changed shared tokens; a complete redesign of every screen is not claimed. The normative source remains `src/theme/tokens.js`; React Native aliases live in `src/components/atoms/theme.ts`. Frontmatter mirrors those values, and component state/motion details extend them in `.impeccable/design.json`. Sizes are CSS pixels on web and logical units in native layouts.
 
 ## Colors
 
@@ -233,13 +284,13 @@ Semantic error, success, warning, and info colors express outcomes; they are not
 
 Hanken Grotesk is the primary face. Geist is a secondary proportional face. Native weights resolve to bundled Regular, Medium, SemiBold, and Bold files through `src/theme/fonts.ts`; the platform must load them before showing the interface.
 
-The frontmatter names source roles: hero/title for screen headings, section for major sections, card for subordinate headings, bodyMd/bodySm for copy, caption for helper details, and meta for short metadata. Form labels use the label token; AppText's `label` variant resolves to buttonSm. Buttons use buttonSm, buttonMd, or buttonLg according to size.
+The frontmatter names source roles: hero/title for screen headings, section for major sections, card for subordinate headings, bodyMd/bodySm for copy, caption for helper details, and meta for short metadata. Form labels use the label token: Geist SemiBold (600), 14px/20px, 0.28px tracking, and primary dark charcoal (#1A1B22), verified against Stitch Step 1’s title and description labels. Optional markers and helper text keep their secondary colors; AppText's `label` variant resolves to buttonSm. Buttons use buttonSm, buttonMd, or buttonLg according to size.
 
-The approved onboarding extends the ramp with onboardingTitle and onboardingRole. ModeChoice currently applies onboardingRole size, line height, and weight but inherits card tracking; its token tracking is not fully applied. Inputs enforce a minimum 16px text size. Preserve semantic heading levels and allow controls to grow with text scaling.
+The approved onboarding extends the ramp with onboardingTitle and onboardingRole. ModeChoice currently applies onboardingRole size, line height, and weight but inherits card tracking; its token tracking is not fully applied. Inputs enforce a minimum 16px text size. Preserve semantic heading levels and allow controls to grow with text scaling. AppText, AppHeading, and ButtonText multiply both font size and line height by the platform font scale before rendering with native automatic font scaling disabled. This avoids double scaling and fixed-line-box clipping; it continues to honor the user’s larger-text setting. Button labels wrap and shrink within the available row width.
 
 ## Layout
 
-Screen content caps at 1200px. Shared breakpoints are tablet (768px) and desktop (1280px), with horizontal margins of 16, 40, and 64px respectively. Spacing follows the source's four-unit scale. Shared form width tokens are 540px on web and 760px on native; individual forms may impose a narrower cap.
+Screen content caps at 1200px. Shared breakpoints are tablet (768px) and desktop (1280px), with horizontal margins of 24, 40, and 64px respectively. Spacing follows the source’s four-unit scale. The occurrence detail uses 32-unit section gaps, 12–16-unit internal gaps, and a 600-unit content cap. Summary, waitlist, check-in, and information panels use the shared panel surface; metric blocks and queue entries use inset surfaces, while participant entries use row surfaces. These are screen composition choices, not a required section order for other screens. Screen applies top safe-area padding to its outer root rather than the scrollable content, keeping scrolled content below the status bar. Shared form width tokens are 540px on web and 760px on native; individual forms may impose a narrower cap.
 
 Approved onboarding centers a 440px-wide form with 24px horizontal padding. Its two stacked radio panels remain visible together. Header spacing uses the shared scale; a flexible spacer separates fields from the action area. The form scrolls and adapts to viewport height, safe areas, keyboard visibility, and large text rather than clipping. Its minimum content height is 640px. This composition is specific to account onboarding.
 
@@ -249,7 +300,7 @@ Tonal layering and thin borders carry most depth. The shared shadow vocabulary i
 
 ## Shapes
 
-Controls and cards use the medium radius; segmented-control tracks use the large radius, while chips and radio circles use full rounding. Buttons also support a pill shape. The medium-size button uses the large radius; other button sizes use the medium radius. Standard and strong borders are one unit; the selected onboarding panel uses two.
+Controls use the medium radius; default cards and compact rows use the large radius, while spacious panels use the extra-large radius; segmented-control tracks use the large radius, while chips and radio circles use full rounding. Buttons also support a pill shape. The medium-size button uses the large radius; other button sizes use the medium radius. Standard and strong borders are one unit; the selected onboarding panel uses two.
 
 ## Components
 
@@ -261,11 +312,13 @@ All sizes provide a minimum 48-unit target and grow with type. Default padding i
 
 ### Cards / Containers
 
-White/default, low/muted, raised, and inverse tones share a thin border and continuous rounded corners. Padding variants follow the shared scale: small (12px), medium (16px), large (20px). Raised tone alone adds the shared raised shadow.
+White/default, low/muted, and raised tones use an explicit one-unit border in the subtle border color; inverse cards use their own surface color. The width comes from the native style, rather than relying on the NativeWind class. All share continuous rounded corners. Default cards use large rounding and medium padding. Padding variants follow the shared scale: small (12px), medium (16px), large (20px). AppCard’s optional `surface` prop selects durable surface roles: panel uses extra-large rounding with 24-unit padding; inset and row use large rounding with 16-unit padding. Tonal nesting is part of the approved aesthetic: lavender inset blocks can sit inside white panels. Raised tone alone adds the shared raised shadow.
 
 ### Inputs / Fields
 
-White fields use a subtle border and rounded corners, shifting to default border on hover and olive on focus. Error text and border identify invalid state; disabled fields use low surfaces. Fields begin at a 48-unit minimum and expand with font scale. Labels, optional markers, helper messages, and errors retain accessible associations. Errors remain readable text and announce updates politely.
+White fields use a subtle border and rounded corners, shifting to default border on hover and olive on focus. Error text and border identify invalid state; disabled fields use low surfaces. Fields begin at a 48-unit minimum and expand with font scale. Labels, optional markers, helper messages, and errors retain accessible associations. Text inputs and textareas expose meaningful accessibilityLabel and aria-label values. Errors remain readable text and announce updates politely.
+
+Native picker triggers use `FieldTrigger`, sharing the white surface, subtle border, medium rounding, 16-unit horizontal padding, and scalable height of `TextField`. Values use body text with a trailing calendar, clock, or chevron icon. Pressed/open triggers use an olive border; invalid date/time fields use an error border. Native selects open a scrollable white bottom sheet with selected checkmarks and Done, independent of trigger measurement.
 
 ### Chips
 
@@ -275,9 +328,31 @@ Selectable chips are bordered pills with 48-unit targets. Selected chips use oli
 
 SegmentedTabs uses a low-surface bordered track, equally sized 48-unit tabs, and an ink or olive selected indicator with inverse text. The indicator alone moves using the shared thumb duration. Labels can wrap. The preview sidecar records visual samples; it does not implement app navigation.
 
+Role navigation uses Expo Router Tabs with three equally weighted destinations per role. Each destination combines a 24-unit outline icon with a Hanken Grotesk navigation label; selected labels use the active weight. A pale selection-lime rounded tile and olive icon/text identify the active destination. Inactive icon/text uses muted text. The white bar has a subtle one-unit top border and no elevation. Item margins are 6 units horizontally, with medium rounding applied to both the item and native pressable so the selected fill clips consistently. Native PlatformPressable preserves navigator events and interaction behavior.
+
+The bar grows to `max(76, 72 × fontScale)` units plus the bottom safe-area inset, with 6 units top padding and `6 + bottomInset` bottom padding. It hides when the keyboard opens. Labels remain below their icons. Shared header content is 64 units high plus the top safe-area inset, with 24-unit horizontal padding, the established Palla wordmark, and a 48-unit circular notification target. Its 24-unit bell uses ink on a low surface; pressing raises the surface tone. Notifications use a separate stack screen with Back. The role destinations and deferred content scope are recorded in `.impeccable/navigation-brief.md`.
+
 ### Onboarding radio panels
 
 Approved option A uses white unselected panels and a pale lime selected panel with olive outline. Panels have 24px padding, a 144-unit minimum height, line icons, title/body text, and a trailing radio circle. Selection is exposed explicitly; arrow keys move selection on web. The player form has three steps; the organizer form has two and finishes after the name. The form shows a mode-specific step count, adds Back after mode selection, keeps Sign out available, preserves drafts, and shows failures inline. Approved category option C uses guided radio choices with a category selector and separate beginner/unknown answers; the category question appears only in player onboarding. Organizer access is immediate after saving.
+
+### Organizer session forms and review
+
+The Sessions screen composes existing cards, segmented tabs, skeletons, empty states, and buttons into Upcoming, Drafts, and Past inventory. The editor uses three scrollable steps: place/schedule, players/price, and review. A lime progress strip and step text show position; field groups use shared spacing. Paired time/category controls share a row at normal text sizes; above a 1.2 font scale the editor header and those pairs stack. Back, Previous step, and draft actions preserve the established button hierarchy. Step changes dismiss the keyboard and reset the screen scroll position.
+
+Date/time fields use the shared field trigger with the selected value exposed through accessibilityValue. iOS opens a full-width white bottom sheet containing a light native spinner and Done; Android uses native date/time dialogs. Times are explicitly Buenos Aires time. Club name remains manual; Club address offers street-address predictions with loading, no-match, attribution, and manual-entry recovery surfaces. Monthly-limit recovery also keeps manual address entry available. Provider configuration, the app-wide request cap, and verification limits are recorded in `docs/google-address-search.md`. Review uses a white card for place/schedule, then plain sections for categories, capacity, ARS price, deadlines, and optional notes. The court-arrangement acknowledgement uses the existing selectable chip. These are compositions of incumbent atoms, not new palette or typography roles.
+
+### Session occurrence details
+
+The occurrence screen keeps the approved Stitch composition: a dated summary, nested category/price metrics, registration controls, compact roster rows, waitlist queue, check-in panel, session information, and bottom actions. The live summary shows saved title, venue, schedule, Argentine categories, capacity, per-player currency/price, deadlines, and cancellation information. Edit and cancellation reuse the implemented organizer flow and appear for future published sessions.
+
+Future features remain visible because the user explicitly approved placeholders. Registration is disabled and labelled as coming soon; roster names and initials are explicitly illustrative. Invitations, messaging, QR sharing, promotion, and check-in open a coming-soon sheet without saving data. The sheet respects the bottom safe area and supports platform Back dismissal. No sample participant is presented as a real registration, paid player, or confirmed arrival; payment remains arranged with the club. These feature boundaries belong in product documentation rather than new global visual prohibitions.
+
+### Native confirmations
+
+SessionConfirmation presents a compact white bottom sheet with rounded top corners, a dimmed backdrop, and safe-area padding. Content scrolls within a maximum 90% screen height. Danger confirms the destructive action; a bordered button keeps the session/draft or returns to editing. Inline errors remain visible, busy state disables dismissal, and the platform Back request closes the sheet only when idle. Cancellation uses the shared bordered TextAreaField for an optional reason. Draft deletion and unsaved-change discard use the same confirmation pattern with action-specific copy.
+
+Published editing and cancellation expose one/future scope with a calculated upcoming occurrence count and date span. The editor pins the loaded form and version so a background refresh does not silently replace the edit baseline. These interaction safeguards do not imply registration, attendance, or notification delivery; implementation boundaries belong in `.impeccable/organizer-sessions-brief.md` and `docs/organizer-sessions.md`.
 
 ## Do's and Don'ts
 
@@ -287,6 +362,8 @@ Approved option A uses white unselected panels and a pale lime selected panel wi
 - Do use Hanken Grotesk for headings and body text, and proportional Geist for compact metadata.
 - Do preserve visible keyboard focus, readable errors, and controls that expand with text.
 - Do retain scrolling, safe areas, and keyboard accommodation in mobile forms.
+- Do use panel, inset, and row surface roles to preserve consistent tonal nesting and spacing.
+- Do scale font sizes and line boxes together, allowing actions and rows to wrap.
 
 ### Don't:
 
@@ -296,3 +373,23 @@ Approved option A uses white unselected panels and a pale lime selected panel wi
 - Don't replace the approved stacked onboarding choices with a new composition.
 
 Evidence: source tokens/atoms and `docs/design-system.md`; approved direction in `.impeccable/onboarding-brief.md`. Web review captures are under `.impeccable/review/` (onboarding mobile/name/desktop and signup mobile/desktop). These are development evidence, not shipping imagery or native-device verification. The option mock's generation prompt is `.impeccable/mocks/onboarding-options.prompt.txt`. No shipping raster was added, and no CLI detector or measurement tool ran.
+
+Role-navigation evidence: shared source under `src/components/navigation/`, approved `.impeccable/mocks/role-navigation.png` with the later Search-icon amendment, and native player/organizer captures under `.impeccable/review/native/navigation/`. Preview tests exercise the shipped navigator without authenticated account writes; precise coverage and limits are recorded in `docs/native-testing.md`. No browser validation or CLI visual detector ran for navigation.
+
+Organizer-session evidence: inspected session list/editor/form/review/native datetime/confirmation source, shared input/textarea source, `docs/organizer-sessions.md`, and `docs/native-testing.md`. Earlier development captures are `players-ios.png`, `review-ios.png`, `cancel-ios.png`, and `players-android.png` under `.impeccable/review/native/sessions/`. Both no-write fixture reports (`ios-report.json`, `android-report.json`) record seven passing checks each. These preview checks do not establish account persistence.
+
+Current iOS evidence in that directory was visually inspected: `live-list-ios.png`, `live-cancel-ios.png`, `large-text-ios.png`, `discard-large-text-ios.png`, and `cancel-reason-input-ios.png`. `ios-live-report.json` records authenticated native entry, manual QA venue creation, publication, list/query reload, edit save, and cancellation. The live cancellation capture includes the real count/date scope summary. The native QA record reports successful accessibility-medium layout, Back confirmation, Keep editing preserving input, Discard changes returning to Sessions, and cancellation-reason entry/Keep session recovery. Native snapshots expose meaningful input labels and selected date/time values. The original text-size setting was restored. Code verification passed with 43 unit tests and existing lint warnings.
+
+Authenticated Android checks now passed after organizer onboarding: verified native title/club/address entry, publication of one QA occurrence, inventory reload, capacity edit from 8 to 9, Keep session recovery, cancellation, and retained Past history. Visually inspected `live-list-android.png`, `live-edit-review-android.png`, `live-edited-list-android.png`, `live-cancel-android.png`, and `live-past-android.png`; `android-live-report.json` records the tested flow. Connected read-only database verification, recorded by the QA handoff, confirms Android capacity 9 and iOS capacity 8, both cancelled. These current Android captures supersede earlier interrupted captures for this bounded scope.
+
+Devices: iPhone 17 Pro / iOS 26.5 and Pixel_8 / Android 17, Expo Go SDK 54. Software-keyboard avoidance (hardware keyboard was active on iOS), VoiceOver/TalkBack traversal, Android large text, tablets, restart persistence, and live native weekly publication remain unverified. Weekly recurrence was covered in the SQL fixture rather than a live native flow. These scoped checks do not certify complete native acceptance. No browser validation substitutes for native testing. These earlier session checks precede the occurrence-detail visual refinement.
+
+Control-correction evidence (October 14, 2026): inspected `FieldTrigger`, native `SelectMenu`, native date/time, and address-field source and visually reviewed `fields-fixed-ios.png`, `picker-fields-fixed-android.png`, `time-picker-fixed-ios.png`, `select-fixed-ios.png`, and `select-fixed-android.png` under `.impeccable/review/native/sessions/`. `controls-fixed-ios.json` records no-write physical-touch checks for Repeat/Weekly, Categories/All categories, and Date/Start/End open/Done. `controls-fixed-android.json` records Repeat/Weekly, saved-club name/address population, Date/Start/End open/Cancel, and the unconfigured-address-search manual fallback. These checks confirm the bounded control correction; they add no account-persistence, software-keyboard, screen-reader, tablet, or large-text certification. Live Google predictions and selection were subsequently checked on both native platforms as recorded below. Prior native verification claims and limits above remain scoped to their original checks.
+
+Address-search cap follow-up (October 14, 2026): the deployed proxy reserves requests atomically against a 9,000-request monthly total shared across all Palla users and both autocomplete/details operations, while retaining the per-organizer minute/day limits. Failed or timed-out provider attempts consume their reserved slots. The month resets in America/Los_Angeles. Exhaustion returns manual-address guidance. This controls only Palla proxy requests; it does not cap external key use, other projects, or unrelated Google services, and does not guarantee a zero Google bill. Google Cloud project `palla-502717` has active billing and Places API (New) enabled. The API-restricted key is stored as the Supabase `GOOGLE_PLACES_API_KEY` secret, outside the client and repository. Applied provider daily quotas are 250 AutocompletePlacesRequest and 250 GetPlaceRequest. The combined 9,000/month Palla proxy cap remains active. No additional native layout or accessibility checks were performed for this backend/copy follow-up.
+
+Live Google evidence (October 14, 2026): visually reviewed `google-search-live-ios.png`, `google-selected-live-ios.png`, `google-search-live-android.png`, and `google-selected-live-android.png` under `.impeccable/review/native/sessions/`, with `google-live-report.json`. Both platforms displayed actual predictions and Google Maps attribution, fetched a formatted address after selection, and replaced the local form value. Android verified exact entry of Monroe 5765. iOS automation inserted Monroe into the existing Córdoba address; the actual Córdoba 1234 prediction was selected and resolved, so exact iOS query replacement is not claimed. Six durable monthly reservations were observed across the checks. No session/profile was saved. Provider exhaustion, offline recovery, and complete native accessibility acceptance are not certified by this bounded live check.
+
+Occurrence foundation update (October 14, 2026): extracted implemented values from `src/theme/tokens.js`, shared card/text/heading/button/screen atoms, and `session-occurrence-detail.tsx` / `occurrence-placeholders.tsx`. Code verification passed with 43 unit tests and 13 existing lint warnings. Native recaptures and the current occurrence-detail runtime review were pending at this documentation pass; earlier session captures above do not validate the new screen. No new native acceptance claim is made here.
+
+Card-border correction (October 14, 2026): AppCard now applies the unchanged one-unit border token explicitly in native styles. The registration strip and waitlist inset cards use the subtle border; summary metric blocks intentionally remain borderless. Visually inspected `card-borders-ios.png` and `card-borders-android.png` under `.impeccable/review/native/occurrence/`; the finish reviewer accepted this narrow correction. This adds bounded visual evidence on both platforms without extending the earlier flow, keyboard, or screen-reader claims. Code verification remains 43 passing unit tests and 13 existing lint warnings.

@@ -18,6 +18,7 @@ import { Platform, type TextStyle, type ViewStyle } from "react-native";
 const textAreaHeight = atomControlHeights.lg * 2 + atomSpacing[6];
 
 export function TextAreaField({
+  appearance = "default",
   accessory,
   editable = true,
   errorText,
@@ -28,6 +29,7 @@ export function TextAreaField({
   required = false,
   ...props
 }: React.ComponentProps<typeof UITextareaInput> & {
+  appearance?: "default" | "soft";
   accessory?: ReactNode;
   errorText?: string | null;
   helperText?: string | null;
@@ -78,8 +80,11 @@ export function TextAreaField({
         style={{
           backgroundColor: isDisabled
             ? atomPalette.surfaceLow
-            : atomPalette.surface,
+            : appearance === "soft"
+              ? atomPalette.background
+              : atomPalette.surface,
           borderColor,
+          borderWidth: 1,
           borderRadius: atomControlRadius,
 
           minHeight: textAreaHeight,
@@ -90,6 +95,9 @@ export function TextAreaField({
           nativeID={fieldId}
           accessibilityHint={errorText || helperText || undefined}
           accessibilityLabel={
+            typeof label === "string" ? label : props.accessibilityLabel
+          }
+          aria-label={
             typeof label === "string" ? label : props.accessibilityLabel
           }
           aria-labelledby={label ? `${fieldId}-label` : undefined}

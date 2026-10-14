@@ -52,6 +52,7 @@ type TextFieldProps = Omit<
   React.ComponentProps<typeof UIInputField>,
   "size"
 > & {
+  appearance?: "default" | "soft";
   accessory?: ReactNode;
   errorText?: string | null;
   helperText?: string | null;
@@ -89,6 +90,7 @@ const sizeMap = {
 };
 
 export function TextField({
+  appearance = "default",
   accessory,
   editable = true,
   errorText,
@@ -226,9 +228,11 @@ export function TextField({
             alignItems: "center",
             backgroundColor: isDisabled
               ? atomPalette.surfaceLow
-              : atomPalette.surface,
+              : appearance === "soft"
+                ? atomPalette.background
+                : atomPalette.surface,
             borderColor,
-            borderRadius: config.radius,
+            borderRadius: appearance === "soft" ? 12 : config.radius,
             borderWidth: 1,
             flexDirection: "row",
 
@@ -290,6 +294,9 @@ export function TextField({
               nativeID={fieldId}
               accessibilityHint={errorText || helperText || undefined}
               accessibilityLabel={
+                typeof label === "string" ? label : props.accessibilityLabel
+              }
+              aria-label={
                 typeof label === "string" ? label : props.accessibilityLabel
               }
               aria-labelledby={label ? `${fieldId}-label` : undefined}

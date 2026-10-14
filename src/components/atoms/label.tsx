@@ -27,10 +27,17 @@ export function FieldLabel({
         style={{
           alignItems: "center",
           flexDirection: "row",
+          flexWrap: "wrap",
+          flexShrink: 1,
           gap: atomSpacing[1]
         }}
       >
-        <AppText nativeID={nativeID} tone="muted" variant="formLabel">
+        <AppText
+          style={{ flexShrink: 1 }}
+          nativeID={nativeID}
+          tone="default"
+          variant="formLabel"
+        >
           {children}
         </AppText>
         {!required ? (

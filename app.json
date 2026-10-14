@@ -67,7 +67,8 @@
             "./assets/fonts/Geist-SemiBold.ttf"
           ]
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,15 +1,13 @@
-import { Stack } from "expo-router";
-
+import { RoleTabs } from "@/components/navigation/role-tabs";
 export default function OrganizerLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerBackButtonDisplayMode: "minimal",
-        headerShown: false,
-        headerShadowVisible: false
+    <RoleTabs
+      mode="organizer"
+      routes={{
+        home: "dashboard",
+        secondary: "sessions",
+        profile: "organizer-profile"
       }}
-    >
-      <Stack.Screen name="dashboard" options={{ title: "Organizer" }} />
-    </Stack>
+    />
   );
 }

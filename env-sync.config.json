@@ -75,6 +75,11 @@
     },
     "SITE_URL": {
       "example": "https://palla.vercel.app"
+    },
+    "GOOGLE_PLACES_API_KEY": {
+      "section": "Google Places / Server",
+      "comment": "Supabase Edge Function secret only. Never expose in Expo public variables. Restrict to Places API (New).",
+      "example": "your_server_places_api_key"
     }
   }
 }

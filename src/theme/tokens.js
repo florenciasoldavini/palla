@@ -254,8 +254,8 @@ const typeScale = {
   },
   bodyMd: {
     fontFamily: fontFamilies.web.sans,
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
     fontWeight: "400"
   },
   bodySm: {
@@ -273,8 +273,8 @@ const typeScale = {
   },
   meta: {
     fontFamily: fontFamilies.web.secondary,
-    fontSize: 11,
-    lineHeight: 15,
+    fontSize: 12,
+    lineHeight: 16,
     fontWeight: "500"
   },
   eyebrow: {
@@ -286,11 +286,11 @@ const typeScale = {
     textTransform: "uppercase"
   },
   label: {
-    fontFamily: fontFamilies.web.sans,
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: "500",
-    letterSpacing: 0
+    fontFamily: fontFamilies.web.secondary,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "600",
+    letterSpacing: 0.28
   },
   labelUi: {
     fontFamily: fontFamilies.web.sans,
@@ -403,7 +403,7 @@ const layout = {
   breakpointDesktop: 1280,
   marginDesktop: 64,
   marginTablet: 40,
-  marginMobile: 16,
+  marginMobile: 24,
   gutterDefault: 16
 };
 
@@ -481,9 +481,14 @@ const controls = {
     lg: 48,
     iconLg: 48
   },
+  surfaces: {
+    panel: { radius: radius.xl, padding: spacing[6] },
+    inset: { radius: radius.lg, padding: spacing[4] },
+    row: { radius: radius.lg, padding: spacing[4] }
+  },
   radius: {
     control: radius.md,
-    card: radius.md
+    card: radius.lg
   }
 };
 

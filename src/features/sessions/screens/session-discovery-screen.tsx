@@ -7,13 +7,7 @@ import {
   TextField
 } from "@/components/atoms";
 import { atomPalette, atomRadii, atomSpacing } from "@/components/atoms/theme";
-import {
-  BellIcon,
-  ClockIcon,
-  LevelIcon,
-  PlusIcon,
-  SearchIcon
-} from "@/components/icons";
+import { ClockIcon, LevelIcon, PlusIcon, SearchIcon } from "@/components/icons";
 import { SessionCard, SessionListItem } from "@/features/sessions/components";
 import type { SessionPreview } from "@/features/sessions/types/session";
 import { Pressable, ScrollView, View } from "react-native";
@@ -145,19 +139,6 @@ export default function HomeScreen() {
               </AppText>
               <AppHeading variant="card">Buenos Aires, AR</AppHeading>
             </View>
-            <Pressable
-              accessibilityLabel="Notifications"
-              style={{
-                alignItems: "center",
-                backgroundColor: atomPalette.surfaceLow,
-                borderRadius: atomRadii.full,
-                minHeight: 48,
-                justifyContent: "center",
-                minWidth: 48
-              }}
-            >
-              <BellIcon color={atomPalette.text} size="sm" />
-            </Pressable>
           </View>
 
           <TextField

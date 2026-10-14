@@ -17,8 +17,13 @@ const content = {
   description: null,
   court_label: null,
   capacity: 4,
-  level_min: 3,
-  level_max: 4,
+  allowed_categories: [3, 4],
+  strict_category_enforcement: false,
+  participant_gender_policy: "all",
+  visibility: "private",
+  waitlist_enabled: false,
+  waitlist_promotion_mode: "automatic",
+  waitlist_capacity: null,
   price_minor: 10000,
   currency: "ARS",
   payment_instructions: null
@@ -27,6 +32,7 @@ const session = {
   ...content,
   starts_at: "2026-10-06T20:00:00-03:00",
   ends_at: "2026-10-06T21:30:00-03:00",
+  registration_opens_at: null,
   registration_closes_at: "2026-10-06T22:00:00Z",
   cancellation_deadline_at: "2026-10-06T18:00:00-03:00"
 };
@@ -50,8 +56,9 @@ describe("MVP domain boundaries", () => {
 
   it("rejects partial or reversed level ranges and invalid capacity", () => {
     for (const patch of [
-      { level_max: null },
-      { level_min: 5 },
+      { allowed_categories: [] },
+      { allowed_categories: [5, 5] },
+      { allowed_categories: [0, 9] },
       { capacity: 0 },
       { capacity: 2.5 }
     ]) {
@@ -62,8 +69,7 @@ describe("MVP domain boundaries", () => {
     expect(
       sessionInputSchema.safeParse({
         ...session,
-        level_min: null,
-        level_max: null
+        allowed_categories: null
       }).success
     ).toBe(true);
   });
@@ -99,6 +105,8 @@ describe("MVP domain boundaries", () => {
       duration_minutes: 90,
       starts_on: "2026-10-06",
       ends_on: null,
+      registration_opens_minutes_before: null,
+      registration_closes_minutes_before: null,
       cancellation_notice_minutes: 120
     };
     expect(sessionSeriesInputSchema.safeParse(series).success).toBe(true);

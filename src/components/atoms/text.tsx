@@ -3,6 +3,7 @@ import { getSecondaryFontStyle, getSansFontStyle } from "@/theme/fonts";
 import type { ReactNode } from "react";
 import {
   Text,
+  useWindowDimensions,
   type StyleProp,
   type TextProps,
   type TextStyle
@@ -44,7 +45,7 @@ const variantStyles: Record<TextVariant, TextStyle> = {
   bodySm: sansTypeStyle("bodySm"),
   caption: sansTypeStyle("caption"),
   formLabel: {
-    ...sansTypeStyle("label")
+    ...secondaryTypeStyle("label")
   },
   label: {
     ...sansTypeStyle("buttonSm")
@@ -77,8 +78,23 @@ export function AppText({
   tone?: TextTone;
   variant?: TextVariant;
 }) {
+  // Scale font and line box together: native custom-font scaling can clip fixed line heights.
+  const { fontScale } = useWindowDimensions();
+  const typography = variantStyles[variant];
   return (
-    <Text style={[variantStyles[variant], toneStyles[tone], style]} {...props}>
+    <Text
+      allowFontScaling={false}
+      style={[
+        {
+          ...typography,
+          fontSize: Number(typography.fontSize) * fontScale,
+          lineHeight: Number(typography.lineHeight) * fontScale
+        },
+        toneStyles[tone],
+        style
+      ]}
+      {...props}
+    >
       {children}
     </Text>
   );
