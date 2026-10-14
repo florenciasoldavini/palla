@@ -1,4 +1,5 @@
 import { designTokens } from "@/theme/tokens";
+import { AvailableRosterSlot } from "./available-roster-slot";
 import { RosterPlayer } from "./roster-player";
 import {
   AppCard,
@@ -31,6 +32,7 @@ export function attendeeName(row: Attendee) {
 
 export function AttendanceSections({
   attendees,
+  capacity,
   loading = false,
   retrying = false,
   error,
@@ -43,6 +45,7 @@ export function AttendanceSections({
   previewPaymentLabel
 }: {
   attendees: Attendee[];
+  capacity: number;
   previewPaymentLabel?: string;
   between?: React.ReactNode;
   loading?: boolean;
@@ -73,7 +76,7 @@ export function AttendanceSections({
       retrying={retrying}
       retryLabel="Reload attendees"
     />
-  ) : attendees.length === 0 ? (
+  ) : attendees.length === 0 && (disabled || capacity === 0) ? (
     <EmptyState
       title="No players yet"
       description="Confirmed players will appear here when they join this session."
@@ -98,6 +101,18 @@ export function AttendanceSections({
               previewPaymentLabel={previewPaymentLabel}
             />
           ))}
+        {!loading &&
+          !error &&
+          !disabled &&
+          Array.from(
+            { length: Math.max(0, capacity - attendees.length) },
+            (_, index) => (
+              <AvailableRosterSlot
+                key={index}
+                number={attendees.length + index + 1}
+              />
+            )
+          )}
       </View>
       {between}
       <AppCard surface="panel" style={{ gap: sp[4] }}>
@@ -242,12 +257,14 @@ export function AttendanceSections({
 
 export function OrganizerAttendance({
   sessionId,
+  capacity,
   timeZone,
   published,
   between
 }: {
   between?: React.ReactNode;
   sessionId: string;
+  capacity: number;
   timeZone: string;
   published: boolean;
 }) {
@@ -255,6 +272,7 @@ export function OrganizerAttendance({
   const [error, setError] = useState<string | null>(null);
   return (
     <AttendanceSections
+      capacity={capacity}
       between={between}
       attendees={roster.data ?? []}
       retrying={roster.isFetching}

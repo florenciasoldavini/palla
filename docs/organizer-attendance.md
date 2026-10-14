@@ -27,3 +27,15 @@ Deployment: migration applied to the Palla Supabase project. Remote checks confi
 ## Active roster presentation
 
 Player rows use category tags alongside names and ghost message/options icon buttons, matching the supplied Stitch reference without the You badge or Confirmed chip. Available avatar URLs render with initials as fallback. Message/options controls explain that their actions are coming soon; they do not send messages or change registrations. Payment tracking is not implemented: real roster rows show a neutral Coming soon label. The development occurrence preview alone shows illustrative paid checkmarks and amounts.
+
+## Registration occupancy
+
+The published occurrence summary shows confirmed registrations against capacity (for example, `3/4 filled` or `4/4 filled · Full`). It reads the same actor/session-scoped TanStack Query roster as Active roster and Court Check-in; waitlisted and cancelled registrations do not count. Promotion invalidations refresh this shared data, so the summary and roster update together. No additional counter column or migration is required.
+
+The badge shows `Loading players…` before the first roster result and `Count unavailable` on roster failure, rather than presenting unknown occupancy as zero. A successful empty roster shows `0/<capacity> filled`. Cancelled/completed occurrence status labels remain unchanged. Native fixture checks and limits are recorded in `native-testing.md`.
+
+## Available roster slots
+
+Published occurrences render one dashed slot card for each unfilled place (`capacity - confirmed attendees`), after the player cards. Slot numbers are display positions, not assigned courts or reserved seats. A successful empty roster shows all available slots instead of a second empty-state panel. Slots are hidden while loading, on error, and for cancelled/completed sessions, and disappear as promotions fill capacity. Direct invitations remain an explicit Coming soon placeholder and never send an invitation.
+
+`AvailableRosterSlot` uses the shared muted row card with a dashed border, a decorative user-plus icon, “Slot <number>: Available” copy and an Invite directly action. The action opens a native Coming soon dialog explaining that no invitation was sent. `AttendanceSections` receives capacity from its caller, clamps the available count to zero, and numbers slots after the confirmed attendees. No slot records or reservations are created. Native fixture evidence and larger-text checks are recorded in `native-testing.md`.

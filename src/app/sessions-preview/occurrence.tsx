@@ -53,6 +53,9 @@ export default function OccurrencePreview() {
   }, [mode]);
   return (
     <SessionOccurrenceDetail
+      registeredCount={mode === "empty" ? 0 : attendees.length}
+      occupancyLoading={mode === "loading"}
+      occupancyError={mode === "error"}
       preview
       waitlist={
         <WaitlistPreview
@@ -82,6 +85,7 @@ export default function OccurrencePreview() {
             ))}
           </View>
           <AttendanceSections
+            capacity={sample.capacity}
             previewPaymentLabel="Paid $12,000"
             between={between}
             attendees={mode === "empty" ? [] : attendees}

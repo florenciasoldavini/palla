@@ -1,3 +1,4 @@
+import { useOrganizerRoster } from "@/features/registrations/hooks/use-organizer-attendance";
 import { OrganizerWaitlist } from "@/features/registrations/components/organizer-waitlist";
 import { OrganizerAttendance } from "@/features/registrations/components/organizer-attendance";
 import {
@@ -26,6 +27,7 @@ export default function SessionOccurrenceScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const query = useOrganizerSessions();
+  const roster = useOrganizerRoster(id ?? "");
   const { cancel } = useSessionMutations();
   const [confirming, setConfirming] = useState(false);
   const [scope, setScope] = useState<"one" | "future">("one");
@@ -91,6 +93,9 @@ export default function SessionOccurrenceScreen() {
   return (
     <>
       <SessionOccurrenceDetail
+        registeredCount={roster.data?.length}
+        occupancyLoading={roster.isPending}
+        occupancyError={roster.isError}
         waitlist={
           <OrganizerWaitlist
             key={session.id}
@@ -100,6 +105,7 @@ export default function SessionOccurrenceScreen() {
         }
         attendance={(between) => (
           <OrganizerAttendance
+            capacity={session.capacity}
             key={session.id}
             sessionId={session.id}
             timeZone={series?.timezone ?? "America/Argentina/Buenos_Aires"}

@@ -48,9 +48,15 @@ export function SessionOccurrenceDetail({
   onCancel,
   preview = false,
   attendance,
-  waitlist
+  waitlist,
+  registeredCount,
+  occupancyLoading = false,
+  occupancyError = false
 }: {
   session: PadelSession;
+  registeredCount?: number;
+  occupancyLoading?: boolean;
+  occupancyError?: boolean;
   venue?: Venue;
   timeZone?: string;
   weekly: boolean;
@@ -137,13 +143,35 @@ export function SessionOccurrenceDetail({
                 styles.pill,
                 {
                   backgroundColor:
-                    s.status === "published" ? c.brand : c.surfaceLow
+                    s.status === "published" &&
+                    !occupancyLoading &&
+                    !occupancyError &&
+                    registeredCount !== undefined
+                      ? c.brand
+                      : c.surfaceLow
                 }
               ]}
             >
-              <AppText variant="caption">
+              <AppText
+                variant="caption"
+                accessibilityLiveRegion="polite"
+                accessibilityState={{ busy: occupancyLoading }}
+                accessibilityLabel={
+                  s.status === "published"
+                    ? occupancyLoading
+                      ? "Loading registration count"
+                      : occupancyError || registeredCount === undefined
+                        ? `Registration count unavailable. Capacity ${s.capacity}.`
+                        : `${registeredCount} of ${s.capacity} places filled${registeredCount >= s.capacity ? ". Session full." : ""}`
+                    : undefined
+                }
+              >
                 {s.status === "published"
-                  ? `${s.capacity} places`
+                  ? occupancyLoading
+                    ? "Loading players…"
+                    : occupancyError || registeredCount === undefined
+                      ? "Count unavailable"
+                      : `${registeredCount}/${s.capacity} filled${registeredCount >= s.capacity ? " · Full" : ""}`
                   : s.status === "cancelled"
                     ? "Cancelled"
                     : s.status === "completed"
