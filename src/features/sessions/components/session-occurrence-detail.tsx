@@ -8,10 +8,7 @@ import {
 import { atomPalette as c, atomSpacing as sp } from "@/components/atoms/theme";
 import type { PadelSession } from "@/features/sessions/domain";
 import type { Venue } from "@/features/venues/domain";
-import {
-  OccurrencePlaceholders,
-  PlaceholderAction
-} from "./occurrence-placeholders";
+import { PlaceholderAction } from "./occurrence-placeholders";
 import {
   ArrowLeft,
   Calendar,
@@ -50,9 +47,16 @@ export function SessionOccurrenceDetail({
   onEdit,
   onCancel,
   preview = false,
-  attendance
+  attendance,
+  waitlist,
+  registeredCount,
+  occupancyLoading = false,
+  occupancyError = false
 }: {
   session: PadelSession;
+  registeredCount?: number;
+  occupancyLoading?: boolean;
+  occupancyError?: boolean;
   venue?: Venue;
   timeZone?: string;
   weekly: boolean;
@@ -62,6 +66,7 @@ export function SessionOccurrenceDetail({
   onCancel: () => void;
   preview?: boolean;
   attendance: (between: React.ReactNode) => React.ReactNode;
+  waitlist: React.ReactNode;
 }) {
   const [soon, setSoon] = useState<string | null>(null);
   const { fontScale, width } = useWindowDimensions();
@@ -138,13 +143,35 @@ export function SessionOccurrenceDetail({
                 styles.pill,
                 {
                   backgroundColor:
-                    s.status === "published" ? c.brand : c.surfaceLow
+                    s.status === "published" &&
+                    !occupancyLoading &&
+                    !occupancyError &&
+                    registeredCount !== undefined
+                      ? c.brand
+                      : c.surfaceLow
                 }
               ]}
             >
-              <AppText variant="caption">
+              <AppText
+                variant="caption"
+                accessibilityLiveRegion="polite"
+                accessibilityState={{ busy: occupancyLoading }}
+                accessibilityLabel={
+                  s.status === "published"
+                    ? occupancyLoading
+                      ? "Loading registration count"
+                      : occupancyError || registeredCount === undefined
+                        ? `Registration count unavailable. Capacity ${s.capacity}.`
+                        : `${registeredCount} of ${s.capacity} places filled${registeredCount >= s.capacity ? ". Session full." : ""}`
+                    : undefined
+                }
+              >
                 {s.status === "published"
-                  ? `${s.capacity} places`
+                  ? occupancyLoading
+                    ? "Loading players…"
+                    : occupancyError || registeredCount === undefined
+                      ? "Count unavailable"
+                      : `${registeredCount}/${s.capacity} filled${registeredCount >= s.capacity ? " · Full" : ""}`
                   : s.status === "cancelled"
                     ? "Cancelled"
                     : s.status === "completed"
@@ -223,7 +250,7 @@ export function SessionOccurrenceDetail({
             />
           </View>
         </AppCard>
-        {attendance(<OccurrencePlaceholders onSoon={setSoon} />)}
+        {attendance(waitlist)}
         <AppCard surface="panel" style={{ gap: sp[3] }}>
           <AppHeading variant="section">Session information</AppHeading>
           {venue?.address && <AppText>{venue.address}</AppText>}

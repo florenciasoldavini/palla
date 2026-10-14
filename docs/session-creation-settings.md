@@ -6,15 +6,15 @@ Backend and Zod contracts were updated on October 14, 2026. Migration `202610141
 
 The following fields are copied from a series into each occurrence. A one-off session also has a series record.
 
-| Column                      | Type                 | Meaning                                         |
-| --------------------------- | -------------------- | ----------------------------------------------- |
-| visibility                  | text, required       | `public` or `private`                           |
-| allowed_categories          | smallint[], nullable | Unique categories 1–8; NULL allows all          |
-| participant_gender_policy   | text, required       | `all`, `women_only`, or `men_only`              |
-| strict_category_enforcement | boolean, required    | Defaults false; future joining eligibility flag |
-| waitlist_enabled            | boolean, required    | Whether players may queue once full             |
-| waitlist_promotion_mode     | text, required       | `automatic` or `manual`                         |
-| waitlist_capacity           | integer, nullable    | Maximum queued players; NULL means unlimited    |
+| Column                      | Type                 | Meaning                                            |
+| --------------------------- | -------------------- | -------------------------------------------------- |
+| visibility                  | text, required       | `public` or `private`                              |
+| allowed_categories          | smallint[], nullable | Unique categories 1–8; NULL allows all             |
+| participant_gender_policy   | text, required       | `all`, `women_only`, or `men_only`                 |
+| strict_category_enforcement | boolean, required    | Defaults false; enforced during waitlist promotion |
+| waitlist_enabled            | boolean, required    | Whether players may queue once full                |
+| waitlist_promotion_mode     | text, required       | `automatic` or `manual`                            |
+| waitlist_capacity           | integer, nullable    | Maximum queued players; NULL means unlimited       |
 
 Category selections can be noncontiguous, such as `[5, 7]`. Empty arrays, duplicates, and values outside 1–8 are rejected. Queue capacity must be 1–32767 when specified. Disabling the waitlist preserves its configured mode/capacity for later reuse; future registration operations must respect the enabled flag.
 

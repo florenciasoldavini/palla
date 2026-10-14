@@ -1,3 +1,4 @@
+import { WaitlistPreview } from "@/features/registrations/components/waitlist-preview";
 import { AttendanceSections } from "@/features/registrations/components/organizer-attendance";
 import type { Attendee } from "@/features/registrations/domain";
 import { useEffect, useState } from "react";
@@ -21,7 +22,7 @@ const sample: PadelSession = {
   strict_category_enforcement: false,
   participant_gender_policy: "all",
   visibility: "private",
-  waitlist_enabled: false,
+  waitlist_enabled: true,
   waitlist_promotion_mode: "automatic",
   waitlist_capacity: null,
   registration_opens_at: null,
@@ -52,7 +53,19 @@ export default function OccurrencePreview() {
   }, [mode]);
   return (
     <SessionOccurrenceDetail
+      registeredCount={mode === "empty" ? 0 : attendees.length}
+      occupancyLoading={mode === "loading"}
+      occupancyError={mode === "error"}
       preview
+      waitlist={
+        <WaitlistPreview
+          sessionId={sample.id}
+          attendees={attendees}
+          initialRoster={initialAttendees}
+          onRosterChange={setAttendees}
+          published={mode !== "cancelled"}
+        />
+      }
       attendance={(between) => (
         <>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
@@ -72,6 +85,8 @@ export default function OccurrencePreview() {
             ))}
           </View>
           <AttendanceSections
+            capacity={sample.capacity}
+            previewPaymentLabel="Paid $12,000"
             between={between}
             attendees={mode === "empty" ? [] : attendees}
             loading={mode === "loading"}

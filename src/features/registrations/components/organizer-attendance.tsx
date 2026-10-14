@@ -1,10 +1,12 @@
 import { designTokens } from "@/theme/tokens";
-import { categoryLabels } from "@/features/profile/playing-category";
+import { AvailableRosterSlot } from "./available-roster-slot";
+import { RosterPlayer } from "./roster-player";
 import {
-  AppButton,
   AppCard,
   AppHeading,
   AppText,
+  EmptyState,
+  ErrorState,
   SkeletonBlock
 } from "@/components/atoms";
 import { atomPalette as c, atomSpacing as sp } from "@/components/atoms/theme";
@@ -30,18 +32,24 @@ export function attendeeName(row: Attendee) {
 
 export function AttendanceSections({
   attendees,
+  capacity,
   loading = false,
+  retrying = false,
   error,
   busyId,
   disabled = false,
   timeZone,
   onRetry,
   onChange,
-  between
+  between,
+  previewPaymentLabel
 }: {
   attendees: Attendee[];
+  capacity: number;
+  previewPaymentLabel?: string;
   between?: React.ReactNode;
   loading?: boolean;
+  retrying?: boolean;
   error?: string | null;
   busyId?: string;
   disabled?: boolean;
@@ -50,31 +58,35 @@ export function AttendanceSections({
   onChange: (row: Attendee, arrived: boolean) => Promise<void>;
 }) {
   const { fontScale, width } = useWindowDimensions();
-  const avatarSize = Math.max(40, 40 * fontScale);
   const [pressedId, setPressedId] = useState<string | null>(null);
   const [undo, setUndo] = useState<Attendee | null>(null);
   const arrived = attendees.filter((row) => row.checked_in_at !== null).length;
   const status = loading ? (
     <SkeletonBlock height={100} />
   ) : error ? (
-    <View style={{ gap: sp[3] }}>
-      <AppText tone="danger" accessibilityLiveRegion="polite">
-        {error}
-      </AppText>
-      <AppButton variant="bordered" onPress={onRetry}>
-        Reload attendees
-      </AppButton>
-    </View>
-  ) : attendees.length === 0 ? (
-    <AppText tone="subtle">
-      No confirmed attendees yet. Registered players will appear here.
-    </AppText>
+    <ErrorState
+      variant={attendees.length ? "inline" : "panel"}
+      title={
+        attendees.length
+          ? "Attendees couldn’t update"
+          : "Couldn’t load attendees"
+      }
+      description={error}
+      onRetry={onRetry}
+      retrying={retrying}
+      retryLabel="Reload attendees"
+    />
+  ) : attendees.length === 0 && (disabled || capacity === 0) ? (
+    <EmptyState
+      title="No players yet"
+      description="Confirmed players will appear here when they join this session."
+    />
   ) : null;
   return (
     <>
       <View style={{ gap: sp[3] }}>
         <AppHeading variant="section">Active roster</AppHeading>
-        {!loading && !error && (
+        {!loading && (!error || attendees.length > 0) && (
           <AppText variant="bodySm" tone="subtle">
             {attendees.length} confirmed{" "}
             {attendees.length === 1 ? "player" : "players"}
@@ -82,40 +94,25 @@ export function AttendanceSections({
         )}
         {status}
         {!loading &&
-          !error &&
           attendees.map((row) => (
-            <AppCard key={row.id} surface="row">
-              <View style={styles.row}>
-                <View
-                  style={[
-                    styles.avatar,
-                    {
-                      width: avatarSize,
-                      height: avatarSize,
-                      borderRadius: avatarSize / 2
-                    }
-                  ]}
-                >
-                  <AppText variant="label">
-                    {attendeeName(row)
-                      .split(" ")
-                      .map((part) => part[0])
-                      .slice(0, 2)
-                      .join("")}
-                  </AppText>
-                </View>
-                <View style={styles.name}>
-                  <AppText variant="label">{attendeeName(row)}</AppText>
-                  <AppText variant="caption" tone="accent">
-                    {row.player.playing_category === null
-                      ? "Category not set"
-                      : categoryLabels[row.player.playing_category]}{" "}
-                    · Confirmed
-                  </AppText>
-                </View>
-              </View>
-            </AppCard>
+            <RosterPlayer
+              key={row.id}
+              attendee={row}
+              previewPaymentLabel={previewPaymentLabel}
+            />
           ))}
+        {!loading &&
+          !error &&
+          !disabled &&
+          Array.from(
+            { length: Math.max(0, capacity - attendees.length) },
+            (_, index) => (
+              <AvailableRosterSlot
+                key={index}
+                number={attendees.length + index + 1}
+              />
+            )
+          )}
       </View>
       {between}
       <AppCard surface="panel" style={{ gap: sp[4] }}>
@@ -131,7 +128,7 @@ export function AttendanceSections({
               Verify on-court arrivals
             </AppText>
           </View>
-          {!loading && !error && (
+          {!loading && (!error || attendees.length > 0) && (
             <View style={styles.countBadge}>
               <AppText
                 variant="caption"
@@ -145,7 +142,7 @@ export function AttendanceSections({
         </View>
         {loading ? (
           <SkeletonBlock height={100} />
-        ) : error ? (
+        ) : error && attendees.length === 0 ? (
           <AppText tone="subtle">
             Reload attendees above to check arrivals.
           </AppText>
@@ -260,12 +257,14 @@ export function AttendanceSections({
 
 export function OrganizerAttendance({
   sessionId,
+  capacity,
   timeZone,
   published,
   between
 }: {
   between?: React.ReactNode;
   sessionId: string;
+  capacity: number;
   timeZone: string;
   published: boolean;
 }) {
@@ -273,8 +272,10 @@ export function OrganizerAttendance({
   const [error, setError] = useState<string | null>(null);
   return (
     <AttendanceSections
+      capacity={capacity}
       between={between}
       attendees={roster.data ?? []}
+      retrying={roster.isFetching}
       loading={roster.isPending || (roster.isFetching && !roster.data)}
       busyId={
         attendance.isPending ? attendance.variables.registration_id : undefined
@@ -310,21 +311,6 @@ export function OrganizerAttendance({
   );
 }
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: sp[2],
-    flexWrap: "wrap"
-  },
-  name: { flex: 1, minWidth: 100, gap: sp[1] },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: c.surfaceLow,
-    alignItems: "center",
-    justifyContent: "center"
-  },
   checkinHeader: { flexDirection: "row", alignItems: "center", gap: sp[3] },
   stackedHeader: { flexDirection: "column", alignItems: "flex-start" },
   countBadge: {

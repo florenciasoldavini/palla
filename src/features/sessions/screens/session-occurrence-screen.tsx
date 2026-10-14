@@ -1,7 +1,10 @@
+import { useOrganizerRoster } from "@/features/registrations/hooks/use-organizer-attendance";
+import { OrganizerWaitlist } from "@/features/registrations/components/organizer-waitlist";
 import { OrganizerAttendance } from "@/features/registrations/components/organizer-attendance";
 import {
   AppButton,
-  AppText,
+  EmptyState,
+  ErrorState,
   Screen,
   SelectField,
   SkeletonBlock
@@ -24,6 +27,7 @@ export default function SessionOccurrenceScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const query = useOrganizerSessions();
+  const roster = useOrganizerRoster(id ?? "");
   const { cancel } = useSessionMutations();
   const [confirming, setConfirming] = useState(false);
   const [scope, setScope] = useState<"one" | "future">("one");
@@ -46,13 +50,13 @@ export default function SessionOccurrenceScreen() {
     return (
       <Screen>
         <View style={{ gap: 16 }}>
-          <AppText tone="danger">{sessionErrorMessage(query.error)}</AppText>
-          <AppButton
-            loading={query.isFetching}
-            onPress={() => void query.refetch()}
-          >
-            Retry
-          </AppButton>
+          <ErrorState
+            variant="fullScreen"
+            title="Session couldn’t load"
+            description={sessionErrorMessage(query.error)}
+            onRetry={() => void query.refetch()}
+            retrying={query.isFetching}
+          />
           <AppButton variant="ghost" onPress={back}>
             Back to sessions
           </AppButton>
@@ -62,10 +66,12 @@ export default function SessionOccurrenceScreen() {
   if (!session)
     return (
       <Screen>
-        <AppText>This session is unavailable.</AppText>
-        <AppButton variant="ghost" onPress={back}>
-          Back to sessions
-        </AppButton>
+        <EmptyState
+          variant="fullScreen"
+          title="Session unavailable"
+          description="This session may have been removed or is no longer accessible."
+          action={{ label: "Back to sessions", onPress: back }}
+        />
       </Screen>
     );
   const next = query.data?.sessions.find(
@@ -87,8 +93,19 @@ export default function SessionOccurrenceScreen() {
   return (
     <>
       <SessionOccurrenceDetail
+        registeredCount={roster.data?.length}
+        occupancyLoading={roster.isPending}
+        occupancyError={roster.isError}
+        waitlist={
+          <OrganizerWaitlist
+            key={session.id}
+            sessionId={session.id}
+            published={session.status === "published"}
+          />
+        }
         attendance={(between) => (
           <OrganizerAttendance
+            capacity={session.capacity}
             key={session.id}
             sessionId={session.id}
             timeZone={series?.timezone ?? "America/Argentina/Buenos_Aires"}
