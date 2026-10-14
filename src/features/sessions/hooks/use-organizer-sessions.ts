@@ -20,8 +20,12 @@ export function useOrganizerSessions() {
 export function useSessionMutations() {
   const { user } = useContext(AuthContext);
   const client = useQueryClient();
-  const onSuccess = () =>
-    client.invalidateQueries({ queryKey: organizerSessionsKey(user?.id) });
+  const onSuccess = async () => {
+    await Promise.all([
+      client.invalidateQueries({ queryKey: organizerSessionsKey(user?.id) }),
+      client.invalidateQueries({ queryKey: ["organizer-roster", user?.id] })
+    ]);
+  };
   return {
     save: useMutation({ mutationFn: saveOrganizerSession, onSuccess }),
     cancel: useMutation({ mutationFn: cancelOrganizerSession, onSuccess }),

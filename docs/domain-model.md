@@ -1,6 +1,6 @@
 # Palla domain and database plan
 
-The Zod schemas under each feature define complete record contracts and user-input contracts. TypeScript types are inferred from those schemas. Implemented tables are profiles, organizers, venues, session_series, and sessions; registration and notification contracts remain future plans. Add migrations and authorization tests with each implemented feature, as required by AGENTS.md.
+The Zod schemas under each feature define complete record contracts and user-input contracts. TypeScript types are inferred from those schemas. Implemented tables are profiles, organizers, venues, session_series, sessions, and registrations. Registrations currently support the organizer roster and attendance backend; player registration workflows and notifications remain future plans. Add migrations and authorization tests with each implemented feature, as required by AGENTS.md.
 
 ## Contract conventions
 
@@ -60,6 +60,8 @@ Settings, defaults, validation, and recurring timing semantics are documented in
 ## Registrations
 
 Contract: `src/features/registrations/domain.ts`.
+
+The organizer-only roster/attendance backend is implemented by `20261014180900_session_registrations.sql`; see [organizer attendance](organizer-attendance.md). Arrival timestamps and actors are a nullable pair. Player registration transactions below remain planned, not implemented.
 
 Store session/player foreign keys, `confirmed | waitlisted | cancelled`, current join time, waitlist sequence, confirmation time, cancellation actor/time, and optional reason. Enforce unique `(session_id, player_id)`. The server resets lifecycle fields on rejoin and assigns a new queue sequence.
 
