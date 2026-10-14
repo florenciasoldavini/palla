@@ -11,12 +11,14 @@ import {
   ManagedSessionCard,
   OrganizerStatCard
 } from "@/features/organizer/components";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
+import { useRouter } from "expo-router";
 
 const courtImage =
   "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=900&q=80";
 
 export default function OrganizerDashboardScreen() {
+  const router = useRouter();
   return (
     <Screen contentContainerStyle={{ paddingBottom: atomSpacing[16] }}>
       <View style={{ gap: atomSpacing[8] }}>
@@ -42,29 +44,38 @@ export default function OrganizerDashboardScreen() {
           />
         </View>
 
-        <AppCard
-          style={{
-            backgroundColor: atomPalette.brand,
-            borderColor: atomPalette.brand,
-            gap: atomSpacing[4]
-          }}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Create session"
+          onPress={() => router.push("/organizer-session/new")}
         >
-          <View
+          <AppCard
             style={{
-              alignItems: "center",
-              flexDirection: "row",
-              justifyContent: "space-between"
+              backgroundColor: atomPalette.brand,
+              borderColor: atomPalette.brand,
+              gap: atomSpacing[4]
             }}
           >
-            <AppText style={{ color: atomPalette.brandText }} variant="bodySm">
-              Quick start
-            </AppText>
-            <PlusIcon color={atomPalette.brandText} size="sm" />
-          </View>
-          <AppHeading style={{ color: atomPalette.brandText }} variant="card">
-            Create session
-          </AppHeading>
-        </AppCard>
+            <View
+              style={{
+                alignItems: "center",
+                flexDirection: "row",
+                justifyContent: "space-between"
+              }}
+            >
+              <AppText
+                style={{ color: atomPalette.brandText }}
+                variant="bodySm"
+              >
+                Quick start
+              </AppText>
+              <PlusIcon color={atomPalette.brandText} size="sm" />
+            </View>
+            <AppHeading style={{ color: atomPalette.brandText }} variant="card">
+              Create session
+            </AppHeading>
+          </AppCard>
+        </Pressable>
 
         <View style={{ gap: atomSpacing[4] }}>
           <View

@@ -153,10 +153,12 @@ export function AppButton({
   const iconPixelSize = appIconSizes[sizeConfig.iconSize];
   const buttonTextStyle = {
     color: resolvedTextColor,
-    fontSize: sizeConfig.textToken.fontSize,
+    fontSize: sizeConfig.textToken.fontSize * fontScale,
     letterSpacing: sizeConfig.textToken.letterSpacing,
-    lineHeight: sizeConfig.textToken.lineHeight,
+    lineHeight: sizeConfig.textToken.lineHeight * fontScale,
     textTransform: sizeConfig.textToken.textTransform,
+    flexShrink: 1,
+    textAlign: "center" as const,
     ...getSansFontStyle(sizeConfig.textToken.fontWeight)
   };
   const webCursorStyle =
@@ -272,7 +274,9 @@ export function AppButton({
         <Icon color={resolvedIconColor} size={iconPixelSize} />
       ) : null}
       {children && layout !== "icon" ? (
-        <ButtonText style={buttonTextStyle}>{children}</ButtonText>
+        <ButtonText allowFontScaling={false} style={buttonTextStyle}>
+          {children}
+        </ButtonText>
       ) : null}
       {loading ? <ButtonSpinner color={resolvedTextColor} /> : null}
       {Icon && iconAfter && !imageSource && !loading ? (

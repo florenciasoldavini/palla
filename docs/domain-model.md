@@ -1,6 +1,6 @@
 # Palla domain and database plan
 
-The Zod schemas under each feature define complete record contracts and user-input contracts. TypeScript types are inferred from those schemas. This plan does not create database objects. Add migrations and authorization tests with each implemented feature, as required by AGENTS.md.
+The Zod schemas under each feature define complete record contracts and user-input contracts. TypeScript types are inferred from those schemas. Implemented tables are profiles, organizers, venues, session_series, and sessions; registration and notification contracts remain future plans. Add migrations and authorization tests with each implemented feature, as required by AGENTS.md.
 
 ## Contract conventions
 
@@ -41,21 +41,21 @@ Make non-null Place IDs unique. `created_by` is attribution, not exclusive club 
 
 Contract: `src/features/sessions/domain.ts`, `sessionSeriesSchema`.
 
-Store owner and venue foreign keys, title/description/court label, timezone, ISO weekday (1–7), local start time, duration, start/end dates, capacity, optional level range, price/currency/payment instructions, cancellation notice, and `active | paused | ended` status.
+The deployed session_series table stores the owning organizer, the creation form's draft_input JSON, draft/active/paused/ended status, normalized content and recurrence template, timestamps, and normalized visibility, categories, waitlist settings, and optional timing offsets in minutes. Incomplete drafts have no occurrences. Publishing generates at most 52 occurrences atomically; a one-off also has a series identity. Normalized occurrence details live in sessions and are authoritative. sessionSeriesSchema validates the actual persisted record. The actual record schema reflects the deployed template columns; drafts may have an incomplete template. Published occurrences retain independent copies of content and participation settings.
 
-Require positive capacity/duration, nonnegative money/notice, ordered dates, and either both level bounds in ascending order or neither. Validate real currency codes and supported timezones again in the backend. The client regex only validates currency-code shape.
-
-Only the owning active organizer manages the series. A trusted recurrence operation generates occurrences idempotently using the recorded timezone. Define daylight-saving behavior before enabling regions where local times can be ambiguous or nonexistent.
+Only the owning active organizer manages a series. Scheduling is fixed to America/Argentina/Buenos_Aires in this slice; other timezone/DST behavior is deferred. Original occurrence dates identify scope and remain stable after edits. See organizer-sessions.md for transaction, version, and recurrence rules.
 
 ## Sessions
 
 Contract: `src/features/sessions/domain.ts`, `sessionSchema`.
 
-Store owner and venue, optional series ID with original occurrence date, copied session content, start/end instants, registration/cancellation deadlines, and `draft | published | cancelled | completed` status. Cancellation has a timestamp and optional reason.
+The deployed sessions table stores owner/venue, a required series ID and original occurrence date, copied content, explicit allowed-category arrays, visibility, waitlist settings, start/end instants, optional registration opening/closing and player cancellation deadlines, and published/cancelled/completed status. Drafts live only in session_series. The reusable session input contract also retains legacy optional-series flexibility. Cancellation has a timestamp and optional reason.
 
 The original occurrence date stays fixed when a session is rescheduled. Enforce unique `(series_id, occurrence_date)` for recurring sessions. Require paired series/date, end after start, and deadlines no later than start. Reject capacity reductions below confirmed participation. Never impose uniqueness on venue/time: different organizers can have independently arranged courts.
 
-Published session details are public. Only the owning organizer can manage them. Validate the series owner when attaching a session to a series. Counts come from registration state, not a separately writable spots-remaining field.
+Organizer inventory is currently private to the owning organizer. A restricted public session-detail interface remains part of the planned player-discovery feature. Only the owning organizer can manage them. Validate the series owner when attaching a session to a series. Counts come from registration state, not a separately writable spots-remaining field.
+
+Settings, defaults, validation, and recurring timing semantics are documented in [session-creation-settings.md](session-creation-settings.md). Visibility metadata does not yet expose a player discovery API or change owner-only inventory access.
 
 ## Registrations
 

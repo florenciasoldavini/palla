@@ -85,6 +85,7 @@ function RootNavigator() {
             <Stack.Screen name="onboarding-preview" />
             <Stack.Protected guard={__DEV__}>
               <Stack.Screen name="navigation-preview" />
+              <Stack.Screen name="sessions-preview" />
             </Stack.Protected>
             <Stack.Protected guard={Boolean(session && user)}>
               <Stack.Screen name="onboarding" />
@@ -97,6 +98,7 @@ function RootNavigator() {
               guard={ready && user?.organizer_status === "active"}
             >
               <Stack.Screen name="(organizer)" />
+              <Stack.Screen name="organizer-session" />
             </Stack.Protected>
             <Stack.Protected guard={!session || authHandoff}>
               <Stack.Screen name="(auth)" />

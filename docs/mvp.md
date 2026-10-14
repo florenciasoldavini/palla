@@ -13,7 +13,7 @@ Palla helps organizers run recurring social padel sessions and helps players dis
 
 ## MVP flows
 
-1. An organizer creates a weekly series with a venue, schedule, timezone, level range, capacity, price, and cancellation policy.
+1. An organizer creates a weekly series with a venue, schedule, timezone, Argentine category range, capacity, price, and cancellation policy.
 2. The series generates individual dated sessions. Each occurrence has its own participants and availability.
 3. A player opens discovery or a shared session link, checks the details, and signs in to join.
 4. Joining confirms a place if capacity is available; otherwise the player joins a first-come waitlist.
@@ -36,7 +36,7 @@ An existing venue must be suggested before creating another. Place IDs should be
 These choices support the agreed scope but still need validation with users:
 
 - Weekly recurrence only, one organizer per series.
-- Organizer access assigned through a trusted admin operation; no self-assigned access.
+- Organizer access is available immediately after organizer onboarding; authorization uses the trusted organizers record.
 - Self-reported Argentine categories 8va–1ra, plus separate beginner, unknown, and non-playing answers. Lower numbers indicate stronger play. See onboarding.md.
 - Prices represent the amount per player; payment happens externally.
 - Joining and waitlist promotion close at the registration deadline. Player cancellation closes at its cancellation deadline. Organizer cancellation remains possible afterward.
@@ -50,12 +50,12 @@ Court reservations and inventory, payments/refunds, chat, rankings, automatic te
 
 ## Quality expectations
 
-Support iOS, Android, and web with consistent tokens and reusable components. Complete loading, empty, error, success, full-session, waitlist, and cancellation states. Public links should land on session details before authentication, then preserve the intended join destination.
+Support native iOS and Android with consistent tokens and reusable components. Complete loading, empty, error, success, full-session, waitlist, and cancellation states. Public links should land on session details before authentication, then preserve the intended join destination.
 
-Verify keyboard and screen-reader behavior on web, native accessibility, large text, reduced motion, and real device interactions. A successful build does not establish visual quality or backend authorization correctness.
+Verify keyboard behavior, native accessibility, large text, reduced motion, and real device interactions on iOS Simulator and Android Emulator. A successful build does not establish visual quality or backend authorization correctness.
 
 ## Implementation status
 
-Existing code supplies an auth/profile bootstrap, design tokens and shared UI, and sample discovery/dashboard screens. The contracts in `src/features/*/domain.ts` describe the future product model; they are not wired to screens or deployed tables. The existing `User` model and profile forms remain in use until a deliberate migration to `profiles` is implemented.
+Accounts/onboarding and organizer session management now use deployed Supabase tables. Organizers can save drafts, publish single or bounded weekly sessions, edit one/future occurrences, delete drafts, and cancel published occurrences. The session management slice adds venues, session_series, and sessions; player discovery/dashboard sample content, registration, waitlists, and notifications are still future work. See [organizer session management](organizer-sessions.md) for the implemented scope and limits.
 
 See [the domain and database plan](domain-model.md) for persistence constraints, access rules, and migration order.

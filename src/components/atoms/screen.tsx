@@ -21,6 +21,7 @@ export function Screen({
   floatingAction,
   keyboardSafe = false,
   scrollable = true,
+  scrollResetKey,
   style
 }: {
   centered?: boolean;
@@ -30,6 +31,7 @@ export function Screen({
   floatingAction?: ReactNode;
   keyboardSafe?: boolean;
   scrollable?: boolean;
+  scrollResetKey?: string | number;
   style?: StyleProp<ViewStyle>;
 }) {
   const insets = useSafeAreaInsets();
@@ -92,6 +94,15 @@ export function Screen({
     };
   }, [shouldAvoidKeyboard]);
 
+  useEffect(() => {
+    // Wait for native content-size reconciliation before resetting a wizard step.
+    const timer = setTimeout(
+      () => scrollRef.current?.scrollTo({ animated: false, y: 0 }),
+      150
+    );
+    return () => clearTimeout(timer);
+  }, [scrollResetKey]);
+
   function renderRoot(content: ReactNode) {
     const floatingActionOverlay = floatingAction ? (
       <View
@@ -113,7 +124,8 @@ export function Screen({
           style={[
             {
               backgroundColor: atomPalette.background,
-              flex: 1
+              flex: 1,
+              paddingTop: hasNavigationHeader ? 0 : insets.top
             },
             style
           ]}
@@ -131,7 +143,8 @@ export function Screen({
         style={[
           {
             backgroundColor: atomPalette.background,
-            flex: 1
+            flex: 1,
+            paddingTop: hasNavigationHeader ? 0 : insets.top
           },
           style
         ]}
@@ -149,7 +162,7 @@ export function Screen({
           {
             flex: 1,
             paddingBottom: insets.bottom + atomSpacing[6],
-            paddingTop: (hasNavigationHeader ? 0 : insets.top) + atomSpacing[4]
+            paddingTop: atomSpacing[4]
           },
           contentContainerStyle
         ]}
@@ -169,7 +182,7 @@ export function Screen({
           flexGrow: 1,
           justifyContent: centered ? "center" : undefined,
           paddingBottom: insets.bottom + keyboardBottomPadding,
-          paddingTop: (hasNavigationHeader ? 0 : insets.top) + atomSpacing[4]
+          paddingTop: atomSpacing[4]
         },
         contentContainerStyle
       ]}

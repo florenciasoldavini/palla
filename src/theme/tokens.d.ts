@@ -26,6 +26,10 @@ export const designTokens: {
       { bg: string; hover: string; pressed: string; text: string }
     >;
     heights: Record<string, number>;
+    surfaces: Record<
+      "panel" | "inset" | "row",
+      { radius: number; padding: number }
+    >;
     radius: Record<string, number>;
   };
 };

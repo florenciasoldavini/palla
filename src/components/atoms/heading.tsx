@@ -3,6 +3,7 @@ import { getSansFontStyle } from "@/theme/fonts";
 import type { ReactNode } from "react";
 import {
   Text,
+  useWindowDimensions,
   type StyleProp,
   type TextProps,
   type TextStyle
@@ -49,8 +50,12 @@ export function AppHeading({
   tone?: HeadingTone;
   variant?: HeadingVariant;
 }) {
+  // Match the scaled font with a scaled line box so accessibility text stays readable.
+  const { fontScale } = useWindowDimensions();
+  const typography = headingStyles[variant];
   return (
     <Text
+      allowFontScaling={false}
       accessibilityRole="header"
       aria-level={
         level ??
@@ -60,7 +65,15 @@ export function AppHeading({
             ? 2
             : 3)
       }
-      style={[headingStyles[variant], headingToneStyles[tone], style]}
+      style={[
+        {
+          ...typography,
+          fontSize: Number(typography.fontSize) * fontScale,
+          lineHeight: Number(typography.lineHeight) * fontScale
+        },
+        headingToneStyles[tone],
+        style
+      ]}
       {...props}
     >
       {children}

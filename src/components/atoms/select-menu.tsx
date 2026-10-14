@@ -10,6 +10,8 @@ import { Check, ChevronDown, type LucideIcon } from "lucide-react-native";
 import { useRef, useState } from "react";
 import {
   Modal,
+  ScrollView,
+  Keyboard,
   Platform,
   Pressable,
   StyleSheet,
@@ -18,6 +20,8 @@ import {
   type LayoutRectangle,
   type ViewStyle
 } from "react-native";
+import { FieldTrigger } from "./field-trigger";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 export interface SelectMenuOption<TValue extends string> {
@@ -76,6 +80,11 @@ export function SelectMenu<TValue extends string>({
         );
 
   const openMenu = () => {
+    Keyboard.dismiss();
+    if (Platform.OS !== "web") {
+      setIsOpen(true);
+      return;
+    }
     triggerRef.current?.measureInWindow(
       (x, y, measuredWidth, measuredHeight) => {
         setTriggerLayout({
@@ -88,6 +97,92 @@ export function SelectMenu<TValue extends string>({
       }
     );
   };
+
+  if (Platform.OS !== "web")
+    return (
+      <>
+        <FieldTrigger
+          label={accessibilityLabel ?? labelPrefix ?? "Choose an option"}
+          value={
+            labelPrefix
+              ? `${labelPrefix}: ${selectedOption?.label ?? ""}`
+              : (selectedOption?.label ?? "")
+          }
+          icon={ChevronDown}
+          expanded={isOpen}
+          onPress={openMenu}
+        />
+        <Modal
+          visible={isOpen}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setIsOpen(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "flex-end",
+              backgroundColor: "rgba(0,0,0,0.25)"
+            }}
+          >
+            <Pressable
+              accessibilityLabel="Close select menu"
+              onPress={() => setIsOpen(false)}
+              style={StyleSheet.absoluteFill}
+            />
+            <SafeAreaView
+              edges={["bottom"]}
+              style={{
+                backgroundColor: atomPalette.surface,
+                padding: atomSpacing[6],
+                borderTopLeftRadius: atomRadii.lg,
+                borderTopRightRadius: atomRadii.lg,
+                maxHeight: "80%"
+              }}
+            >
+              <AppText variant="body" style={{ marginBottom: atomSpacing[4] }}>
+                {accessibilityLabel ?? labelPrefix ?? "Choose an option"}
+              </AppText>
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                style={{ flexGrow: 0 }}
+              >
+                {options.map((option) => (
+                  <Pressable
+                    key={option.value}
+                    accessibilityRole="button"
+                    accessibilityLabel={option.label}
+                    accessibilityState={{ selected: option.value === value }}
+                    onPress={() => {
+                      onChange(option.value);
+                      setIsOpen(false);
+                    }}
+                    style={[
+                      styles.option,
+                      option.value === value && styles.optionSelected
+                    ]}
+                  >
+                    <AppText variant="body" style={{ flex: 1 }}>
+                      {option.label}
+                    </AppText>
+                    {option.value === value && (
+                      <Check size={20} color={atomPalette.accent} />
+                    )}
+                  </Pressable>
+                ))}
+              </ScrollView>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setIsOpen(false)}
+                style={styles.option}
+              >
+                <AppText variant="body">Done</AppText>
+              </Pressable>
+            </SafeAreaView>
+          </View>
+        </Modal>
+      </>
+    );
 
   return (
     <>

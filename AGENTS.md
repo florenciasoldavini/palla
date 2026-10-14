@@ -34,7 +34,7 @@ Primary user modes are player, organizer, and unauthenticated explorer. Palla is
 - Enable RLS on every table in an exposed schema and test authorization rules.
 - Authorization must use trusted database state, not editable user metadata.
 - Privileged, paid, secret, or abuse-sensitive workflows belong in Edge Functions.
-- Add product tables only when their feature is implemented. Palla currently carries only the reusable user/auth bootstrap.
+- Add product tables only when their feature is implemented. Palla carries the user/auth bootstrap and organizer session management (venues, session_series, sessions). Registration and notification tables remain deferred until their features are implemented.
 
 ## Product rules
 
