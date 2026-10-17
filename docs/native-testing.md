@@ -515,3 +515,9 @@ The iOS profile was reviewed at accessibility-medium Dynamic Type: Edit profile 
 An existing iOS startup assertion was also resolved: native-stack `statusBarStyle` is now set only on Android, matching the generated iOS status-bar configuration. Native-only runtime checks were used throughout; no browser validation.
 
 Android clean-launch follow-up passed at font scale 1.35: player card/category status, stacked edit action, wrapping menu text and scrolling to Log out. After restoring 1.0 and reconnecting the development client, both simulators were returned to their live organizer profile cards with original empty descriptions. iOS text size was also restored. The settings change itself can recreate Expo's debug activity; a cold launch was required for this supplemental accessibility check.
+
+## Optional player bio — October 16
+
+Migration `20261017014453_player_profile_bio.sql` deployed. Hosted rollback-only SQL checked owner-only save/clear, a 500-character limit, denied cross-account reads/updates and independence from the organizer hosting bio. No real player bios were saved during QA. Unit coverage includes whitespace-to-null persistence, preserving unspecified bios during other edits, cached-record compatibility and account-model mapping. Verification passed 29 test files / 139 tests plus typecheck, formatting and lint with pre-existing warnings.
+
+On iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, the development profile fixture shows a sample 7ma player with a short personal bio. The actual player editor exposes About me, optional helper text and a multiline field. Native editing/scrolling and back/discard were exercised without saving personal data. Evidence is under `.impeccable/review/native/profile-bio/`. This verifies the UI plus the separate repository/SQL contracts; it is not a claim of a fresh native player-bio save on a real account. Existing profile save transport is reused.

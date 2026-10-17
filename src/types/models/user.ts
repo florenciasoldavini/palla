@@ -4,6 +4,7 @@ export interface User {
   first_name: string;
   last_name: string | null;
   avatar: string | null;
+  bio: string | null;
   email: string;
   phone_number: string | null;
   playing_category: number | null;

@@ -85,6 +85,7 @@ function getProfileInfoDefaults(
         playing_category?: number | null;
         category_status?: CategoryStatus;
         avatar?: string | null;
+        bio?: string | null;
         first_name?: string | null;
         last_name?: string | null;
         phone_number?: string | null;
@@ -96,6 +97,7 @@ function getProfileInfoDefaults(
     playingCategory: profile?.playing_category ?? null,
     categoryStatus: profile?.category_status ?? "unknown",
     avatar: profile?.avatar ?? "",
+    bio: profile?.bio ?? "",
     firstName: profile?.first_name ?? "",
     lastName: profile?.last_name ?? "",
     phoneNumber: profile?.phone_number ?? ""
@@ -244,6 +246,7 @@ export default function ProfileEditorScreen({
 
       const updatedUser = await updateUserProfile({
         avatar: avatarUrl,
+        ...(!organizerMode ? { bio: values.bio } : {}),
         first_name: values.firstName.trim(),
         last_name: values.lastName,
         phone_number: values.phoneNumber,
@@ -415,6 +418,33 @@ export default function ProfileEditorScreen({
                     />
                   )}
                 />
+                {!organizerMode && (
+                  <Controller
+                    control={profileControl}
+                    name="bio"
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        label="About me"
+                        placeholder="Tell other players a little about yourself…"
+                        helperText="Optional · Up to 500 characters."
+                        value={field.value}
+                        onChangeText={(value) => {
+                          field.onChange(value);
+                          setFormError(null);
+                        }}
+                        onBlur={field.onBlur}
+                        errorText={fieldState.error?.message}
+                        multiline
+                        maxLength={500}
+                        editable={!isProfileSaving}
+                        inputStyle={{
+                          minHeight: 112,
+                          textAlignVertical: "top"
+                        }}
+                      />
+                    )}
+                  />
+                )}
                 {!organizerMode && (
                   <>
                     <AppText variant="label">Playing category</AppText>

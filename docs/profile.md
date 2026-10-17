@@ -17,3 +17,9 @@ Unimplemented menu destinations are clear placeholder pages. No notification pre
 Player-card/native category editing and unsaved-change/discard behavior were checked without saving personal changes. iOS accessibility-medium and Android enlarged text checks are recorded in `docs/native-testing.md`; screenshots are local ignored QA evidence. Native avatar rendering was checked with existing profile images; selecting/uploading a replacement avatar, changing passwords and completing actual logout were not performed on the user's accounts.
 
 An existing iOS startup assertion from a native-stack status-bar setting was fixed by restricting that setting to Android. iOS retains its existing Expo status-bar behavior. No native rebuild is needed for this UI update.
+
+## Optional player bio
+
+Player profiles now have an optional personal bio, independent from `organizers.bio`. Edit profile in player mode exposes an About me multiline field with a 500-character limit. The card shows the bio only when non-empty; no decorative empty-bio block is added. Organizer editing preserves any personal bio and continues using the separate hosting description.
+
+Migration `20261017014453_player_profile_bio.sql` adds nullable `profiles.bio` with a database length constraint and authenticated column-level UPDATE permission. Existing owner-only profile RLS applies; this does not introduce public profile access. Blank input is trimmed to null. The auth/profile adapter includes the saved bio and defaults older cached records to null. Tests cover the limit, whitespace handling, preserving an unspecified bio during unrelated updates, and account-model mapping. Hosted rollback-only `supabase/tests/player_profile_bio.sql` verifies owner save/clear, cross-account denial, the database limit and isolation from the organizer description without modifying real accounts.

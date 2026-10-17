@@ -9,6 +9,7 @@ const user: User = {
   first_name: "Elena",
   last_name: "García",
   avatar: null,
+  bio: "Casual games, good rallies, and meeting new padel friends.",
   email: "qa@example.com",
   phone_number: null,
   playing_category: 7,

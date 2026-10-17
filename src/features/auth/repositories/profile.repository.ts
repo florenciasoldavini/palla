@@ -10,6 +10,7 @@ import type { User } from "@/types/models/user";
 
 export type EditableUserProfile = Pick<
   User,
+  | "bio"
   | "avatar"
   | "first_name"
   | "last_name"
@@ -34,6 +35,7 @@ export function toUser(
     first_name: profile.first_name ?? "",
     last_name: profile.last_name,
     avatar: profile.avatar_url,
+    bio: profile.bio,
     phone_number: profile.phone_number,
     role: "user",
     preferred_mode: profile.preferred_mode,
@@ -127,6 +129,7 @@ export async function persistUserProfile(
   input: Partial<EditableUserProfile>
 ) {
   const patch: Record<string, string | number | null> = {};
+  if (input.bio !== undefined) patch.bio = input.bio?.trim() || null;
   if (input.first_name !== undefined)
     patch.first_name = input.first_name.trim();
   if (input.last_name !== undefined)

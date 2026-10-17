@@ -122,6 +122,9 @@ export function ProfileOverview({
               )}
             </View>
           </View>
+          {!isOrganizer && !!user.bio?.trim() && (
+            <AppText tone="subtle">{user.bio}</AppText>
+          )}
           {isOrganizer &&
             (organizerLoading ? (
               <SkeletonBlock height={48} />

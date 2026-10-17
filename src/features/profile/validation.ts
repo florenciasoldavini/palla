@@ -6,6 +6,10 @@ export const profileInfoSchema = z
   .object({
     ...categoryShape,
     avatar: z.string(),
+    bio: z
+      .string()
+      .trim()
+      .max(500, "Keep your bio to 500 characters or fewer."),
     firstName: z.string().trim().min(1, "First name is required"),
     lastName: z.string(),
     phoneNumber: z.string()
