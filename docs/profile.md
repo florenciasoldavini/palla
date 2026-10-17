@@ -1,0 +1,19 @@
+# Profile overview and account menu
+
+Both role tabs now open the same profile overview component, with a white summary card and a divided Preferences & account menu based on the approved Stitch references. The card shows the stored profile image (initials on missing/failed images), name, role and Edit profile. The player card shows the self-reported Argentine category, beginner status or unknown category; a stored not-playing answer does not fabricate a numbered category. The organizer card uses its organizer display name and optional description. No PRO, verification, ratings or location claims are added.
+
+The shared menu contains Notifications, Account & security, Privacy & blocked users, Payment methods, Help & support, About Palla and Log out. Existing role navigation remains intact. Profile cards size to content and scroll above the tab bar. At larger text sizes the edit action stacks under the avatar and rows grow to fit their text.
+
+Edit profile is a separate authenticated `/account/edit-profile` route. Existing personal name, phone, avatar and player-category forms are preserved; category controls are omitted in organizer mode without modifying stored category data. Organizer mode also has a separate Organizer profile form for display name and description, with its own save action so personal and hosting details have explicit independent save outcomes. `/account/security` preserves password and linked sign-in methods. Dirty forms prompt before leaving, including native back navigation; pending saves block leaving. Passwords were not changed during this UI test.
+
+Organizer fields already exist in `public.organizers`; no migration is required. New hooks, services and repository adapters read/write existing `display_name` and `bio` columns using TanStack Query, RHF/Zod and existing owner/status RLS. Successful saves update the organizer query cache. Failed saves retain input. Refetches preserve dirty organizer input. The UI fetches no privileged user data and cannot update organizer status. Identity fetching now goes through the service/repository boundary instead of calling Supabase inside the screen.
+
+Unimplemented menu destinations are clear placeholder pages. No notification preference, payment instrument, support submission or privacy setting is changed by opening them. Privacy copy points to existing block controls in Messages. About shows the real app version; legal documents remain pending. Log out uses a native confirmation and the existing auth/outbox/push cleanup flow.
+
+## Verification
+
+`npm run verify` passed 136 tests, TypeScript, formatting and lint with pre-existing warnings. Native checks used iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, with actual signed-in accounts. Both organizer profile cards, menu scrolling and destinations, profile editing, linked identities and logout cancellation were exercised. Temporary labelled organizer descriptions were saved through each app and displayed in the profile card, then restored to their original null values using a conditional trusted database update. Hosted inspection confirmed both original bios restored. A rollback-only authenticated SQL check confirmed own organizer read/update and denial of other-organizer reads/updates.
+
+Player-card/native category editing and unsaved-change/discard behavior were checked without saving personal changes. iOS accessibility-medium and Android enlarged text checks are recorded in `docs/native-testing.md`; screenshots are local ignored QA evidence. Native avatar rendering was checked with existing profile images; selecting/uploading a replacement avatar, changing passwords and completing actual logout were not performed on the user's accounts.
+
+An existing iOS startup assertion from a native-stack status-bar setting was fixed by restricting that setting to Android. iOS retains its existing Expo status-bar behavior. No native rebuild is needed for this UI update.
