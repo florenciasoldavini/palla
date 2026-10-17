@@ -19,7 +19,10 @@ import {
 import { atomPalette, atomRadii, atomSpacing } from "@/components/atoms/theme";
 import { authCardMaxWidth } from "@/features/auth/components/auth-shell";
 import { AuthContext } from "@/features/auth/auth-provider";
-import { useUploadProfileAvatar } from "@/features/profile/hooks";
+import {
+  useUploadProfileAvatar,
+  useDeleteUnusedProfileAvatar
+} from "@/features/profile/hooks";
 import type { ProfileAvatarAsset } from "@/features/profile/repositories/profile-avatar.repository";
 import {
   profileInfoSchema,
@@ -32,9 +35,8 @@ import { getSupabaseErrorMessage } from "@/lib/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { UserIdentity } from "@supabase/supabase-js";
 import { Image } from "expo-image";
-import * as ImagePicker from "expo-image-picker";
+import { ProfilePhotoEditor } from "../components/profile-photo-editor";
 import {
-  CameraIcon,
   CheckCircleIcon,
   LockIcon,
   MailIcon,
@@ -43,14 +45,7 @@ import {
 } from "@/components/icons";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  Alert,
-  Platform,
-  Pressable,
-  StyleSheet,
-  View,
-  type ViewStyle
-} from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
 const appleLogo = require("@assets/images/auth/apple-logo.png");
 const googleLogo = require("@assets/images/auth/google-logo.png");
@@ -133,6 +128,20 @@ export default function ProfileEditorScreen({
   const [organizerDirty, setOrganizerDirty] = useState(false);
   const [organizerSaving, setOrganizerSaving] = useState(false);
   const uploadAvatarMutation = useUploadProfileAvatar();
+  const cleanupAvatar = useDeleteUnusedProfileAvatar();
+  const [pendingCleanup, setPendingCleanup] = useState<string[]>([]);
+  const retryCleanup = async (urls = pendingCleanup) => {
+    if (!user) return;
+    const remaining: string[] = [];
+    for (const url of urls) {
+      try {
+        await cleanupAvatar.mutateAsync({ url, userId: user.id });
+      } catch {
+        remaining.push(url);
+      }
+    }
+    setPendingCleanup(remaining);
+  };
   const profileForm = useForm<ProfileInfoInput>({
     defaultValues: getProfileInfoDefaults(user),
     mode: "onChange",
@@ -237,6 +246,7 @@ export default function ProfileEditorScreen({
     setStatusMessage(null);
 
     try {
+      const previousAvatar = user.avatar;
       const avatarUrl = avatarAsset
         ? await uploadAvatarMutation.mutateAsync({
             asset: avatarAsset,
@@ -258,6 +268,9 @@ export default function ProfileEditorScreen({
         setAvatarAsset(null);
         resetProfileForm(getProfileInfoDefaults(updatedUser));
         setStatusMessage("Profile updated");
+        if (previousAvatar && previousAvatar !== avatarUrl) {
+          await retryCleanup([...new Set([...pendingCleanup, previousAvatar])]);
+        }
       }
     } catch (error) {
       setFormError(getSupabaseErrorMessage(error));
@@ -291,7 +304,7 @@ export default function ProfileEditorScreen({
         style={{
           alignSelf: "center",
           gap: atomSpacing[5],
-          maxWidth: authCardMaxWidth,
+          maxWidth: section === "profile" ? 560 : authCardMaxWidth,
           width: "100%"
         }}
       >
@@ -323,22 +336,10 @@ export default function ProfileEditorScreen({
             value={activeTab}
           />
         )}
-        {activeTab === "profile" && organizerMode && (
-          <OrganizerDetailsForm
-            id={user?.id}
-            onDirtyChange={setOrganizerDirty}
-            onSavingChange={setOrganizerSaving}
-          />
-        )}
 
         {activeTab === "profile" ? (
           <AppCard padding="lg">
             <View style={{ gap: atomSpacing[5] }}>
-              <View style={{ gap: atomSpacing[1] }}>
-                <AppText variant="label">Profile</AppText>
-                <AppText tone="muted">Personal details</AppText>
-              </View>
-
               <View style={{ gap: atomSpacing[4] }}>
                 <View
                   style={{
@@ -346,7 +347,7 @@ export default function ProfileEditorScreen({
                     gap: atomSpacing[3]
                   }}
                 >
-                  <AvatarPicker
+                  <ProfilePhotoEditor
                     currentUrl={avatar}
                     onChange={(asset) => {
                       setAvatarAsset(asset);
@@ -354,9 +355,45 @@ export default function ProfileEditorScreen({
                       setStatusMessage(null);
                     }}
                     value={avatarAsset}
+                    disabled={isProfileSaving || cleanupAvatar.isPending}
+                    onRemove={() =>
+                      Alert.alert(
+                        "Remove profile photo?",
+                        "Your photo will be removed when you save. Your initials will appear instead.",
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          {
+                            text: "Remove photo",
+                            style: "destructive",
+                            onPress: () => {
+                              setAvatarAsset(null);
+                              profileForm.setValue("avatar", "", {
+                                shouldDirty: true,
+                                shouldValidate: true
+                              });
+                              setStatusMessage(null);
+                            }
+                          }
+                        ]
+                      )
+                    }
                   />
+                  <AppText
+                    tone="subtle"
+                    variant="bodySm"
+                    style={{ textAlign: "center" }}
+                  >
+                    Shared across your player and organizer profiles.
+                  </AppText>
                 </View>
 
+                <View style={profileStyles.sectionDivider} />
+                <View style={{ gap: 4 }}>
+                  <AppHeading variant="card">Personal details</AppHeading>
+                  <AppText tone="subtle" variant="bodySm">
+                    How you introduce yourself on Palla.
+                  </AppText>
+                </View>
                 <Controller
                   control={profileControl}
                   name="firstName"
@@ -447,7 +484,13 @@ export default function ProfileEditorScreen({
                 )}
                 {!organizerMode && (
                   <>
-                    <AppText variant="label">Playing category</AppText>
+                    <View style={profileStyles.sectionDivider} />
+                    <View style={{ gap: 4 }}>
+                      <AppHeading variant="card">Playing category</AppHeading>
+                      <AppText tone="subtle" variant="bodySm">
+                        Help organizers find the right games for you.
+                      </AppText>
+                    </View>
                     <Controller
                       control={profileControl}
                       name="categoryStatus"
@@ -492,6 +535,7 @@ export default function ProfileEditorScreen({
 
               <View style={{ gap: atomSpacing[3] }}>
                 <AppButton
+                  color="essential"
                   isDisabled={isProfileSaveDisabled}
                   loading={isProfileSaving}
                   onPress={() => {
@@ -499,7 +543,7 @@ export default function ProfileEditorScreen({
                   }}
                   size="md"
                 >
-                  Save Profile
+                  Save changes
                 </AppButton>
 
                 {statusMessage ? (
@@ -508,10 +552,33 @@ export default function ProfileEditorScreen({
                 {formError ? (
                   <FieldMessage tone="error">{formError}</FieldMessage>
                 ) : null}
+                {pendingCleanup.length > 0 && (
+                  <View style={{ gap: 8 }}>
+                    <FieldMessage>
+                      Your profile is saved, but the previous photo couldn’t be
+                      deleted.
+                    </FieldMessage>
+                    <AppButton
+                      variant="ghost"
+                      loading={cleanupAvatar.isPending}
+                      onPress={() => void retryCleanup()}
+                    >
+                      Retry photo cleanup
+                    </AppButton>
+                  </View>
+                )}
               </View>
             </View>
           </AppCard>
         ) : null}
+
+        {activeTab === "profile" && organizerMode && (
+          <OrganizerDetailsForm
+            id={user?.id}
+            onDirtyChange={setOrganizerDirty}
+            onSavingChange={setOrganizerSaving}
+          />
+        )}
 
         {activeTab === "security" ? (
           <AppCard padding="lg">
@@ -656,103 +723,12 @@ export default function ProfileEditorScreen({
   );
 }
 
-function AvatarPicker({
-  currentUrl,
-  onChange,
-  value
-}: {
-  currentUrl: string;
-  onChange: (asset: ProfileAvatarAsset) => void;
-  value: ProfileAvatarAsset | null;
-}) {
-  const previewUri = value?.uri ?? currentUrl.trim();
-
-  const pickImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permission.granted) {
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.82
-    });
-
-    if (result.canceled || !result.assets[0]) {
-      return;
-    }
-
-    const asset = result.assets[0];
-    onChange({
-      fileName: asset.fileName,
-      mimeType: asset.mimeType,
-      uri: asset.uri
-    });
-  };
-
-  return (
-    <Pressable
-      accessibilityLabel="Change profile photo"
-      accessibilityRole="button"
-      onPress={() => {
-        void pickImage();
-      }}
-      style={StyleSheet.flatten([
-        profileStyles.avatarPicker,
-        Platform.OS === "web" ? profileStyles.webCursor : null
-      ])}
-    >
-      {previewUri ? (
-        <Image
-          contentFit="cover"
-          source={{ uri: previewUri }}
-          style={profileStyles.avatarImage}
-        />
-      ) : (
-        <CameraIcon color={atomPalette.textSubtle} size="lg" />
-      )}
-      <View style={profileStyles.avatarPickerBadge}>
-        <CameraIcon color={atomPalette.brandText} size="sm" />
-      </View>
-    </Pressable>
-  );
-}
-
 const profileStyles = StyleSheet.create({
-  avatarImage: {
-    height: "100%",
-    width: "100%"
-  },
-  avatarPicker: {
-    alignItems: "center",
-    backgroundColor: atomPalette.surfaceLow,
-    borderColor: atomPalette.border,
-    borderRadius: atomRadii.full,
-    borderWidth: 1,
-    height: 104,
-    justifyContent: "center",
-    overflow: "hidden",
-    width: 104
-  },
-  avatarPickerBadge: {
-    alignItems: "center",
-    backgroundColor: atomPalette.brand,
-    borderColor: atomPalette.surface,
-    borderRadius: atomRadii.full,
-    borderWidth: 2,
-    bottom: 4,
-    height: 32,
-    justifyContent: "center",
-    position: "absolute",
-    right: 4,
-    width: 32
-  },
-  webCursor: {
-    cursor: "pointer"
-  } as ViewStyle
+  sectionDivider: {
+    height: 1,
+    backgroundColor: atomPalette.borderSubtle,
+    marginVertical: 4
+  }
 });
 
 function IdentityMethodRow({

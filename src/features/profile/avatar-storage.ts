@@ -88,3 +88,34 @@ function getAvatarExtension(asset: ProfileAvatarAssetMetadata) {
 
   return "jpg";
 }
+
+// Only URLs from our own public avatar bucket can be deleted.
+export function getOwnedAvatarPath(
+  url: string,
+  publicBucketUrl: string,
+  userId: string
+) {
+  try {
+    const candidate = new URL(url);
+    const bucket = new URL(
+      publicBucketUrl.endsWith("/") ? publicBucketUrl : `${publicBucketUrl}/`
+    );
+    if (
+      candidate.origin !== bucket.origin ||
+      !candidate.pathname.startsWith(bucket.pathname)
+    )
+      return null;
+    const path = decodeURIComponent(
+      candidate.pathname.slice(bucket.pathname.length)
+    );
+    if (
+      !path.startsWith(`users/${userId}/avatar/`) ||
+      path.split("/").length !== 4 ||
+      path.includes("..")
+    )
+      return null;
+    return path;
+  } catch {
+    return null;
+  }
+}
