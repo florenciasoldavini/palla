@@ -14,7 +14,8 @@ import {
   PasswordVisibilityToggle,
   Screen,
   SegmentedTabs,
-  TextField
+  TextField,
+  useAppToast
 } from "@/components/atoms";
 import { atomPalette, atomRadii, atomSpacing } from "@/components/atoms/theme";
 import { authCardMaxWidth } from "@/features/auth/components/auth-shell";
@@ -103,15 +104,12 @@ export default function ProfileEditorScreen({
   section?: "profile" | "security";
 }) {
   const router = useRouter();
+  const toast = useAppToast();
   const { session, updateUserProfile, user } = useContext(AuthContext);
   const [avatarAsset, setAvatarAsset] = useState<ProfileAvatarAsset | null>(
     null
   );
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [securityStatus, setSecurityStatus] = useState<string | null>(null);
-  const [securityError, setSecurityError] = useState<string | null>(null);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -137,6 +135,27 @@ export default function ProfileEditorScreen({
       }
     }
     setPendingCleanup(remaining);
+    return remaining;
+  };
+  const retryCleanupWithFeedback = async (
+    urls = pendingCleanup
+  ): Promise<void> => {
+    const remaining = await retryCleanup(urls);
+    toast.show({
+      title: remaining?.length
+        ? "Couldn’t delete previous photo"
+        : "Photo cleanup complete",
+      description: remaining?.length
+        ? "Try again when you have a connection."
+        : undefined,
+      tone: remaining?.length ? "error" : "success",
+      action: remaining?.length
+        ? {
+            label: "Retry cleanup",
+            onPress: () => retryCleanupWithFeedback(remaining)
+          }
+        : undefined
+    });
   };
   const profileForm = useForm<ProfileInfoInput>({
     defaultValues: getProfileInfoDefaults(user),
@@ -220,10 +239,6 @@ export default function ProfileEditorScreen({
       confirmPassword: "",
       password: ""
     });
-    setFormError(null);
-    setStatusMessage(null);
-    setSecurityError(null);
-    setSecurityStatus(null);
   }, [profileDefaults, resetProfileForm, resetPasswordForm]);
 
   useEffect(() => {
@@ -232,13 +247,15 @@ export default function ProfileEditorScreen({
 
   const saveProfile = handleProfileSubmit(async (values) => {
     if (!user) {
-      setFormError("You must be signed in to update your profile.");
+      toast.show({
+        title: "Couldn’t update profile",
+        description: "Sign in again and try saving your changes.",
+        tone: "error"
+      });
       return;
     }
 
     setIsSaving(true);
-    setFormError(null);
-    setStatusMessage(null);
 
     try {
       const previousAvatar = user.avatar;
@@ -265,16 +282,36 @@ export default function ProfileEditorScreen({
         category_status: values.categoryStatus ?? "unknown"
       });
 
-      if (updatedUser) {
-        setAvatarAsset(null);
-        resetProfileForm(getProfileInfoDefaults(updatedUser));
-        setStatusMessage("Profile updated");
-        if (previousAvatar && previousAvatar !== avatarUrl) {
-          await retryCleanup([...new Set([...pendingCleanup, previousAvatar])]);
-        }
-      }
+      if (!updatedUser)
+        throw new Error("Couldn’t update your profile. Try again.");
+      setAvatarAsset(null);
+      resetProfileForm(getProfileInfoDefaults(updatedUser));
+      const remaining =
+        previousAvatar && previousAvatar !== avatarUrl
+          ? await retryCleanup([
+              ...new Set([...pendingCleanup, previousAvatar])
+            ])
+          : pendingCleanup;
+      toast.show({
+        title: "Profile updated",
+        tone: remaining?.length ? "warning" : "success",
+        description: remaining?.length
+          ? "Your changes are saved, but the previous photo couldn’t be deleted."
+          : undefined,
+        action: remaining?.length
+          ? {
+              label: "Retry cleanup",
+              onPress: () => retryCleanupWithFeedback(remaining)
+            }
+          : undefined
+      });
     } catch (error) {
-      setFormError(getSupabaseErrorMessage(error));
+      toast.show({
+        title: "Couldn’t update profile",
+        description: getSupabaseErrorMessage(error),
+        tone: "error",
+        action: { label: "Retry", onPress: (): Promise<void> => saveProfile() }
+      });
     } finally {
       setIsSaving(false);
     }
@@ -282,8 +319,6 @@ export default function ProfileEditorScreen({
 
   const changePassword = handlePasswordSubmit(async ({ password }) => {
     setIsUpdatingPassword(true);
-    setSecurityError(null);
-    setSecurityStatus(null);
 
     try {
       await updatePassword(password);
@@ -291,9 +326,17 @@ export default function ProfileEditorScreen({
         confirmPassword: "",
         password: ""
       });
-      setSecurityStatus("Password updated.");
+      toast.show({ title: "Password updated", tone: "success" });
     } catch (error) {
-      setSecurityError(getSupabaseErrorMessage(error));
+      toast.show({
+        title: "Couldn’t update password",
+        description: getSupabaseErrorMessage(error),
+        tone: "error",
+        action: {
+          label: "Retry",
+          onPress: (): Promise<void> => changePassword()
+        }
+      });
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -351,11 +394,7 @@ export default function ProfileEditorScreen({
                 >
                   <ProfilePhotoEditor
                     currentUrl={avatar}
-                    onChange={(asset) => {
-                      setAvatarAsset(asset);
-                      setFormError(null);
-                      setStatusMessage(null);
-                    }}
+                    onChange={setAvatarAsset}
                     value={avatarAsset}
                     disabled={isProfileSaving || cleanupAvatar.isPending}
                     onRemove={() =>
@@ -373,7 +412,6 @@ export default function ProfileEditorScreen({
                                 shouldDirty: true,
                                 shouldValidate: true
                               });
-                              setStatusMessage(null);
                             }
                           }
                         ]
@@ -390,10 +428,7 @@ export default function ProfileEditorScreen({
                       errorText={fieldState.error?.message}
                       label="First name"
                       onBlur={field.onBlur}
-                      onChangeText={(value) => {
-                        field.onChange(value);
-                        setFormError(null);
-                      }}
+                      onChangeText={field.onChange}
                       placeholder="First name"
                       required
                       size="md"
@@ -409,10 +444,7 @@ export default function ProfileEditorScreen({
                     <TextField
                       label="Last name"
                       onBlur={field.onBlur}
-                      onChangeText={(value) => {
-                        field.onChange(value);
-                        setFormError(null);
-                      }}
+                      onChangeText={field.onChange}
                       placeholder="Last name"
                       size="md"
                       value={field.value}
@@ -429,10 +461,7 @@ export default function ProfileEditorScreen({
                       keyboardType="phone-pad"
                       label="Phone number"
                       onBlur={field.onBlur}
-                      onChangeText={(value) => {
-                        field.onChange(value);
-                        setFormError(null);
-                      }}
+                      onChangeText={field.onChange}
                       placeholder="Add a phone number"
                       size="md"
                       textContentType="telephoneNumber"
@@ -449,11 +478,7 @@ export default function ProfileEditorScreen({
                       placeholder="Tell people a little about yourself…"
                       helperText="Shared across your player and organizer profiles · Up to 500 characters."
                       value={field.value}
-                      onChangeText={(value) => {
-                        field.onChange(value);
-                        setFormError(null);
-                        setStatusMessage(null);
-                      }}
+                      onChangeText={field.onChange}
                       onBlur={field.onBlur}
                       errorText={fieldState.error?.message}
                       multiline
@@ -468,14 +493,7 @@ export default function ProfileEditorScreen({
           </AppCard>
         ) : null}
         {activeTab === "profile" && !organizerMode && (
-          <PlayerProfileFields
-            form={profileForm}
-            disabled={isProfileSaving}
-            onChange={() => {
-              setFormError(null);
-              setStatusMessage(null);
-            }}
-          />
+          <PlayerProfileFields form={profileForm} disabled={isProfileSaving} />
         )}
         {activeTab === "profile" && (
           <View style={{ gap: atomSpacing[3] }}>
@@ -491,22 +509,12 @@ export default function ProfileEditorScreen({
               Save changes
             </AppButton>
 
-            {statusMessage ? (
-              <FieldMessage tone="success">{statusMessage}</FieldMessage>
-            ) : null}
-            {formError ? (
-              <FieldMessage tone="error">{formError}</FieldMessage>
-            ) : null}
             {pendingCleanup.length > 0 && (
               <View style={{ gap: 8 }}>
-                <FieldMessage>
-                  Your profile is saved, but the previous photo couldn’t be
-                  deleted.
-                </FieldMessage>
                 <AppButton
                   variant="ghost"
                   loading={cleanupAvatar.isPending}
-                  onPress={() => void retryCleanup()}
+                  onPress={() => void retryCleanupWithFeedback()}
                 >
                   Retry photo cleanup
                 </AppButton>
@@ -541,11 +549,7 @@ export default function ProfileEditorScreen({
                         label="New Password"
                         leftIcon={LockIcon}
                         onBlur={field.onBlur}
-                        onChangeText={(value) => {
-                          field.onChange(value);
-                          setSecurityError(null);
-                          setSecurityStatus(null);
-                        }}
+                        onChangeText={field.onChange}
                         placeholder="new-password"
                         required
                         rightSlot={
@@ -575,11 +579,7 @@ export default function ProfileEditorScreen({
                         label="Confirm Password"
                         leftIcon={LockIcon}
                         onBlur={field.onBlur}
-                        onChangeText={(value) => {
-                          field.onChange(value);
-                          setSecurityError(null);
-                          setSecurityStatus(null);
-                        }}
+                        onChangeText={field.onChange}
                         placeholder="confirm-password"
                         required
                         rightSlot={
@@ -610,13 +610,6 @@ export default function ProfileEditorScreen({
                   </AppButton>
                 </View>
               </View>
-
-              {securityStatus ? (
-                <FieldMessage tone="success">{securityStatus}</FieldMessage>
-              ) : null}
-              {securityError ? (
-                <FieldMessage tone="error">{securityError}</FieldMessage>
-              ) : null}
             </View>
           </AppCard>
         ) : null}

@@ -6,7 +6,8 @@ const primitiveColors = {
     100: "#eeedf7",
     150: "#e8e7f1",
     200: "#e3e1ec",
-    300: "#dad9e3"
+    300: "#dad9e3",
+    500: "#a0a0aa"
   },
   ink: {
     950: "#0d0e12",
@@ -74,6 +75,7 @@ const primitiveColors = {
     900: "#533714",
     950: "#37240d"
   },
+  lilac: { 100: "#e9e3ff", 800: "#4c3c77" },
   info: {
     50: "#f3f6ff",
     100: "#e3e6ff",
@@ -90,6 +92,37 @@ const primitiveColors = {
 };
 
 const semanticColors = {
+  feedback: {
+    bg: primitiveColors.ink[900],
+    actionBg: primitiveColors.ink[800],
+    text: primitiveColors.neutral[0],
+    secondary: primitiveColors.neutral[300],
+    dismiss: primitiveColors.neutral[500],
+    compactIconBg: primitiveColors.volt[400],
+    compactIcon: primitiveColors.volt[950],
+    tones: {
+      success: {
+        bg: primitiveColors.volt[100],
+        icon: primitiveColors.volt[900]
+      },
+      error: {
+        bg: primitiveColors.error[100],
+        icon: primitiveColors.error[700]
+      },
+      warning: {
+        bg: primitiveColors.warning[100],
+        icon: primitiveColors.warning[800]
+      },
+      info: {
+        bg: primitiveColors.lilac[100],
+        icon: primitiveColors.lilac[800]
+      },
+      muted: {
+        bg: primitiveColors.neutral[100],
+        icon: primitiveColors.ink[700]
+      }
+    }
+  },
   bg: {
     canvas: primitiveColors.neutral[25],
     surface: primitiveColors.neutral[0],
@@ -430,13 +463,16 @@ const motion = {
     progress: 650,
     scan: 1800,
     thumb: 160,
-    splashFade: 160
+    splashFade: 160,
+    toastEnter: 280,
+    toastExit: 200
   },
   curves: { measured: [0.23, 1, 0.32, 1] },
   scale: { buttonPressed: 0.98, cardPressed: 0.996, focusGlow: 0 }
 };
 
 const controls = {
+  toasts: semanticColors.feedback,
   fields: {
     onWhite: semanticColors.bg.surfaceLow,
     onTinted: semanticColors.bg.surface

@@ -21,6 +21,19 @@ export const designTokens: {
     scale: Record<string, number>;
   };
   controls: {
+    toasts: {
+      bg: string;
+      actionBg: string;
+      text: string;
+      secondary: string;
+      dismiss: string;
+      compactIconBg: string;
+      compactIcon: string;
+      tones: Record<
+        "success" | "error" | "warning" | "info" | "muted",
+        { bg: string; icon: string }
+      >;
+    };
     fields: { onWhite: string; onTinted: string };
     buttons: Record<
       "neutral" | "essential" | "accent" | "danger" | "success" | "warning",

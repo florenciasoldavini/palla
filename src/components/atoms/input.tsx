@@ -158,7 +158,7 @@ export function TextField({
     leftIcon || rightSlot ? atomSpacing[3] : atomSpacing[4];
   const inputTextStyle = {
     color: isDisabled ? atomPalette.textSubtle : atomPalette.text,
-    fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize),
+    fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize) * fontScale,
     letterSpacing: 0,
     ...(Platform.OS === "web"
       ? { lineHeight: atomTypeScale.bodyMd.lineHeight }
@@ -278,6 +278,7 @@ export function TextField({
               }}
             >
               <Text
+                allowFontScaling={false}
                 ellipsizeMode="tail"
                 numberOfLines={1}
                 style={{
@@ -292,6 +293,7 @@ export function TextField({
             </Pressable>
           ) : (
             <UIInputField
+              allowFontScaling={false}
               nativeID={fieldId}
               accessibilityHint={errorText || helperText || undefined}
               accessibilityLabel={

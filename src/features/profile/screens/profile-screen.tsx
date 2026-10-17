@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { AuthContext } from "@/features/auth/auth-provider";
-import { Screen, SkeletonBlock } from "@/components/atoms";
+import { Screen, SkeletonBlock, useAppToast } from "@/components/atoms";
 import { ProfileOverview } from "../components/profile-overview";
 
 export default function ProfileScreen({
@@ -11,9 +11,9 @@ export default function ProfileScreen({
   mode?: "player" | "organizer";
 }) {
   const router = useRouter();
+  const toast = useAppToast();
   const { user, logOut } = useContext(AuthContext);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [logoutError, setLogoutError] = useState<string | null>(null);
   if (!user)
     return (
       <Screen>
@@ -45,12 +45,13 @@ export default function ProfileScreen({
               style: "destructive",
               onPress: () => {
                 setLoggingOut(true);
-                setLogoutError(null);
                 void logOut()
                   .catch(() =>
-                    setLogoutError(
-                      "Couldn’t log you out. Check your connection and try again."
-                    )
+                    toast.show({
+                      title: "Couldn’t log out",
+                      description: "Check your connection and try again.",
+                      tone: "error"
+                    })
                   )
                   .finally(() => setLoggingOut(false));
               }
@@ -59,7 +60,6 @@ export default function ProfileScreen({
         )
       }
       loggingOut={loggingOut}
-      logoutError={logoutError}
     />
   );
 }

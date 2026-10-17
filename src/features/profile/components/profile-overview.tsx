@@ -8,7 +8,6 @@ import {
   AppCard,
   AppHeading,
   AppText,
-  FieldMessage,
   NavScreenHeader,
   Screen
 } from "@/components/atoms";
@@ -24,7 +23,6 @@ type Props = {
   onMenu: (id: ProfileMenuId) => void;
   onLogout: () => void;
   loggingOut?: boolean;
-  logoutError?: string | null;
   preview?: boolean;
 };
 export function ProfileOverview({
@@ -34,7 +32,6 @@ export function ProfileOverview({
   onMenu,
   onLogout,
   loggingOut,
-  logoutError,
   preview
 }: Props) {
   const { fontScale } = useWindowDimensions();
@@ -134,7 +131,6 @@ export function ProfileOverview({
             disabled={loggingOut}
           />
         </AppCard>
-        {logoutError && <FieldMessage tone="error">{logoutError}</FieldMessage>}
       </View>
     </Screen>
   );

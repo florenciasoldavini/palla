@@ -14,7 +14,12 @@ import {
 import { getSansFontStyle } from "@/theme/fonts";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
-import { Platform, type TextStyle, type ViewStyle } from "react-native";
+import {
+  Platform,
+  useWindowDimensions,
+  type TextStyle,
+  type ViewStyle
+} from "react-native";
 
 const textAreaHeight = atomControlHeights.lg * 2 + atomSpacing[6];
 
@@ -36,6 +41,7 @@ export function TextAreaField({
   required?: boolean;
 }) {
   const fieldBackground = useFieldBackground();
+  const { fontScale } = useWindowDimensions();
   const fieldId = useId();
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -88,6 +94,7 @@ export function TextAreaField({
         }}
       >
         <UITextareaInput
+          allowFontScaling={false}
           nativeID={fieldId}
           accessibilityHint={errorText || helperText || undefined}
           accessibilityLabel={
@@ -114,9 +121,9 @@ export function TextAreaField({
           placeholderTextColor={atomPalette.textPlaceholder}
           style={{
             color: isDisabled ? atomPalette.textSubtle : atomPalette.text,
-            fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize),
+            fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize) * fontScale,
 
-            lineHeight: atomTypeScale.bodyMd.lineHeight,
+            lineHeight: atomTypeScale.bodyMd.lineHeight * fontScale,
             minHeight: textAreaHeight,
             paddingHorizontal: atomSpacing[4],
             paddingVertical: atomSpacing[3],

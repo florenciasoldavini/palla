@@ -1,3 +1,4 @@
+import { AppToastProvider } from "@/components/atoms/toast";
 import { ChatPushSync } from "@/features/notifications/components/chat-push-sync";
 import { ChatRealtimeSync } from "@/features/chat/components/chat-realtime-sync";
 import { AppText, Screen } from "@/components/atoms";
@@ -72,7 +73,9 @@ function RootLayout() {
           <ChatOutboxSync />
           <ChatRealtimeSync>
             <SafeAreaProvider>
-              <RootNavigator />
+              <AppToastProvider>
+                <RootNavigator />
+              </AppToastProvider>
             </SafeAreaProvider>
           </ChatRealtimeSync>
         </AuthProvider>

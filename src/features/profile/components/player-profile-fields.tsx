@@ -39,7 +39,7 @@ export function PlayerProfileFields({
 }: {
   form: UseFormReturn<ProfileInfoInput>;
   disabled: boolean;
-  onChange: () => void;
+  onChange?: () => void;
 }) {
   const fieldBackground = useFieldBackground();
   const [categoryOpen, setCategoryOpen] = useState(false);
@@ -99,7 +99,7 @@ export function PlayerProfileFields({
                 shouldDirty: true,
                 shouldValidate: true
               });
-              onChange();
+              onChange?.();
             }}
           />
         )}
@@ -141,7 +141,7 @@ export function PlayerProfileFields({
                     onPress={() => {
                       field.onChange(value satisfies CourtSide);
                       field.onBlur();
-                      onChange();
+                      onChange?.();
                     }}
                     style={[
                       styles.side,
@@ -213,7 +213,7 @@ export function PlayerProfileFields({
                   onPress={() => {
                     field.onChange(value);
                     field.onBlur();
-                    onChange();
+                    onChange?.();
                   }}
                   style={[
                     styles.hand,
