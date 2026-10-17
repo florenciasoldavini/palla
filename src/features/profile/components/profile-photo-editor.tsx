@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  View,
+  useWindowDimensions
+} from "react-native";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
-import { Camera, ImagePlus, Trash2 } from "lucide-react-native";
-import { AppButton, FieldMessage } from "@/components/atoms";
+import { Camera, Pencil, Plus, Trash2 } from "lucide-react-native";
+import { AppButton, AppText, FieldMessage } from "@/components/atoms";
 import { atomPalette } from "@/components/atoms/theme";
 import type { ProfileAvatarAsset } from "../repositories/profile-avatar.repository";
 
@@ -25,6 +31,8 @@ export function ProfilePhotoEditor({
   const [error, setError] = useState<string | null>(null);
   const [failedUri, setFailedUri] = useState<string | null>(null);
   const uri = value?.uri ?? currentUrl.trim();
+  const photoSize = Math.max(112, 80 * Math.min(fontScale, 2));
+  const interactionDisabled = disabled || picking;
   const pick = async () => {
     setPicking(true);
     setError(null);
@@ -57,58 +65,74 @@ export function ProfilePhotoEditor({
   };
   return (
     <View style={{ gap: 12 }}>
-      <View
-        style={[
-          styles.container,
-          fontScale > 1.3 && { flexDirection: "column" }
-        ]}
-      >
-        <View style={styles.photo}>
-          {uri && uri !== failedUri ? (
-            <Image
-              accessibilityLabel="Profile photo preview"
-              source={{ uri }}
-              contentFit="cover"
-              style={StyleSheet.absoluteFill}
-              onError={() => setFailedUri(uri)}
-            />
-          ) : (
-            <Camera color={atomPalette.textMuted} size={32} strokeWidth={1.5} />
-          )}
-        </View>
-
-        <View style={styles.actions}>
-          <AppButton
-            fullWidth={false}
-            size="sm"
-            variant="bordered"
-            style={{
-              borderColor: atomPalette.borderSubtle
+      <View style={styles.container}>
+        <View style={{ width: photoSize + 40, height: photoSize + 40 }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={uri ? "Change photo" : "Add photo"}
+            accessibilityHint="Opens your photo library"
+            accessibilityState={{
+              disabled: interactionDisabled,
+              busy: picking
             }}
-            icon={ImagePlus}
-            iconAfter={false}
-            loading={picking}
-            isDisabled={disabled || picking}
+            disabled={interactionDisabled}
             onPress={() => void pick()}
+            style={[
+              styles.photo,
+              { width: photoSize, height: photoSize },
+              { opacity: interactionDisabled ? 0.5 : 1 }
+            ]}
           >
-            {uri ? "Change photo" : "Add photo"}
-          </AppButton>
+            {uri && uri !== failedUri ? (
+              <Image
+                accessibilityLabel="Profile photo preview"
+                source={{ uri }}
+                contentFit="cover"
+                style={StyleSheet.absoluteFill}
+                onError={() => setFailedUri(uri)}
+              />
+            ) : (
+              <Camera
+                color={atomPalette.textMuted}
+                size={32}
+                strokeWidth={1.5}
+              />
+            )}
+            <View pointerEvents="none" style={styles.editOverlay}>
+              {picking ? (
+                <ActivityIndicator
+                  color={atomPalette.textInverse}
+                  size="small"
+                />
+              ) : uri ? (
+                <Pencil color={atomPalette.textInverse} size={16} />
+              ) : (
+                <Plus color={atomPalette.textInverse} size={16} />
+              )}
+              <AppText
+                variant="label"
+                style={{ color: atomPalette.textInverse }}
+              >
+                {picking ? "Opening…" : uri ? "Edit" : "Add"}
+              </AppText>
+            </View>
+          </Pressable>
           {!!uri && (
             <AppButton
+              accessibilityLabel="Remove photo"
               fullWidth={false}
               size="sm"
-              variant="ghost"
+              layout="icon"
+              variant="bordered"
               color="danger"
               icon={Trash2}
-              iconAfter={false}
-              isDisabled={disabled || picking}
+              style={styles.removeButton}
+              isDisabled={interactionDisabled}
               onPress={() => {
                 setError(null);
                 onRemove();
               }}
-            >
-              Remove photo
-            </AppButton>
+            />
           )}
         </View>
       </View>
@@ -118,14 +142,13 @@ export function ProfilePhotoEditor({
 }
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 16,
     width: "100%"
   },
   photo: {
-    height: 96,
-    width: 96,
+    position: "absolute",
+    top: 20,
+    left: 20,
     borderRadius: 24,
     overflow: "hidden",
     backgroundColor: atomPalette.surfaceLow,
@@ -134,9 +157,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
-  actions: {
-    flex: 1,
-    alignItems: "flex-start",
-    gap: 8
+  editOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(27, 27, 35, 0.72)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingHorizontal: 4,
+    paddingVertical: 6
+  },
+  removeButton: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    backgroundColor: atomPalette.surface,
+    borderColor: atomPalette.borderSubtle
   }
 });
