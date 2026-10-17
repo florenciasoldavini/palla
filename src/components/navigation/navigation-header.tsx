@@ -29,25 +29,27 @@ export function NavigationHeader({
         }}
       >
         <PallaWordmark />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Notifications"
-          onPress={onNotifications}
-          onPressIn={() => setPressed(true)}
-          onPressOut={() => setPressed(false)}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 24,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: pressed
-              ? atomPalette.surfaceRaised
-              : atomPalette.surfaceLow
-          }}
-        >
-          <Bell size={24} color={atomPalette.text} />
-        </Pressable>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Notifications"
+            onPress={onNotifications}
+            onPressIn={() => setPressed(true)}
+            onPressOut={() => setPressed(false)}
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 24,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: pressed
+                ? atomPalette.surfaceRaised
+                : atomPalette.surfaceLow
+            }}
+          >
+            <Bell size={24} color={atomPalette.text} />
+          </Pressable>
+        </View>
       </View>
     </View>
   );

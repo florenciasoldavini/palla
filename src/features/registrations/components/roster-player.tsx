@@ -15,9 +15,13 @@ import type { Attendee } from "../domain";
 
 export function RosterPlayer({
   attendee,
-  previewPaymentLabel
+  previewPaymentLabel,
+  onMessage,
+  messaging = false
 }: {
   attendee: Attendee;
+  onMessage?: () => void;
+  messaging?: boolean;
   /** Illustrative payment copy for the development preview only. */
   previewPaymentLabel?: string;
 }) {
@@ -109,9 +113,13 @@ export function RosterPlayer({
             <Pressable
               key={action}
               accessibilityRole="button"
-              accessibilityLabel={`${action} for ${name}. Coming soon`}
+              accessibilityLabel={`${action} for ${name}${action === "Message" && onMessage ? "" : ". Coming soon"}`}
+              disabled={action === "Message" && messaging}
+              accessibilityState={{ busy: action === "Message" && messaging }}
               onPress={() =>
-                Alert.alert(`${action} · Coming soon`, explanation)
+                action === "Message" && onMessage
+                  ? onMessage()
+                  : Alert.alert(`${action} · Coming soon`, explanation)
               }
               onPressIn={() => setPressedAction(action)}
               onPressOut={() => setPressedAction(null)}

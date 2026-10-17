@@ -1,0 +1,91 @@
+import { Platform } from "react-native";
+import Constants from "expo-constants";
+import * as SecureStore from "expo-secure-store";
+import { randomUUID } from "expo-crypto";
+import {
+  registerPushDevice,
+  unregisterPushDevice
+} from "../repositories/push.repository";
+
+const installationKey = "palla-push-installation-v1";
+let installationPromise: Promise<string> | undefined;
+export function pushSupported() {
+  return (
+    Platform.OS !== "web" && Constants.executionEnvironment !== "storeClient"
+  );
+}
+async function installationId() {
+  return (installationPromise ??= (async () => {
+    const saved = await SecureStore.getItemAsync(installationKey);
+    if (saved) return saved;
+    const id = randomUUID();
+    await SecureStore.setItemAsync(installationKey, id);
+    return id;
+  })().catch((error) => {
+    installationPromise = undefined;
+    throw error;
+  }));
+}
+// Serialize registration and sign-out so an in-flight token fetch cannot re-enable a signed-out device.
+let pending = Promise.resolve();
+let generation = 0;
+export function cancelPushRegistration() {
+  generation += 1;
+}
+export function registerCurrentPushDevice(
+  actor: string,
+  current: () => boolean
+) {
+  if (!pushSupported()) return Promise.resolve();
+  const version = generation;
+  const operation = pending
+    .catch(() => undefined)
+    .then(async () => {
+      const notifications = await import("expo-notifications");
+      if (!current() || version !== generation) return;
+      if (Platform.OS === "android")
+        await notifications.setNotificationChannelAsync("chat", {
+          name: "Messages",
+          importance: notifications.AndroidImportance.HIGH,
+          sound: "default"
+        });
+      let permission = await notifications.getPermissionsAsync();
+      if (!permission.granted && permission.canAskAgain)
+        permission = await notifications.requestPermissionsAsync();
+      if (!current() || version !== generation) return;
+      const installation = await installationId();
+      if (
+        !permission.granted &&
+        permission.ios?.status !==
+          notifications.IosAuthorizationStatus.PROVISIONAL
+      ) {
+        await unregisterPushDevice(installation);
+        return;
+      }
+      const projectId =
+        Constants.easConfig?.projectId ??
+        Constants.expoConfig?.extra?.eas?.projectId;
+      if (typeof projectId !== "string") return;
+      const token = (await notifications.getExpoPushTokenAsync({ projectId }))
+        .data;
+      if (!current() || version !== generation) return;
+      await registerPushDevice(
+        installation,
+        token,
+        Platform.OS as "ios" | "android",
+        actor
+      );
+    });
+  pending = operation.catch(() => undefined);
+  return operation;
+}
+export async function unregisterCurrentPushDevice() {
+  cancelPushRegistration();
+  if (!pushSupported()) return;
+  await pending;
+  const installation = await SecureStore.getItemAsync(installationKey);
+  if (installation) await unregisterPushDevice(installation);
+  const notifications = await import("expo-notifications");
+  await notifications.dismissAllNotificationsAsync();
+  await notifications.clearLastNotificationResponseAsync();
+}

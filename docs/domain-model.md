@@ -1,6 +1,6 @@
 # Palla domain and database plan
 
-The Zod schemas under each feature define complete record contracts and user-input contracts. TypeScript types are inferred from those schemas. Implemented tables are profiles, organizers, venues, session_series, sessions, and registrations. Registrations currently support the organizer roster, attendance and waitlist management; player registration workflows and notifications remain future plans. Add migrations and authorization tests with each implemented feature, as required by AGENTS.md.
+The Zod schemas under each feature define complete record contracts and user-input contracts. TypeScript types are inferred from those schemas. Implemented tables are profiles, organizers, venues, session_series, sessions, registrations, chat_conversations, chat_messages, and chat_reads. Registrations currently support the organizer roster, attendance and waitlist management; player registration workflows and notifications remain future plans. Add migrations and authorization tests with each implemented feature, as required by AGENTS.md.
 
 ## Contract conventions
 
@@ -100,3 +100,7 @@ Enable RLS on every exposed table and grant only required operations. RLS filter
 5. Implement the private outbox and notifications alongside event-producing transactions.
 
 No remote database changes are authorized by these local contracts alone. The MVP decisions are recorded in [MVP scope](mvp.md).
+
+## Private messaging
+
+The implemented private chat model has one organizer/player conversation per pair, sequenced text messages and participant read cursors. Registration is not a backend prerequisite. The organizer roster currently exposes initiation; both roles can reply through their inbox. See [private realtime chat](chat.md) for fields, RPCs, authorization, limits and verification scope.

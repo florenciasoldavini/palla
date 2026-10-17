@@ -1,3 +1,4 @@
+import { unregisterCurrentPushDevice } from "@/features/notifications/services/push.service";
 import {
   getSupabaseErrorMessage,
   isSupabaseConfigured,
@@ -117,6 +118,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   const logOut = async () => {
     if (supabase) {
+      // Revoke this installation before discarding the session used to authorize cleanup.
+      await unregisterCurrentPushDevice();
       const { error } = await supabase.auth.signOut();
       if (error) {
         setAuthError(getSupabaseErrorMessage(error));

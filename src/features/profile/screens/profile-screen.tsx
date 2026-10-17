@@ -106,6 +106,8 @@ export default function ProfileScreen() {
   );
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [securityStatus, setSecurityStatus] = useState<string | null>(null);
   const [securityError, setSecurityError] = useState<string | null>(null);
@@ -576,11 +578,23 @@ export default function ProfileScreen() {
           </AppCard>
         ) : null}
 
+        {logoutError ? (
+          <FieldMessage tone="error">{logoutError}</FieldMessage>
+        ) : null}
         <AppButton
+          loading={isLoggingOut}
           icon={LogoutIcon}
           iconAfter={false}
           onPress={() => {
-            void logOut();
+            setIsLoggingOut(true);
+            setLogoutError(null);
+            void logOut()
+              .catch(() => {
+                setLogoutError(
+                  "We couldn’t sign you out. Check your connection and try again."
+                );
+              })
+              .finally(() => setIsLoggingOut(false));
           }}
           size="md"
           color="danger"

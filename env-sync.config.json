@@ -80,6 +80,16 @@
       "section": "Google Places / Server",
       "comment": "Supabase Edge Function secret only. Never expose in Expo public variables. Restrict to Places API (New).",
       "example": "your_server_places_api_key"
+    },
+    "EXPO_ACCESS_TOKEN": {
+      "section": "Push Notifications / Server",
+      "comment": "Optional server-only Expo push access token when Enhanced Push Security is enabled. Set only in Supabase Edge Function secrets; never EXPO_PUBLIC.",
+      "example": "your_expo_push_access_token"
+    },
+    "GOOGLE_SERVICES_JSON": {
+      "section": "Push Notifications / Native Build",
+      "comment": "Path to Firebase google-services.json for the Android native build. Use a file environment variable in EAS; do not commit the file. Not synchronized by the generic env-sync script.",
+      "example": "/secure/path/google-services.json"
     }
   }
 }

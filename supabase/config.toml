@@ -1,0 +1,11 @@
+[functions.chat-push]
+# Authenticated by an unexposed Vault secret, checked before the worker can claim any jobs.
+verify_jwt = false
+
+[functions.chat-report]
+# The handler verifies the JWT with Auth.getUser; no unverified user claims are trusted.
+verify_jwt = false
+
+[functions.chat-photo]
+# Handler validates a real, non-anonymous user via Auth.getUser.
+verify_jwt = false

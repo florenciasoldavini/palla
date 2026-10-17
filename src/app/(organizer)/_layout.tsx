@@ -6,6 +6,7 @@ export default function OrganizerLayout() {
       routes={{
         home: "dashboard",
         secondary: "sessions",
+        messages: "organizer-messages",
         profile: "organizer-profile"
       }}
     />

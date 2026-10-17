@@ -5,7 +5,12 @@ export default function PreviewTabs() {
   return (
     <RoleTabs
       mode={role === "organizer" ? "organizer" : "player"}
-      routes={{ home: "home", secondary: "secondary", profile: "profile" }}
+      routes={{
+        home: "home",
+        secondary: "secondary",
+        messages: "messages",
+        profile: "profile"
+      }}
       notificationsPath="/navigation-preview/notifications"
     />
   );
