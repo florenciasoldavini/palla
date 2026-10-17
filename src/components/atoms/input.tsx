@@ -32,6 +32,7 @@ import {
 import { useEffect, useId, useRef, useState } from "react";
 import {
   Platform,
+  StyleSheet,
   Pressable,
   Text,
   View,
@@ -39,6 +40,7 @@ import {
   type NativeSyntheticEvent,
   type TextInputFocusEventData,
   type TextStyle,
+  type StyleProp,
   type ViewStyle
 } from "react-native";
 import Animated, {
@@ -52,6 +54,7 @@ type TextFieldProps = Omit<
   React.ComponentProps<typeof UIInputField>,
   "size"
 > & {
+  inputStyle?: StyleProp<TextStyle>;
   appearance?: "default" | "soft";
   accessory?: ReactNode;
   errorText?: string | null;
@@ -95,6 +98,7 @@ export function TextField({
   editable = true,
   errorText,
   helperText,
+  inputStyle,
   label,
   leftIcon,
   multiline,
@@ -333,7 +337,8 @@ export function TextField({
                   ? { textAlignVertical: "center" as const }
                   : null),
                 ...truncateStyle,
-                ...webInputCursorStyle
+                ...webInputCursorStyle,
+                ...StyleSheet.flatten(inputStyle)
               }}
               {...props}
               onPressIn={onPressIn}

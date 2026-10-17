@@ -3,7 +3,12 @@ export default function PlayerLayout() {
   return (
     <RoleTabs
       mode="player"
-      routes={{ home: "discover", secondary: "my-games", profile: "profile" }}
+      routes={{
+        home: "discover",
+        secondary: "my-games",
+        messages: "player-messages",
+        profile: "profile"
+      }}
     />
   );
 }

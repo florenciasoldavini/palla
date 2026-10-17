@@ -23,6 +23,7 @@ Product-specific session features and database tables are intentionally not impl
 - [Design system](docs/design-system.md)
 - [MVP scope and decisions](docs/mvp.md)
 - [Domain contracts and database plan](docs/domain-model.md)
+- [Chat push setup and pending native delivery checklist](docs/chat-push.md) — tracked in [issue #7](https://github.com/florenciasoldavini/palla/issues/7)
 
 Feature-owned `domain.ts` files contain TypeScript models and Zod record/input schemas. Account onboarding now uses the implemented `profiles` and `organizers` tables; session screens still use illustrative data. See [account onboarding](docs/onboarding.md) for setup and verification details.
 

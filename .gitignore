@@ -50,3 +50,7 @@ app-example
 
 # Generated local design and native QA evidence
 .impeccable/review/
+
+# Native push credentials
+google-services.json
+*-firebase-adminsdk-*.json

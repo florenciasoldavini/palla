@@ -102,6 +102,42 @@ export function urlHasAuthPayload(url: string) {
   );
 }
 
+// Expo Router may already have received the callback while a Linking hook still
+// holds the launch URL. Only copy recognized auth parameters from that route.
+export function resolveAuthCallbackUrl(
+  linkingUrl: string | null,
+  routeParams: Record<string, string | string[] | undefined>
+): string | null {
+  const route = new URL("palla://callback");
+  for (const key of [
+    "code",
+    "access_token",
+    "refresh_token",
+    "type",
+    "error",
+    "error_description",
+    "next"
+  ]) {
+    const value = routeParams[key];
+    if (typeof value === "string") route.searchParams.set(key, value);
+  }
+  if (
+    route.searchParams.has("code") ||
+    (route.searchParams.has("access_token") &&
+      route.searchParams.has("refresh_token"))
+  )
+    return route.toString();
+  const candidate = getActiveAuthUrl(linkingUrl);
+  if (candidate) {
+    try {
+      if (urlHasAuthPayload(candidate)) return candidate;
+    } catch {
+      /* Ignore malformed or unrelated launch links. */
+    }
+  }
+  return urlHasAuthPayload(route.toString()) ? route.toString() : null;
+}
+
 export function getActiveAuthUrl(linkingUrl: string | null) {
   if (linkingUrl) {
     return linkingUrl;
@@ -114,7 +150,28 @@ export function getActiveAuthUrl(linkingUrl: string | null) {
   return null;
 }
 
-export async function completeAuthSessionFromUrl(
+const authExchanges = new Map<string, Promise<AuthRedirectResult>>();
+
+export function completeAuthSessionFromUrl(
+  url: string
+): Promise<AuthRedirectResult> {
+  const params = getAuthParamsFromUrl(url);
+  const credential =
+    params.get("code") ??
+    (params.get("access_token") && params.get("refresh_token")
+      ? `${params.get("access_token")}:${params.get("refresh_token")}`
+      : null);
+  if (!credential) return exchangeAuthSessionFromUrl(url);
+  const existing = authExchanges.get(credential);
+  if (existing) return existing;
+  const exchange = exchangeAuthSessionFromUrl(url).finally(() =>
+    authExchanges.delete(credential)
+  );
+  authExchanges.set(credential, exchange);
+  return exchange;
+}
+
+async function exchangeAuthSessionFromUrl(
   url: string
 ): Promise<AuthRedirectResult> {
   if (!supabase) {
@@ -333,6 +390,8 @@ export function getPostAuthRedirectPath(
 }
 
 export function clearWebAuthUrlArtifacts() {
+  // Expo can provide window.location on native without browser history APIs.
+  if (Platform.OS !== "web") return;
   const origin = getBrowserOrigin();
 
   if (typeof window === "undefined" || !origin) {

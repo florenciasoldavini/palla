@@ -5,6 +5,7 @@ import { Text } from "react-native";
 export function PallaWordmark({ compact = false }: { compact?: boolean }) {
   return (
     <Text
+      allowFontScaling={false}
       style={{
         color: atomPalette.text,
         fontSize: compact ? 24 : 30,

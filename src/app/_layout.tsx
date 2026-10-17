@@ -1,3 +1,5 @@
+import { ChatPushSync } from "@/features/notifications/components/chat-push-sync";
+import { ChatRealtimeSync } from "@/features/chat/components/chat-realtime-sync";
 import { AppText, Screen } from "@/components/atoms";
 import { ActivityIndicator } from "react-native";
 import { atomPalette } from "@/components/atoms/theme";
@@ -8,7 +10,9 @@ import { ProfileLoadError } from "@/features/auth/components/profile-load-error"
 import { queryClient } from "@/lib/query-client";
 import { navigationIntegration, Sentry } from "@/lib/sentry";
 import "@/global.css";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { queryPersister } from "@/infrastructure/local-storage/query-persister";
+import { ChatOutboxSync } from "@/features/chat/components/chat-outbox-sync";
 import { useFonts } from "expo-font";
 import { Stack, useNavigationContainerRef, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -45,13 +49,34 @@ function RootLayout() {
 
   return (
     <GluestackUIProvider mode="light">
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{
+          persister: queryPersister,
+          buster: "offline-chat-v1",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+          dehydrateOptions: {
+            shouldDehydrateMutation: () => false,
+            shouldDehydrateQuery: (query) =>
+              query.state.data !== undefined &&
+              [
+                "auth-profile",
+                "chat-inbox",
+                "chat-conversation",
+                "chat-messages"
+              ].includes(String(query.queryKey[0]))
+          }
+        }}
+      >
         <AuthProvider>
-          <SafeAreaProvider>
-            <RootNavigator />
-          </SafeAreaProvider>
+          <ChatOutboxSync />
+          <ChatRealtimeSync>
+            <SafeAreaProvider>
+              <RootNavigator />
+            </SafeAreaProvider>
+          </ChatRealtimeSync>
         </AuthProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </GluestackUIProvider>
   );
 }
@@ -76,12 +101,16 @@ function RootNavigator() {
 
   return (
     <>
+      <ChatPushSync ready={ready && !isLoading && splashDone} />
       {!isLoading || authHandoff ? (
         session && !user && !authHandoff ? (
           <ProfileLoadError />
         ) : (
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack screenOptions={{ headerShown: false, statusBarStyle: "dark" }}>
             <Stack.Screen name="index" />
+            {/* Auth callbacks must survive changes to the signed-out guard. */}
+            <Stack.Screen name="callback" />
+            <Stack.Screen name="reset-password" />
             <Stack.Screen name="onboarding-preview" />
             <Stack.Protected guard={__DEV__}>
               <Stack.Screen name="navigation-preview" />
@@ -93,6 +122,7 @@ function RootNavigator() {
             <Stack.Protected guard={ready}>
               <Stack.Screen name="(player)" />
               <Stack.Screen name="notifications" />
+              <Stack.Screen name="messages" />
             </Stack.Protected>
             <Stack.Protected
               guard={ready && user?.organizer_status === "active"}
@@ -100,7 +130,7 @@ function RootNavigator() {
               <Stack.Screen name="(organizer)" />
               <Stack.Screen name="organizer-session" />
             </Stack.Protected>
-            <Stack.Protected guard={!session || authHandoff}>
+            <Stack.Protected guard={!session}>
               <Stack.Screen name="(auth)" />
             </Stack.Protected>
           </Stack>

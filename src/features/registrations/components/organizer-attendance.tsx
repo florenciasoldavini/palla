@@ -1,3 +1,5 @@
+import { useStartChat } from "@/features/chat/hooks/use-chat";
+import { useRouter } from "expo-router";
 import { designTokens } from "@/theme/tokens";
 import { AvailableRosterSlot } from "./available-roster-slot";
 import { RosterPlayer } from "./roster-player";
@@ -14,6 +16,7 @@ import { Check } from "lucide-react-native";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   StyleSheet,
   useWindowDimensions,
@@ -42,9 +45,13 @@ export function AttendanceSections({
   onRetry,
   onChange,
   between,
-  previewPaymentLabel
+  previewPaymentLabel,
+  onMessage,
+  messaging = false
 }: {
   attendees: Attendee[];
+  onMessage?: (row: Attendee) => void;
+  messaging?: boolean;
   capacity: number;
   previewPaymentLabel?: string;
   between?: React.ReactNode;
@@ -98,6 +105,8 @@ export function AttendanceSections({
             <RosterPlayer
               key={row.id}
               attendee={row}
+              onMessage={onMessage ? () => onMessage(row) : undefined}
+              messaging={messaging}
               previewPaymentLabel={previewPaymentLabel}
             />
           ))}
@@ -269,10 +278,29 @@ export function OrganizerAttendance({
   published: boolean;
 }) {
   const { roster, attendance } = useOrganizerAttendance(sessionId);
+  const chat = useStartChat();
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   return (
     <AttendanceSections
       capacity={capacity}
+      messaging={chat.isPending}
+      onMessage={(row) => {
+        void chat
+          .mutateAsync({ playerId: row.player_id, sessionId })
+          .then((conversation) =>
+            router.push({
+              pathname: "/messages/[id]",
+              params: { id: conversation.id }
+            })
+          )
+          .catch(() =>
+            Alert.alert(
+              "Conversation couldn’t open",
+              "Check your connection, then tap the message button to try again."
+            )
+          );
+      }}
       between={between}
       attendees={roster.data ?? []}
       retrying={roster.isFetching}

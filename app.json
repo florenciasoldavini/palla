@@ -4,7 +4,7 @@
     "slug": "palla",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/app-icons/palla-app-icon.png",
     "scheme": "palla",
     "userInterfaceStyle": "light",
     "ios": {
@@ -12,18 +12,19 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/app-icons/palla-app-icon.png",
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/app-icons/palla-android-foreground.png",
+        "backgroundImage": "./assets/images/app-icons/palla-android-background.png",
+        "backgroundColor": "#062C22",
+        "monochromeImage": "./assets/images/app-icons/palla-android-monochrome.png"
       },
       "package": "com.florenciasoldavini.palla",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "icon": "./assets/images/app-icons/palla-app-icon.png"
     },
     "web": {
       "bundler": "metro",
@@ -39,20 +40,32 @@
         }
       ],
       "expo-router",
+      "expo-sqlite",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#062C22"
+          "backgroundColor": "#062C22",
+          "android": {
+            "image": "./assets/images/app-icons/palla-android-foreground.png",
+            "imageWidth": 200
+          }
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Palla to access your photo library so you can choose a profile photo."
+          "photosPermission": "Choose a profile photo or share a photo in your Palla chats."
         }
       ],
       "expo-secure-store",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "chat",
+          "color": "#D4FF00",
+          "icon": "./assets/images/app-icons/palla-notification-icon.png"
+        }
+      ],
       [
         "expo-font",
         {
@@ -68,7 +81,15 @@
           ]
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Palla to access photos you choose to share.",
+          "savePhotosPermission": "Allow Palla to save chat photos to your photo library.",
+          "granularPermissions": ["photo"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

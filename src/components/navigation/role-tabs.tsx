@@ -3,6 +3,7 @@ import { Tabs, useRouter, type Href } from "expo-router";
 import {
   CalendarDays,
   LayoutGrid,
+  MessageSquare,
   Search,
   UserRound
 } from "lucide-react-native";
@@ -10,6 +11,7 @@ import { Text, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { atomPalette } from "@/components/atoms/theme";
 import { getSansFontStyle } from "@/theme/fonts";
+import { useChatInbox } from "@/features/chat/hooks/use-chat";
 import { designTokens } from "@/theme/tokens";
 import { NavigationHeader } from "./navigation-header";
 import { NavigationChromeContext, RoleModeContext } from "./chrome-context";
@@ -20,10 +22,17 @@ export function RoleTabs({
   notificationsPath = "/notifications"
 }: {
   mode: "player" | "organizer";
-  routes: { home: string; secondary: string; profile: string };
+  routes: {
+    home: string;
+    secondary: string;
+    messages: string;
+    profile: string;
+  };
   notificationsPath?: Href;
 }) {
   const router = useRouter();
+  const inbox = useChatInbox();
+  const unread = inbox.counts?.badge ?? 0;
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
   const tabs = [
@@ -37,6 +46,7 @@ export function RoleTabs({
       label: mode === "player" ? "My games" : "Sessions",
       icon: CalendarDays
     },
+    { name: routes.messages, label: "Messages", icon: MessageSquare },
     { name: routes.profile, label: "Profile", icon: UserRound }
   ];
   return (
@@ -64,7 +74,8 @@ export function RoleTabs({
               />
             ),
             tabBarStyle: {
-              height: Math.max(76, 72 * fontScale) + insets.bottom,
+              height:
+                Math.max(76, 72 * Math.min(fontScale, 1.3)) + insets.bottom,
               paddingTop: 6,
               paddingBottom: insets.bottom + 6,
               backgroundColor: atomPalette.surface,
@@ -88,10 +99,26 @@ export function RoleTabs({
               name={name}
               options={{
                 title: label,
-                tabBarAccessibilityLabel: label,
+                tabBarAccessibilityLabel:
+                  label === "Messages" && unread
+                    ? `Messages, ${unread} unread`
+                    : label,
+                tabBarBadge:
+                  name === routes.messages && unread
+                    ? unread > 99
+                      ? "99+"
+                      : unread
+                    : undefined,
+                tabBarBadgeStyle: {
+                  backgroundColor: atomPalette.brand,
+                  color: atomPalette.text,
+                  ...getSansFontStyle("600")
+                },
                 tabBarIcon: ({ color }) => <Icon size={24} color={color} />,
                 tabBarLabel: ({ color, focused }) => (
                   <Text
+                    maxFontSizeMultiplier={1.3}
+                    numberOfLines={1}
                     style={{
                       color,
                       fontSize: 12,

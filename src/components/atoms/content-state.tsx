@@ -13,7 +13,7 @@ import {
   type ViewStyle
 } from "react-native";
 
-export type StateVariant = "panel" | "inline" | "fullScreen";
+export type StateVariant = "panel" | "inline" | "fullScreen" | "compact";
 export type StateAction = {
   label: string;
   onPress: () => void;
@@ -47,12 +47,15 @@ export function ContentState({
   const { fontScale, width, height } = useWindowDimensions();
   const inline = variant === "inline" && fontScale <= 1.2 && width >= 360;
   const fullScreen = variant === "fullScreen";
+  const compact = variant === "compact";
   const iconSize =
-    (fullScreen ? 36 : inline ? 24 : 28) * Math.min(fontScale, 1.5);
+    (compact ? 20 : fullScreen ? 36 : inline ? 24 : 28) *
+    Math.min(fontScale, 1.5);
   const content = (
     <View
       style={[
         styles.content,
+        compact && styles.compactContent,
         inline && styles.inline,
         fullScreen && { minHeight: Math.min(height * 0.55, 480) }
       ]}
@@ -61,41 +64,64 @@ export function ContentState({
         <View
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
-          style={[styles.icon, { width: iconSize + 36, height: iconSize + 36 }]}
+          style={[
+            styles.icon,
+            {
+              width: iconSize + (compact ? 16 : 36),
+              height: iconSize + (compact ? 16 : 36)
+            }
+          ]}
         >
           <Icon size={iconSize} color={c.text} strokeWidth={1.8} />
         </View>
       )}
-      <View style={[styles.details, inline && styles.inlineDetails]}>
+      <View
+        style={[
+          styles.details,
+          compact && styles.compactDetails,
+          inline && styles.inlineDetails
+        ]}
+      >
         <View style={styles.copy}>
-          <AppHeading
-            variant={fullScreen ? "section" : "card"}
-            style={!inline && styles.centerText}
-          >
-            {title}
-          </AppHeading>
-          <AppText
-            variant="bodySm"
-            tone="subtle"
-            accessibilityLiveRegion={announce ? "polite" : "none"}
-            style={!inline && styles.centerText}
-          >
-            {description}
-          </AppText>
+          {compact ? (
+            <AppText variant="label" style={styles.centerText}>
+              {title}
+            </AppText>
+          ) : (
+            <AppHeading
+              variant={fullScreen ? "section" : "card"}
+              style={!inline && styles.centerText}
+            >
+              {title}
+            </AppHeading>
+          )}
+          {!!description && (
+            <AppText
+              variant="bodySm"
+              tone="subtle"
+              accessibilityLiveRegion={announce ? "polite" : "none"}
+              style={!inline && styles.centerText}
+            >
+              {description}
+            </AppText>
+          )}
         </View>
         {action && (
           <AppButton
             icon={action.icon}
             iconAfter={false}
-            color={inline ? "neutral" : "essential"}
-            variant={inline ? "ghost" : "solid"}
-            fullWidth={!inline}
+            color={inline || compact ? "neutral" : "essential"}
+            variant={inline || compact ? "ghost" : "solid"}
+            fullWidth={!inline && !compact}
             size="sm"
             loading={action.loading}
             isDisabled={action.disabled}
             accessibilityLabel={action.accessibilityLabel ?? action.label}
             onPress={action.onPress}
-            style={inline && styles.inlineAction}
+            style={[
+              inline && styles.inlineAction,
+              compact && styles.compactAction
+            ]}
           >
             {action.label}
           </AppButton>
@@ -104,7 +130,14 @@ export function ContentState({
     </View>
   );
   return fullScreen || contained ? (
-    <View style={[styles.bare, fullScreen && styles.fullScreen, style]}>
+    <View
+      style={[
+        styles.bare,
+        compact && styles.compactBare,
+        fullScreen && styles.fullScreen,
+        style
+      ]}
+    >
       {content}
     </View>
   ) : (
@@ -115,6 +148,10 @@ export function ContentState({
 }
 const styles = StyleSheet.create({
   content: { alignItems: "center", justifyContent: "center", gap: sp[5] },
+  compactContent: { gap: sp[1] },
+  compactDetails: { gap: 0 },
+  compactAction: { alignSelf: "center" },
+  compactBare: { paddingVertical: 0 },
   inline: { flexDirection: "row", alignItems: "flex-start", gap: sp[3] },
   icon: {
     borderRadius: 999,

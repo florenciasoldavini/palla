@@ -70,3 +70,7 @@ Before shipping a component, inspect default, hover, keyboard focus, pressed, di
 Onboarding uses two short steps: starting mode, then name. Stacked radio panels keep Player and Organizer visible together. Use `onboardingTitle` and `onboardingRole` typography tokens; selected panels use the pale lime primitive with the semantic olive focus/border role, and primary actions use the essential button variant. First name is required; last name is optional. Keep server failures inline, retain drafts during back navigation, and block duplicate submissions while saving.
 
 The header includes a step count. The first step offers sign out; the name step adds Back. Radio panels support keyboard arrows and expose explicit checked state on web. The development preview is separate from production account setup.
+
+### Icons on tinted backgrounds
+
+Pair an icon with a lighter background from the same color family, using a darker tone for the icon. For brand icons use `volt[100]` behind `volt[800]`; never place green icons on lilac backgrounds. Blocking explanation rows use pale lilac circles with dark lilac icons (`#6b6385`), keeping this secondary information quiet. Align icon circles vertically with the complete adjacent text group, and keep separators outside that group so padding does not shift the alignment.
