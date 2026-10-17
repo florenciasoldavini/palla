@@ -1,3 +1,4 @@
+import { useFieldBackground } from "./field-surface";
 import {
   atomControlHeights,
   atomControlRadius,
@@ -55,7 +56,6 @@ type TextFieldProps = Omit<
   "size"
 > & {
   inputStyle?: StyleProp<TextStyle>;
-  appearance?: "default" | "soft";
   accessory?: ReactNode;
   errorText?: string | null;
   helperText?: string | null;
@@ -93,7 +93,6 @@ const sizeMap = {
 };
 
 export function TextField({
-  appearance = "default",
   accessory,
   editable = true,
   errorText,
@@ -112,6 +111,7 @@ export function TextField({
   truncate = false,
   ...props
 }: TextFieldProps) {
+  const fieldBackground = useFieldBackground();
   const { fontScale } = useWindowDimensions();
   const isMultiline = Boolean(multiline) && !truncate;
   const fieldId = useId();
@@ -157,7 +157,7 @@ export function TextField({
   const inputPaddingHorizontal =
     leftIcon || rightSlot ? atomSpacing[3] : atomSpacing[4];
   const inputTextStyle = {
-    color: atomPalette.text,
+    color: isDisabled ? atomPalette.textSubtle : atomPalette.text,
     fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize),
     letterSpacing: 0,
     ...(Platform.OS === "web"
@@ -231,13 +231,9 @@ export function TextField({
           size={config.input}
           style={{
             alignItems: "center",
-            backgroundColor: isDisabled
-              ? atomPalette.surfaceLow
-              : appearance === "soft"
-                ? atomPalette.background
-                : atomPalette.surface,
+            backgroundColor: fieldBackground,
             borderColor,
-            borderRadius: appearance === "soft" ? 12 : config.radius,
+            borderRadius: atomControlRadius,
             borderWidth: 1,
             flexDirection: "row",
 
@@ -485,6 +481,7 @@ function WebNumericField({
   onChangeNumber: (value: number) => void;
   value: number;
 }) {
+  const fieldBackground = useFieldBackground();
   const { fontScale } = useWindowDimensions();
   const fieldId = useId();
   const config = sizeMap[size ?? "lg"];
@@ -547,9 +544,7 @@ function WebNumericField({
         size={config.input}
         style={
           {
-            backgroundColor: isDisabled
-              ? atomPalette.surfaceLow
-              : atomPalette.surface,
+            backgroundColor: fieldBackground,
             borderColor,
             borderRadius: config.radius,
             cursor: isDisabled ? "not-allowed" : "text",

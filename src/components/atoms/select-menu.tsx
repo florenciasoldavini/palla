@@ -1,3 +1,4 @@
+import { useFieldBackground } from "./field-surface";
 import { AppText } from "@/components/atoms/text";
 import { atomMotion } from "@/components/atoms/motion";
 import {
@@ -46,6 +47,7 @@ export function SelectMenu<TValue extends string>({
   options: SelectMenuOption<TValue>[];
   value: TValue;
 }) {
+  const fieldBackground = useFieldBackground();
   const triggerRef = useRef<View>(null);
   const { height, width } = useWindowDimensions();
   const [isOpen, setIsOpen] = useState(false);
@@ -202,6 +204,7 @@ export function SelectMenu<TValue extends string>({
             <View
               style={[
                 styles.triggerSurface,
+                { backgroundColor: fieldBackground },
                 isTriggerHovered ? styles.triggerHovered : null,
                 pressed || isOpen ? styles.triggerPressed : null
               ]}
@@ -313,17 +316,11 @@ const styles = StyleSheet.create({
     padding: atomSpacing[1],
     position: "absolute"
   },
-  triggerHovered: {
-    backgroundColor: atomPalette.surfaceRaised,
-    borderColor: atomPalette.borderStrong
-  },
+  triggerHovered: { borderColor: atomPalette.border },
   triggerLabel: {
     flexShrink: 1
   },
-  triggerPressed: {
-    backgroundColor: atomPalette.surfaceStrong,
-    borderColor: atomPalette.borderStrong
-  },
+  triggerPressed: { borderColor: atomPalette.focus },
   triggerRoot: {
     alignSelf: "flex-start",
     flexShrink: 0

@@ -146,10 +146,9 @@ export function ChatPhotoBubble({
             {feedback(true)}
             <View style={[styles.toolbar, { top: insets.top + sp[3] }]}>
               <AppButton
-                variant="ghost"
+                variant="bordered"
                 layout="icon"
                 icon={X}
-                shape="pill"
                 style={styles.control}
                 fullWidth={false}
                 accessibilityLabel="Close photo"
@@ -170,10 +169,9 @@ export function ChatPhotoBubble({
               </View>
               {attachment || local ? (
                 <AppButton
-                  variant="ghost"
+                  variant="bordered"
                   layout="icon"
                   icon={Download}
-                  shape="pill"
                   style={styles.control}
                   fullWidth={false}
                   accessibilityLabel="Save photo"

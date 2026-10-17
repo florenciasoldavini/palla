@@ -1,3 +1,4 @@
+import { FieldSurface } from "./field-surface";
 import { NavigationChromeContext } from "@/components/navigation/chrome-context";
 import { atomLayout, atomPalette, atomSpacing } from "@/components/atoms/theme";
 import { useContext, useEffect, useRef, useState, type ReactNode } from "react";
@@ -64,7 +65,7 @@ export function Screen({
         contentStyle
       ]}
     >
-      {children}
+      <FieldSurface surface="tinted">{children}</FieldSurface>
     </View>
   );
   const shouldAvoidKeyboard = keyboardSafe && Platform.OS !== "web";

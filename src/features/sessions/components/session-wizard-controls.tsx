@@ -1,4 +1,9 @@
-import { AppText, AppHeading, TextField } from "@/components/atoms";
+import {
+  AppText,
+  AppHeading,
+  TextField,
+  FieldSurface
+} from "@/components/atoms";
 import { atomPalette as c } from "@/components/atoms/theme";
 import { Check, Minus, Plus, type LucideIcon } from "lucide-react-native";
 import {
@@ -18,21 +23,29 @@ export function WizardCard({
   style?: ViewStyle;
 }) {
   return (
-    <View
-      style={[
-        {
-          backgroundColor: c.surface,
-          borderColor: c.borderSubtle,
-          borderWidth: 1,
-          borderRadius: 16,
-          padding: 20,
-          gap: 16
-        },
-        style
-      ]}
+    <FieldSurface
+      surface={
+        style?.backgroundColor && style.backgroundColor !== c.surface
+          ? "tinted"
+          : "white"
+      }
     >
-      {children}
-    </View>
+      <View
+        style={[
+          {
+            backgroundColor: c.surface,
+            borderColor: c.borderSubtle,
+            borderWidth: 1,
+            borderRadius: 16,
+            padding: 20,
+            gap: 16
+          },
+          style
+        ]}
+      >
+        {children}
+      </View>
+    </FieldSurface>
   );
 }
 export function WizardSection({
@@ -182,7 +195,6 @@ export function WizardStepper({
           <TextField
             accessibilityLabel={label}
             placeholder="e.g. 8"
-            appearance="soft"
             size="md"
             value={value}
             onChangeText={onChange}

@@ -28,7 +28,12 @@ describe("light design system contrast", () => {
       text.muted,
       text.accent
     ]) {
-      for (const background of [bg.canvas, bg.surface, bg.surfaceLow]) {
+      for (const background of [
+        bg.canvas,
+        bg.surface,
+        bg.surfaceLow,
+        ...Object.values(designTokens.controls.fields)
+      ]) {
         expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
       }
     }

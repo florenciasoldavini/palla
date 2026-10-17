@@ -107,7 +107,6 @@ export function SessionScheduleStep({
       <WizardCard>
         <AppHeading variant="card">Dates</AppHeading>
         <SessionDateTimeField
-          appearance="soft"
           label={editing || !weekly ? "Session date" : "First session"}
           mode="date"
           value={values.date}
@@ -119,7 +118,6 @@ export function SessionScheduleStep({
         />
         {!editing && weekly && (
           <SessionDateTimeField
-            appearance="soft"
             label="Last session"
             mode="date"
             value={values.lastDate}
@@ -143,7 +141,6 @@ export function SessionScheduleStep({
         >
           <View style={{ flex: 1 }}>
             <SessionDateTimeField
-              appearance="soft"
               label="Start time"
               mode="time"
               value={values.startTime}
@@ -153,7 +150,6 @@ export function SessionScheduleStep({
           </View>
           <View style={{ flex: 1 }}>
             <SessionDateTimeField
-              appearance="soft"
               label="End time"
               mode="time"
               value={values.endTime}

@@ -90,7 +90,6 @@ export function ProfileOverview({
               fullWidth={false}
               variant="bordered"
               color="neutral"
-              shape="pill"
               size="sm"
               onPress={onEdit}
               style={styles.edit}

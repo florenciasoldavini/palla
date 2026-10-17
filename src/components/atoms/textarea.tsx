@@ -1,3 +1,4 @@
+import { useFieldBackground } from "./field-surface";
 import {
   atomControlHeights,
   atomControlRadius,
@@ -18,7 +19,6 @@ import { Platform, type TextStyle, type ViewStyle } from "react-native";
 const textAreaHeight = atomControlHeights.lg * 2 + atomSpacing[6];
 
 export function TextAreaField({
-  appearance = "default",
   accessory,
   editable = true,
   errorText,
@@ -29,13 +29,13 @@ export function TextAreaField({
   required = false,
   ...props
 }: React.ComponentProps<typeof UITextareaInput> & {
-  appearance?: "default" | "soft";
   accessory?: ReactNode;
   errorText?: string | null;
   helperText?: string | null;
   label?: ReactNode;
   required?: boolean;
 }) {
+  const fieldBackground = useFieldBackground();
   const fieldId = useId();
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -78,11 +78,7 @@ export function TextAreaField({
         }}
         size="md"
         style={{
-          backgroundColor: isDisabled
-            ? atomPalette.surfaceLow
-            : appearance === "soft"
-              ? atomPalette.background
-              : atomPalette.surface,
+          backgroundColor: fieldBackground,
           borderColor,
           borderWidth: 1,
           borderRadius: atomControlRadius,
@@ -117,7 +113,7 @@ export function TextAreaField({
           }}
           placeholderTextColor={atomPalette.textPlaceholder}
           style={{
-            color: atomPalette.text,
+            color: isDisabled ? atomPalette.textSubtle : atomPalette.text,
             fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize),
 
             lineHeight: atomTypeScale.bodyMd.lineHeight,

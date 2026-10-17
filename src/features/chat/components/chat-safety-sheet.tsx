@@ -1,3 +1,4 @@
+import { FieldSurface } from "@/components/atoms/field-surface";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   Keyboard,
@@ -123,19 +124,19 @@ export function ChatSafetySheet({
               </View>
               <AppButton
                 variant="ghost"
-                shape="pill"
                 size="md"
                 layout="icon"
                 icon={X}
                 fullWidth={false}
-                style={{ backgroundColor: c.surfaceRaised }}
                 accessibilityLabel="Close safety sheet"
                 isDisabled={busy}
                 onPress={onClose}
               />
             </View>
           )}
-          <View style={{ gap: sp[4] }}>{children}</View>
+          <View style={{ gap: sp[4] }}>
+            <FieldSurface surface="tinted">{children}</FieldSurface>
+          </View>
           <View style={styles.footer}>{footer}</View>
         </ScrollView>
       </KeyboardAvoidingView>

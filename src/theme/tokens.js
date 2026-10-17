@@ -437,6 +437,10 @@ const motion = {
 };
 
 const controls = {
+  fields: {
+    onWhite: semanticColors.bg.surfaceLow,
+    onTinted: semanticColors.bg.surface
+  },
   buttons: {
     neutral: {
       bg: semanticColors.action.primary.bg,

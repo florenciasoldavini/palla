@@ -171,7 +171,7 @@ components:
     rounded: "{rounded.md}"
     padding: "12px 16px"
   text-field:
-    backgroundColor: "{colors.surface}"
+    backgroundColor: "{colors.surface-low}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
     padding: "0px 16px"
@@ -300,15 +300,15 @@ Tonal layering and thin borders carry most depth. The shared shadow vocabulary i
 
 ## Shapes
 
-Controls use the medium radius; default cards and compact rows use the large radius, while spacious panels use the extra-large radius; segmented-control tracks use the large radius, while chips and radio circles use full rounding. Buttons also support a pill shape. The medium-size button uses the large radius; other button sizes use the medium radius. Standard and strong borders are one unit; the selected onboarding panel uses two.
+All text buttons and form controls use the medium radius (12px), consistently across colors and sizes. Icon-only buttons are circular. Ghost buttons have no background or border, including pressed, loading and disabled states. Pills are reserved for chips, filters and badges, not text actions. Default cards and compact rows use the large radius, spacious panels use the extra-large radius, segmented tracks use the large radius, and radio indicators are circular. Standard and strong borders are one unit; the selected onboarding panel uses two.
 
 ## Components
 
 ### Buttons
 
-Essential solid is the lime main action; neutral solid is ink with white text. Accent, danger, success, and warning colors preserve their semantic roles. Bordered and ghost treatments reduce emphasis without changing action meaning. Solid colors follow their shared hover and pressed steps; bordered and ghost surfaces use low and strong surface feedback.
+Essential solid is the lime main action; neutral solid is ink with white text. Accent, danger, success, and warning colors preserve their semantic roles. Bordered and ghost treatments reduce emphasis without changing action meaning. Solid colors follow their shared hover and pressed steps; bordered buttons use low/strong surface feedback. Ghost feedback uses text/icon color and the shared press motion while the surface remains transparent.
 
-All sizes provide a minimum 48-unit target and grow with type. Default padding is 12px vertically and 16px horizontally; labels wrap. Disabled/loading treatment uses a muted strong surface; loading retains the label, adds a spinner, announces busy state, and prevents duplicate execution. Press feedback scales to 0.98 using shared short timing.
+All sizes provide a minimum 48-unit target and grow with type. Default padding is 12px vertically and 16px horizontally; labels wrap. Disabled/loading treatment uses a muted strong surface for solid/bordered buttons; ghost actions remain transparent with muted text/icons; loading retains the label, adds a spinner, announces busy state, and prevents duplicate execution. Press feedback scales to 0.98 using shared short timing.
 
 ### Cards / Containers
 
@@ -320,9 +320,9 @@ EmptyState and ErrorState reuse the current light surfaces, headings, body copy,
 
 ### Inputs / Fields
 
-White fields use a subtle border and rounded corners, shifting to default border on hover and olive on focus. Error text and border identify invalid state; disabled fields use low surfaces. Fields begin at a 48-unit minimum and expand with font scale. Labels, optional markers, helper messages, and errors retain accessible associations. Text inputs and textareas expose meaningful accessibilityLabel and aria-label values. Errors remain readable text and announce updates politely.
+Field fill is determined by the surrounding surface: pale lilac (`surfaceLow`, #f4f2fd) on white cards/panels; white (`surface`, #ffffff) on lilac pages or inset panels. Text fields, numeric inputs, textareas, picker/dropdown triggers and search bars follow this same rule. All have a subtle border and 12px corners. Hover changes the border, focus uses the olive border, and error uses an error border plus supporting text. Focus, error and disabled states preserve the inherited fill; disabled text is muted. Surface choice never changes dimensions, radius or padding. Fields begin at a 48-unit minimum and expand with font scale. Labels, optional markers, helper messages, and errors retain accessible associations. Text inputs and textareas expose meaningful accessibilityLabel and aria-label values. Errors remain readable text and announce updates politely.
 
-Native picker triggers use `FieldTrigger`, sharing the white surface, subtle border, medium rounding, 16-unit horizontal padding, and scalable height of `TextField`. Values use body text with a trailing calendar, clock, or chevron icon. Pressed/open triggers use an olive border; invalid date/time fields use an error border. Native selects open a scrollable white bottom sheet with selected checkmarks and Done, independent of trigger measurement.
+Native picker triggers use `FieldTrigger`, sharing TextField’s inherited fill, subtle border, medium rounding, 16-unit horizontal padding and scalable height. Values use body text with a trailing calendar, clock, or chevron icon. Pressed/open triggers use an olive border; invalid date/time fields use an error border. Native selects open a scrollable white bottom sheet with selected checkmarks and Done, independent of trigger measurement.
 
 ### Chips
 

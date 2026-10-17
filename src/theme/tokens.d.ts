@@ -21,6 +21,7 @@ export const designTokens: {
     scale: Record<string, number>;
   };
   controls: {
+    fields: { onWhite: string; onTinted: string };
     buttons: Record<
       "neutral" | "essential" | "accent" | "danger" | "success" | "warning",
       { bg: string; hover: string; pressed: string; text: string }

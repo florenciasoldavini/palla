@@ -83,9 +83,7 @@ export function ProfilePhotoEditor({
             size="sm"
             variant="bordered"
             style={{
-              borderColor: atomPalette.borderSubtle,
-              backgroundColor: atomPalette.surfaceLow,
-              borderRadius: 999
+              borderColor: atomPalette.borderSubtle
             }}
             icon={ImagePlus}
             iconAfter={false}

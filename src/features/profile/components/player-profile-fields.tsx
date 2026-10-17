@@ -1,3 +1,4 @@
+import { useFieldBackground } from "@/components/atoms/field-surface";
 import { useState } from "react";
 import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
@@ -40,6 +41,7 @@ export function PlayerProfileFields({
   disabled: boolean;
   onChange: () => void;
 }) {
+  const fieldBackground = useFieldBackground();
   const [categoryOpen, setCategoryOpen] = useState(false);
   const { fontScale } = useWindowDimensions();
   const [categoryStatus, playingCategory] = useWatch({
@@ -57,7 +59,11 @@ export function PlayerProfileFields({
           accessibilityState={{ expanded: categoryOpen, disabled }}
           disabled={disabled}
           onPress={() => setCategoryOpen(!categoryOpen)}
-          style={[styles.category, disabled && styles.disabled]}
+          style={[
+            styles.category,
+            { backgroundColor: fieldBackground },
+            disabled && styles.disabled
+          ]}
         >
           <View style={styles.icon}>
             <Award size={24} color={c.text} strokeWidth={1.7} />

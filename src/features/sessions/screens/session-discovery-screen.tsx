@@ -119,7 +119,6 @@ export default function HomeScreen() {
           fullWidth={false}
           icon={PlusIcon}
           layout="icon"
-          shape="pill"
           size="iconLg"
         />
       }

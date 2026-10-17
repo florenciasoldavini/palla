@@ -54,7 +54,6 @@ function TimingRule({
         <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>
           <View style={{ flex: 1 }}>
             <TextField
-              appearance="soft"
               accessibilityLabel={`${label} amount`}
               placeholder="e.g. 2"
               keyboardType="number-pad"
