@@ -1,3 +1,4 @@
+import { PlayerSpecifications } from "./player-specifications";
 import { useState } from "react";
 import { Image } from "expo-image";
 import { View, Pressable, StyleSheet, useWindowDimensions } from "react-native";
@@ -7,25 +8,18 @@ import {
   AppCard,
   AppHeading,
   AppText,
-  ErrorState,
   FieldMessage,
   NavScreenHeader,
-  Screen,
-  SkeletonBlock
+  Screen
 } from "@/components/atoms";
 import { atomPalette as c, atomSpacing as sp } from "@/components/atoms/theme";
 import { categoryLabels } from "../playing-category";
 import { profileMenu, type ProfileMenuId } from "../profile-menu";
 import type { User } from "@/types/models/user";
-import type { Organizer } from "@/features/organizer/domain";
 
 type Props = {
   user: User;
   mode: "player" | "organizer";
-  organizer?: Organizer | null;
-  organizerLoading?: boolean;
-  organizerError?: boolean;
-  onOrganizerRetry?: () => void;
   onEdit: () => void;
   onMenu: (id: ProfileMenuId) => void;
   onLogout: () => void;
@@ -36,10 +30,6 @@ type Props = {
 export function ProfileOverview({
   user,
   mode,
-  organizer,
-  organizerLoading,
-  organizerError,
-  onOrganizerRetry,
   onEdit,
   onMenu,
   onLogout,
@@ -51,7 +41,6 @@ export function ProfileOverview({
   const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
   const isOrganizer = mode === "organizer";
   const name =
-    (isOrganizer && organizer?.display_name) ||
     [user.first_name, user.last_name].filter(Boolean).join(" ") ||
     "Your profile";
   const initials = [user.first_name, user.last_name]
@@ -122,27 +111,9 @@ export function ProfileOverview({
               )}
             </View>
           </View>
-          {!isOrganizer && !!user.bio?.trim() && (
-            <AppText tone="subtle">{user.bio}</AppText>
-          )}
-          {isOrganizer &&
-            (organizerLoading ? (
-              <SkeletonBlock height={48} />
-            ) : organizerError ? (
-              <ErrorState
-                contained
-                variant="inline"
-                title="Description unavailable"
-                description="Try loading your organizer profile again."
-                onRetry={onOrganizerRetry}
-              />
-            ) : (
-              <AppText tone="subtle">
-                {organizer?.bio ||
-                  "Add a short description to introduce yourself and the sessions you host."}
-              </AppText>
-            ))}
+          {!!user.bio?.trim() && <AppText tone="subtle">{user.bio}</AppText>}
         </AppCard>
+        {!isOrganizer && <PlayerSpecifications user={user} />}
         <AppCard surface="panel" style={styles.menu}>
           <View style={styles.menuHeading}>
             <AppHeading variant="card">Preferences & account</AppHeading>

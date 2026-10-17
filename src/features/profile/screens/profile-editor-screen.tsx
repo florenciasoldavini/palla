@@ -1,10 +1,10 @@
-import { CategoryChoice } from "@/features/onboarding/components/category-choice";
+import { PlayerProfileFields } from "../components/player-profile-fields";
+import type { DominantHand, CourtSide } from "../player-traits";
 import type { CategoryStatus } from "@/features/profile/playing-category";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useNavigation, usePreventRemove } from "@react-navigation/native";
 import { ArrowLeft } from "lucide-react-native";
-import { OrganizerDetailsForm } from "../components/organizer-details-form";
-import { getLinkedIdentities } from "../services/organizer-profile.service";
+import { getLinkedIdentities } from "../services/profile.service";
 import {
   AppButton,
   AppCard,
@@ -36,16 +36,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { UserIdentity } from "@supabase/supabase-js";
 import { Image } from "expo-image";
 import { ProfilePhotoEditor } from "../components/profile-photo-editor";
-import {
-  CheckCircleIcon,
-  LockIcon,
-  MailIcon,
-  PhoneIcon,
-  UserIcon
-} from "@/components/icons";
+import { CheckCircleIcon, LockIcon, MailIcon } from "@/components/icons";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, View } from "react-native";
 
 const appleLogo = require("@assets/images/auth/apple-logo.png");
 const googleLogo = require("@assets/images/auth/google-logo.png");
@@ -81,6 +75,8 @@ function getProfileInfoDefaults(
         category_status?: CategoryStatus;
         avatar?: string | null;
         bio?: string | null;
+        dominant_hand?: DominantHand | null;
+        preferred_court_side?: CourtSide | null;
         first_name?: string | null;
         last_name?: string | null;
         phone_number?: string | null;
@@ -93,6 +89,8 @@ function getProfileInfoDefaults(
     categoryStatus: profile?.category_status ?? "unknown",
     avatar: profile?.avatar ?? "",
     bio: profile?.bio ?? "",
+    dominantHand: profile?.dominant_hand ?? null,
+    preferredCourtSide: profile?.preferred_court_side ?? null,
     firstName: profile?.first_name ?? "",
     lastName: profile?.last_name ?? "",
     phoneNumber: profile?.phone_number ?? ""
@@ -125,8 +123,6 @@ export default function ProfileEditorScreen({
   const organizerMode =
     mode === "organizer" && user?.organizer_status === "active";
   const navigation = useNavigation();
-  const [organizerDirty, setOrganizerDirty] = useState(false);
-  const [organizerSaving, setOrganizerSaving] = useState(false);
   const uploadAvatarMutation = useUploadProfileAvatar();
   const cleanupAvatar = useDeleteUnusedProfileAvatar();
   const [pendingCleanup, setPendingCleanup] = useState<string[]>([]);
@@ -175,14 +171,13 @@ export default function ProfileEditorScreen({
 
   usePreventRemove(
     !!user &&
-      (organizerSaving ||
-        isProfileSaving ||
+      (isProfileSaving ||
         isUpdatingPassword ||
         (section === "profile"
-          ? isProfileDirty || !!avatarAsset || organizerDirty
+          ? isProfileDirty || !!avatarAsset
           : isPasswordDirty)),
     ({ data }) => {
-      if (organizerSaving || isProfileSaving || isUpdatingPassword) return;
+      if (isProfileSaving || isUpdatingPassword) return;
       Alert.alert("Discard changes?", "Your unsaved changes will be lost.", [
         { text: "Keep editing", style: "cancel" },
         {
@@ -256,7 +251,13 @@ export default function ProfileEditorScreen({
 
       const updatedUser = await updateUserProfile({
         avatar: avatarUrl,
-        ...(!organizerMode ? { bio: values.bio } : {}),
+        bio: values.bio,
+        ...(!organizerMode
+          ? {
+              dominant_hand: values.dominantHand,
+              preferred_court_side: values.preferredCourtSide
+            }
+          : {}),
         first_name: values.firstName.trim(),
         last_name: values.lastName,
         phone_number: values.phoneNumber,
@@ -340,6 +341,7 @@ export default function ProfileEditorScreen({
         {activeTab === "profile" ? (
           <AppCard padding="lg">
             <View style={{ gap: atomSpacing[5] }}>
+              <AppHeading variant="section">Basic information</AppHeading>
               <View style={{ gap: atomSpacing[4] }}>
                 <View
                   style={{
@@ -378,30 +380,15 @@ export default function ProfileEditorScreen({
                       )
                     }
                   />
-                  <AppText
-                    tone="subtle"
-                    variant="bodySm"
-                    style={{ textAlign: "center" }}
-                  >
-                    Shared across your player and organizer profiles.
-                  </AppText>
                 </View>
 
-                <View style={profileStyles.sectionDivider} />
-                <View style={{ gap: 4 }}>
-                  <AppHeading variant="card">Personal details</AppHeading>
-                  <AppText tone="subtle" variant="bodySm">
-                    How you introduce yourself on Palla.
-                  </AppText>
-                </View>
                 <Controller
                   control={profileControl}
                   name="firstName"
                   render={({ field, fieldState }) => (
                     <TextField
                       errorText={fieldState.error?.message}
-                      label="First Name"
-                      leftIcon={UserIcon}
+                      label="First name"
                       onBlur={field.onBlur}
                       onChangeText={(value) => {
                         field.onChange(value);
@@ -420,8 +407,7 @@ export default function ProfileEditorScreen({
                   name="lastName"
                   render={({ field }) => (
                     <TextField
-                      label="Last Name"
-                      leftIcon={UserIcon}
+                      label="Last name"
                       onBlur={field.onBlur}
                       onChangeText={(value) => {
                         field.onChange(value);
@@ -441,143 +427,92 @@ export default function ProfileEditorScreen({
                     <TextField
                       autoComplete="tel"
                       keyboardType="phone-pad"
-                      label="Phone"
-                      leftIcon={PhoneIcon}
+                      label="Phone number"
                       onBlur={field.onBlur}
                       onChangeText={(value) => {
                         field.onChange(value);
                         setFormError(null);
                       }}
-                      placeholder="Phone number"
+                      placeholder="Add a phone number"
                       size="md"
                       textContentType="telephoneNumber"
                       value={field.value}
                     />
                   )}
                 />
-                {!organizerMode && (
-                  <Controller
-                    control={profileControl}
-                    name="bio"
-                    render={({ field, fieldState }) => (
-                      <TextField
-                        label="About me"
-                        placeholder="Tell other players a little about yourself…"
-                        helperText="Optional · Up to 500 characters."
-                        value={field.value}
-                        onChangeText={(value) => {
-                          field.onChange(value);
-                          setFormError(null);
-                        }}
-                        onBlur={field.onBlur}
-                        errorText={fieldState.error?.message}
-                        multiline
-                        maxLength={500}
-                        editable={!isProfileSaving}
-                        inputStyle={{
-                          minHeight: 112,
-                          textAlignVertical: "top"
-                        }}
-                      />
-                    )}
-                  />
-                )}
-                {!organizerMode && (
-                  <>
-                    <View style={profileStyles.sectionDivider} />
-                    <View style={{ gap: 4 }}>
-                      <AppHeading variant="card">Playing category</AppHeading>
-                      <AppText tone="subtle" variant="bodySm">
-                        Help organizers find the right games for you.
-                      </AppText>
-                    </View>
-                    <Controller
-                      control={profileControl}
-                      name="categoryStatus"
-                      render={({ field, fieldState }) => (
-                        <View style={{ gap: atomSpacing[3] }}>
-                          <CategoryChoice
-                            status={field.value}
-                            category={watchProfileField("playingCategory")}
-                            disabled={isProfileSaving}
-                            allowNotPlaying
-                            onChange={(status, category) => {
-                              field.onChange(status);
-                              profileForm.setValue(
-                                "playingCategory",
-                                category,
-                                {
-                                  shouldValidate: true,
-                                  shouldDirty: true
-                                }
-                              );
-                            }}
-                          />
-                          {fieldState.error ? (
-                            <FieldMessage tone="error">
-                              {fieldState.error.message}
-                            </FieldMessage>
-                          ) : null}
-                          {profileForm.formState.errors.playingCategory ? (
-                            <FieldMessage tone="error">
-                              {
-                                profileForm.formState.errors.playingCategory
-                                  .message
-                              }
-                            </FieldMessage>
-                          ) : null}
-                        </View>
-                      )}
+                <Controller
+                  control={profileControl}
+                  name="bio"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label="About me"
+                      placeholder="Tell people a little about yourself…"
+                      helperText="Shared across your player and organizer profiles · Up to 500 characters."
+                      value={field.value}
+                      onChangeText={(value) => {
+                        field.onChange(value);
+                        setFormError(null);
+                        setStatusMessage(null);
+                      }}
+                      onBlur={field.onBlur}
+                      errorText={fieldState.error?.message}
+                      multiline
+                      maxLength={500}
+                      editable={!isProfileSaving}
+                      inputStyle={{ minHeight: 104, textAlignVertical: "top" }}
                     />
-                  </>
-                )}
-              </View>
-
-              <View style={{ gap: atomSpacing[3] }}>
-                <AppButton
-                  color="essential"
-                  isDisabled={isProfileSaveDisabled}
-                  loading={isProfileSaving}
-                  onPress={() => {
-                    void saveProfile();
-                  }}
-                  size="md"
-                >
-                  Save changes
-                </AppButton>
-
-                {statusMessage ? (
-                  <FieldMessage tone="success">{statusMessage}</FieldMessage>
-                ) : null}
-                {formError ? (
-                  <FieldMessage tone="error">{formError}</FieldMessage>
-                ) : null}
-                {pendingCleanup.length > 0 && (
-                  <View style={{ gap: 8 }}>
-                    <FieldMessage>
-                      Your profile is saved, but the previous photo couldn’t be
-                      deleted.
-                    </FieldMessage>
-                    <AppButton
-                      variant="ghost"
-                      loading={cleanupAvatar.isPending}
-                      onPress={() => void retryCleanup()}
-                    >
-                      Retry photo cleanup
-                    </AppButton>
-                  </View>
-                )}
+                  )}
+                />
               </View>
             </View>
           </AppCard>
         ) : null}
-
-        {activeTab === "profile" && organizerMode && (
-          <OrganizerDetailsForm
-            id={user?.id}
-            onDirtyChange={setOrganizerDirty}
-            onSavingChange={setOrganizerSaving}
+        {activeTab === "profile" && !organizerMode && (
+          <PlayerProfileFields
+            form={profileForm}
+            disabled={isProfileSaving}
+            onChange={() => {
+              setFormError(null);
+              setStatusMessage(null);
+            }}
           />
+        )}
+        {activeTab === "profile" && (
+          <View style={{ gap: atomSpacing[3] }}>
+            <AppButton
+              color="essential"
+              isDisabled={isProfileSaveDisabled}
+              loading={isProfileSaving}
+              onPress={() => {
+                void saveProfile();
+              }}
+              size="md"
+            >
+              Save changes
+            </AppButton>
+
+            {statusMessage ? (
+              <FieldMessage tone="success">{statusMessage}</FieldMessage>
+            ) : null}
+            {formError ? (
+              <FieldMessage tone="error">{formError}</FieldMessage>
+            ) : null}
+            {pendingCleanup.length > 0 && (
+              <View style={{ gap: 8 }}>
+                <FieldMessage>
+                  Your profile is saved, but the previous photo couldn’t be
+                  deleted.
+                </FieldMessage>
+                <AppButton
+                  variant="ghost"
+                  loading={cleanupAvatar.isPending}
+                  onPress={() => void retryCleanup()}
+                >
+                  Retry photo cleanup
+                </AppButton>
+              </View>
+            )}
+          </View>
         )}
 
         {activeTab === "security" ? (
@@ -722,14 +657,6 @@ export default function ProfileEditorScreen({
     </Screen>
   );
 }
-
-const profileStyles = StyleSheet.create({
-  sectionDivider: {
-    height: 1,
-    backgroundColor: atomPalette.borderSubtle,
-    marginVertical: 4
-  }
-});
 
 function IdentityMethodRow({
   isLinked,

@@ -113,6 +113,7 @@ export function TextField({
   ...props
 }: TextFieldProps) {
   const { fontScale } = useWindowDimensions();
+  const isMultiline = Boolean(multiline) && !truncate;
   const fieldId = useId();
   const config = sizeMap[size];
   const iconPixelSize = appIconSizes[config.iconSize];
@@ -332,10 +333,12 @@ export function TextField({
                 ...inputTextStyle,
                 flex: 1,
                 paddingHorizontal: inputPaddingHorizontal,
-                paddingVertical: 0,
-                ...(Platform.OS === "android"
-                  ? { textAlignVertical: "center" as const }
-                  : null),
+                paddingVertical: isMultiline ? atomSpacing[3] : 0,
+                ...(isMultiline
+                  ? { textAlignVertical: "top" as const }
+                  : Platform.OS === "android"
+                    ? { textAlignVertical: "center" as const }
+                    : null),
                 ...truncateStyle,
                 ...webInputCursorStyle,
                 ...StyleSheet.flatten(inputStyle)

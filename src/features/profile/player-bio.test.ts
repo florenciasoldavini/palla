@@ -26,6 +26,8 @@ const input = {
   lastName: "García",
   phoneNumber: "",
   avatar: "",
+  dominantHand: null,
+  preferredCourtSide: null,
   categoryStatus: "known",
   playingCategory: 7,
   bio: ""
@@ -54,6 +56,8 @@ describe("optional player bio", () => {
     const profile = profileSchema.parse({
       ...details,
       bio: "Good rallies and social games.",
+      dominant_hand: "right",
+      preferred_court_side: "left",
       id: "95500000-0000-4000-8000-000000000001",
       phone_number: null,
       preferred_mode: "player",
@@ -66,6 +70,9 @@ describe("optional player bio", () => {
       toUser(profile, { user: { email: "qa@example.com" } } as Session, null)
         .bio
     ).toBe(profile.bio);
+    expect(
+      toUser(profile, { user: { email: "qa@example.com" } } as Session, null)
+    ).toMatchObject({ dominant_hand: "right", preferred_court_side: "left" });
   });
   it("clears whitespace-only bios while preserving them when an unrelated field is edited", async () => {
     await persistUserProfile("95500000-0000-4000-8000-000000000001", {
@@ -80,5 +87,28 @@ describe("optional player bio", () => {
       first_name: "Elena"
     });
     expect(captured.patch).not.toHaveProperty("bio");
+  });
+  it("persists traits while leaving them untouched on basic-info edits", async () => {
+    await persistUserProfile("95500000-0000-4000-8000-000000000001", {
+      dominant_hand: "right",
+      preferred_court_side: "left"
+    });
+    expect(captured.patch).toEqual({
+      dominant_hand: "right",
+      preferred_court_side: "left"
+    });
+    await persistUserProfile("95500000-0000-4000-8000-000000000001", {
+      first_name: "QA"
+    });
+    expect(captured.patch).not.toHaveProperty("dominant_hand");
+    expect(captured.patch).not.toHaveProperty("preferred_court_side");
+    await persistUserProfile("95500000-0000-4000-8000-000000000001", {
+      dominant_hand: null,
+      preferred_court_side: null
+    });
+    expect(captured.patch).toEqual({
+      dominant_hand: null,
+      preferred_court_side: null
+    });
   });
 });

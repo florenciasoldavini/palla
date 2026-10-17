@@ -1,3 +1,4 @@
+import { dominantHandSchema, courtSideSchema } from "./player-traits";
 import { categoryShape, categoryIsConsistent } from "./playing-category";
 import { resetPasswordSchema } from "@/features/auth/validation";
 import { z } from "zod";
@@ -6,6 +7,8 @@ export const profileInfoSchema = z
   .object({
     ...categoryShape,
     avatar: z.string(),
+    dominantHand: dominantHandSchema.nullable(),
+    preferredCourtSide: courtSideSchema.nullable(),
     bio: z
       .string()
       .trim()

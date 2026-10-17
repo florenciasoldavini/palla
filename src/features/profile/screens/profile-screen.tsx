@@ -4,7 +4,6 @@ import { useRouter } from "expo-router";
 import { AuthContext } from "@/features/auth/auth-provider";
 import { Screen, SkeletonBlock } from "@/components/atoms";
 import { ProfileOverview } from "../components/profile-overview";
-import { useOrganizerProfile } from "../hooks-organizer";
 
 export default function ProfileScreen({
   mode = "player"
@@ -13,10 +12,6 @@ export default function ProfileScreen({
 }) {
   const router = useRouter();
   const { user, logOut } = useContext(AuthContext);
-  const organizer = useOrganizerProfile(
-    user?.id,
-    mode === "organizer" && user?.organizer_status === "active"
-  );
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
   if (!user)
@@ -29,10 +24,6 @@ export default function ProfileScreen({
     <ProfileOverview
       user={user}
       mode={mode}
-      organizer={organizer.data}
-      organizerLoading={mode === "organizer" && organizer.isPending}
-      organizerError={organizer.isError}
-      onOrganizerRetry={() => void organizer.refetch()}
       onEdit={() =>
         router.push({ pathname: "/account/edit-profile", params: { mode } })
       }

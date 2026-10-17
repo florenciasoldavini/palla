@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { Camera, ImagePlus, Trash2 } from "lucide-react-native";
-import { AppButton, AppHeading, FieldMessage } from "@/components/atoms";
+import { AppButton, FieldMessage } from "@/components/atoms";
 import { atomPalette } from "@/components/atoms/theme";
 import type { ProfileAvatarAsset } from "../repositories/profile-avatar.repository";
 
@@ -20,6 +20,7 @@ export function ProfilePhotoEditor({
   onRemove: () => void;
   disabled?: boolean;
 }) {
+  const { fontScale } = useWindowDimensions();
   const [picking, setPicking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [failedUri, setFailedUri] = useState<string | null>(null);
@@ -55,61 +56,78 @@ export function ProfilePhotoEditor({
     }
   };
   return (
-    <View style={styles.container}>
-      <View style={styles.photo}>
-        {uri && uri !== failedUri ? (
-          <Image
-            accessibilityLabel="Profile photo preview"
-            source={{ uri }}
-            contentFit="cover"
-            style={StyleSheet.absoluteFill}
-            onError={() => setFailedUri(uri)}
-          />
-        ) : (
-          <Camera color={atomPalette.textMuted} size={32} strokeWidth={1.5} />
-        )}
-      </View>
-      <AppHeading variant="card">Profile photo</AppHeading>
-      <View style={styles.actions}>
-        <AppButton
-          fullWidth={false}
-          size="sm"
-          variant="bordered"
-          icon={ImagePlus}
-          iconAfter={false}
-          loading={picking}
-          isDisabled={disabled || picking}
-          onPress={() => void pick()}
-        >
-          {uri ? "Change photo" : "Add photo"}
-        </AppButton>
-        {!!uri && (
+    <View style={{ gap: 12 }}>
+      <View
+        style={[
+          styles.container,
+          fontScale > 1.3 && { flexDirection: "column" }
+        ]}
+      >
+        <View style={styles.photo}>
+          {uri && uri !== failedUri ? (
+            <Image
+              accessibilityLabel="Profile photo preview"
+              source={{ uri }}
+              contentFit="cover"
+              style={StyleSheet.absoluteFill}
+              onError={() => setFailedUri(uri)}
+            />
+          ) : (
+            <Camera color={atomPalette.textMuted} size={32} strokeWidth={1.5} />
+          )}
+        </View>
+
+        <View style={styles.actions}>
           <AppButton
             fullWidth={false}
             size="sm"
-            variant="ghost"
-            color="danger"
-            icon={Trash2}
-            iconAfter={false}
-            isDisabled={disabled || picking}
-            onPress={() => {
-              setError(null);
-              onRemove();
+            variant="bordered"
+            style={{
+              borderColor: atomPalette.borderSubtle,
+              backgroundColor: atomPalette.surfaceLow,
+              borderRadius: 999
             }}
+            icon={ImagePlus}
+            iconAfter={false}
+            loading={picking}
+            isDisabled={disabled || picking}
+            onPress={() => void pick()}
           >
-            Remove
+            {uri ? "Change photo" : "Add photo"}
           </AppButton>
-        )}
+          {!!uri && (
+            <AppButton
+              fullWidth={false}
+              size="sm"
+              variant="ghost"
+              color="danger"
+              icon={Trash2}
+              iconAfter={false}
+              isDisabled={disabled || picking}
+              onPress={() => {
+                setError(null);
+                onRemove();
+              }}
+            >
+              Remove photo
+            </AppButton>
+          )}
+        </View>
       </View>
       {error && <FieldMessage tone="error">{error}</FieldMessage>}
     </View>
   );
 }
 const styles = StyleSheet.create({
-  container: { alignItems: "center", gap: 16, width: "100%" },
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    width: "100%"
+  },
   photo: {
-    height: 112,
-    width: 112,
+    height: 96,
+    width: 96,
     borderRadius: 24,
     overflow: "hidden",
     backgroundColor: atomPalette.surfaceLow,
@@ -119,9 +137,8 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   actions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
+    flex: 1,
+    alignItems: "flex-start",
     gap: 8
   }
 });
