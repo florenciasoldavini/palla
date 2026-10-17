@@ -1,0 +1,92 @@
+name: Bug report
+description: Report reproducible behavior that is not working as intended.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Palla. Describe one problem per issue and never include credentials, tokens, private session data, or personal information.
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Affected platform
+      description: Select the environment where the problem occurs.
+      options:
+        - Web
+        - iOS
+        - Android
+        - Multiple platforms
+    validations:
+      required: true
+
+  - type: dropdown
+    id: product-area
+    attributes:
+      label: Product area
+      options:
+        - Authentication and account
+        - Session discovery
+        - Registration, cancellation, or waitlist
+        - Organizer dashboard
+        - Notifications
+        - Navigation and responsive UI
+        - Email
+        - Build, deployment, or environment
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or deployment
+      description: Provide a commit, branch, deployment URL, or app build when known.
+      placeholder: "Example: main, v0.1.0, or a Vercel preview URL"
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest reliable sequence that demonstrates the problem.
+      placeholder: |
+        1. Sign in as...
+        2. Open...
+        3. Select...
+        4. Observe...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead? Include the visible error state when applicable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Additional context
+      description: Add sanitized screenshots, logs, device details, or related links when useful.
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmation
+      options:
+        - label: I searched existing issues and did not find the same problem.
+          required: true
+        - label: I removed credentials, private session data, and personal information from this report.
+          required: true
