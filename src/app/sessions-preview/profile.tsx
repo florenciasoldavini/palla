@@ -43,12 +43,17 @@ export default function ProfilePreview() {
         )
       }
       onMenu={(section) =>
-        section === "security"
-          ? Alert.alert(
-              "Account & security",
-              "Open this from your real Profile tab to manage sign-in settings."
-            )
-          : router.push({ pathname: "/account/[section]", params: { section } })
+        section === "notifications"
+          ? router.push("/sessions-preview/notification-settings")
+          : section === "security"
+            ? Alert.alert(
+                "Account & security",
+                "Open this from your real Profile tab to manage sign-in settings."
+              )
+            : router.push({
+                pathname: "/account/[section]",
+                params: { section }
+              })
       }
       onLogout={() =>
         Alert.alert(

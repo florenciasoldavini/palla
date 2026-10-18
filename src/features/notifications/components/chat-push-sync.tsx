@@ -6,6 +6,11 @@ import { AuthContext } from "@/features/auth/auth-provider";
 import { loadConversations } from "@/features/chat/services/chat.service";
 import { parseChatPush, shouldPresentChatPush } from "../push-domain";
 import {
+  chatNotificationPreferenceKey,
+  useChatNotificationPreference
+} from "../hooks/use-chat-notification-preference";
+import { loadChatNotificationPreference } from "../services/preferences.service";
+import {
   cancelPushRegistration,
   pushSupported,
   registerCurrentPushDevice
@@ -17,8 +22,10 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
   const router = useRouter();
   const path = usePathname();
   const client = useQueryClient();
-  const state = useRef({ actor, path });
-  state.current = { actor, path };
+  const preference = useChatNotificationPreference(actor);
+  const chatEnabled = preference.data === true;
+  const state = useRef({ actor, path, chatEnabled });
+  state.current = { actor, path, chatEnabled };
   useEffect(() => {
     if (!pushSupported()) return;
     let alive = true;
@@ -26,7 +33,23 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
     const valid = () => alive && !!actor && state.current.actor === actor;
     const refresh = () => {
       if (valid())
-        void registerCurrentPushDevice(actor!, valid).catch(() => undefined);
+        void client
+          .fetchQuery({
+            queryKey: chatNotificationPreferenceKey(actor),
+            queryFn: loadChatNotificationPreference,
+            staleTime: 0
+          })
+          .then((enabled) => {
+            if (enabled && valid())
+              return registerCurrentPushDevice(
+                actor!,
+                () =>
+                  valid() &&
+                  client.getQueryData(chatNotificationPreferenceKey(actor)) ===
+                    true
+              );
+          })
+          .catch(() => undefined);
     };
     void import("expo-notifications")
       .then(async (notifications) => {
@@ -40,6 +63,7 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
                 : undefined;
             const show =
               alive &&
+              current.chatEnabled &&
               shouldPresentChatPush(
                 notification.request.content.data,
                 current.actor,
@@ -131,6 +155,6 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
       cancelPushRegistration();
       subscriptions.forEach((s) => s.remove());
     };
-  }, [actor, client, router]);
+  }, [actor, chatEnabled, client, router]);
   return null;
 }

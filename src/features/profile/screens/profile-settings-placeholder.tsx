@@ -12,11 +12,6 @@ import {
 import { profileMenu } from "../profile-menu";
 
 const copy: Record<string, { title: string; description: string }> = {
-  notifications: {
-    title: "Notification preferences",
-    description:
-      "Controls for message and session alerts will be available here. Your current notification settings haven’t changed."
-  },
   privacy: {
     title: "Your privacy controls",
     description:
