@@ -44,7 +44,7 @@ export function AppToastProvider({ children }: { children: ReactNode }) {
       input.duration === undefined
         ? input.action || input.tone === "error" || input.tone === "warning"
           ? null
-          : input.variant === "compact"
+          : !input.description?.trim()
             ? 3000
             : 4500
         : input.duration;

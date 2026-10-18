@@ -4,7 +4,6 @@ export type AppToastInput = {
   title: string;
   description?: string;
   tone?: AppToastTone;
-  variant?: "standard" | "compact";
   /** null keeps the toast visible until an action or dismissal. */
   duration?: number | null;
   action?: {

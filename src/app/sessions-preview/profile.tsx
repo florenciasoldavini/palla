@@ -25,13 +25,17 @@ const user: User = {
   deleted_at: null
 };
 export default function ProfilePreview() {
-  const { mode } = useLocalSearchParams<{ mode?: string }>();
+  const { mode, recognition } = useLocalSearchParams<{
+    mode?: string;
+    recognition?: string;
+  }>();
   const router = useRouter();
   return (
     <ProfileOverview
       user={user}
       mode={mode === "organizer" ? "organizer" : "player"}
       preview
+      hostMilestone={recognition === "superhost" ? "superhost" : "verified"}
       onEdit={() =>
         Alert.alert(
           "Profile preview",

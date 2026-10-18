@@ -1,4 +1,8 @@
-import { PlayerSpecifications } from "./player-specifications";
+import {
+  HostRecognitionBanner,
+  type HostRecognitionMilestone
+} from "./host-recognition-banner";
+import { ProfileIdentityChip, ProfilePhotoBadge } from "./profile-identity";
 import { useState } from "react";
 import { Image } from "expo-image";
 import { View, Pressable, StyleSheet, useWindowDimensions } from "react-native";
@@ -12,7 +16,6 @@ import {
   Screen
 } from "@/components/atoms";
 import { atomPalette as c, atomSpacing as sp } from "@/components/atoms/theme";
-import { categoryLabels } from "../playing-category";
 import { profileMenu, type ProfileMenuId } from "../profile-menu";
 import type { User } from "@/types/models/user";
 
@@ -24,6 +27,7 @@ type Props = {
   onLogout: () => void;
   loggingOut?: boolean;
   preview?: boolean;
+  hostMilestone?: HostRecognitionMilestone;
 };
 export function ProfileOverview({
   user,
@@ -32,7 +36,8 @@ export function ProfileOverview({
   onMenu,
   onLogout,
   loggingOut,
-  preview
+  preview,
+  hostMilestone
 }: Props) {
   const { fontScale } = useWindowDimensions();
   const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
@@ -45,14 +50,6 @@ export function ProfileOverview({
     .map((part) => part![0])
     .join("")
     .toUpperCase();
-  const category =
-    user.category_status === "known" && user.playing_category
-      ? categoryLabels[user.playing_category]
-      : user.category_status === "beginner"
-        ? "Just starting"
-        : user.category_status === "not_playing"
-          ? null
-          : "Category not set";
   return (
     <Screen>
       <View style={styles.page}>
@@ -64,22 +61,25 @@ export function ProfileOverview({
         )}
         <AppCard surface="panel" style={styles.summary}>
           <View style={[styles.topRow, fontScale > 1.3 && styles.stacked]}>
-            <View style={styles.avatar}>
-              {user.avatar && user.avatar !== failedAvatar ? (
-                <Image
-                  source={{ uri: user.avatar }}
-                  contentFit="cover"
-                  style={StyleSheet.absoluteFill}
-                  accessibilityLabel="Profile photo"
-                  onError={() => setFailedAvatar(user.avatar)}
-                />
-              ) : initials ? (
-                <AppText style={{ fontSize: 28, lineHeight: 36 }}>
-                  {initials}
-                </AppText>
-              ) : (
-                <UserRound color={c.textSubtle} size={32} />
-              )}
+            <View style={styles.avatarFrame}>
+              <View style={styles.avatar}>
+                {user.avatar && user.avatar !== failedAvatar ? (
+                  <Image
+                    source={{ uri: user.avatar }}
+                    contentFit="cover"
+                    style={StyleSheet.absoluteFill}
+                    accessibilityLabel="Profile photo"
+                    onError={() => setFailedAvatar(user.avatar)}
+                  />
+                ) : initials ? (
+                  <AppText style={{ fontSize: 28, lineHeight: 36 }}>
+                    {initials}
+                  </AppText>
+                ) : (
+                  <UserRound color={c.textSubtle} size={32} />
+                )}
+              </View>
+              <ProfilePhotoBadge user={user} isOrganizer={isOrganizer} />
             </View>
             <AppButton
               icon={Pencil}
@@ -94,22 +94,11 @@ export function ProfileOverview({
               Edit profile
             </AppButton>
           </View>
-          <View style={{ gap: sp[2] }}>
-            <AppHeading variant="title">{name}</AppHeading>
-            <View style={styles.roleRow}>
-              <AppText tone="subtle">
-                {isOrganizer ? "Organizer" : "Player"}
-              </AppText>
-              {!isOrganizer && category && (
-                <View style={styles.category}>
-                  <AppText variant="caption">{category}</AppText>
-                </View>
-              )}
-            </View>
-          </View>
+          <AppHeading variant="title">{name}</AppHeading>
           {!!user.bio?.trim() && <AppText tone="subtle">{user.bio}</AppText>}
+          <ProfileIdentityChip user={user} isOrganizer={isOrganizer} />
         </AppCard>
-        {!isOrganizer && <PlayerSpecifications user={user} />}
+        {isOrganizer && <HostRecognitionBanner milestone={hostMilestone} />}
         <AppCard surface="panel" style={styles.menu}>
           <View style={styles.menuHeading}>
             <AppHeading variant="card">Preferences & account</AppHeading>
@@ -205,28 +194,17 @@ const styles = StyleSheet.create({
     gap: sp[3]
   },
   stacked: { flexDirection: "column" },
+  avatarFrame: { width: 96, height: 96 },
   avatar: {
     width: 96,
     height: 96,
-    borderRadius: 20,
+    borderRadius: 999,
     overflow: "hidden",
     backgroundColor: c.surfaceRaised,
     alignItems: "center",
     justifyContent: "center"
   },
   edit: { borderColor: c.borderSubtle },
-  roleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: sp[3],
-    flexWrap: "wrap"
-  },
-  category: {
-    backgroundColor: c.surfaceRaised,
-    paddingHorizontal: sp[3],
-    paddingVertical: sp[1],
-    borderRadius: 999
-  },
   menu: { padding: 0 },
   menuHeading: { padding: sp[5] },
   row: {

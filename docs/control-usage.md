@@ -33,8 +33,8 @@ Keep field validation, input-specific problems (including photo selection), and 
 
 Toast appearance uses `designTokens.controls.toasts`: all variants share the same dark shell, white title, muted lilac description and gray dismiss icon. There are no colored borders. Standard success/error/warning/info variants use a pale status tile and darker icon of the same family; compact success uses a neon circle and dark check. Action buttons use a slightly lighter charcoal fill, white text and rectangular 12px corners. Retry actions include a retry icon by default; another action can supply its own icon.
 
-- `variant="compact"`: content-sized capsule for brief feedback such as clipboard copy; no description or action; dismisses after 3 seconds. Supporting detail or an action automatically uses the standard layout.
-- Standard success/info: 16px card corners, optional detail; dismisses after 4.5 seconds.
+- Title-only feedback automatically uses the compact content-sized capsule; no description or action; success/info dismisses after 3 seconds. Whitespace-only descriptions count as empty. Callers do not select a layout variant. Supporting detail or an action automatically uses the standard layout.
+- Standard success/info with a description or action: 16px card corners; dismisses after 4.5 seconds.
 - Error, warning, or any actionable toast: persists until action, explicit dismissal, or replacement. `duration` can override this; `null` explicitly requests persistence.
 - Every toast has a gray close control with a 48px touch target. Retry actions show progress, prevent repeated presses while busy and support async callbacks. Rejected callbacks leave a retryable error. Dismissal does not cancel an operation already in progress.
 

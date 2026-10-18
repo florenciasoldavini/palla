@@ -37,8 +37,7 @@ export function AppToastCard({
   const { fontScale } = useWindowDimensions();
   const tone = input.tone ?? "info";
   // Supporting detail or an action always needs the standard layout.
-  const compact =
-    input.variant === "compact" && !input.description && !input.action;
+  const compact = !input.description?.trim() && !input.action;
   const Icon = icons[tone];
   const iconTone = tokens.tones[tone];
   const compactSuccess = compact && tone === "success";
@@ -97,7 +96,7 @@ export function AppToastCard({
         >
           {input.title}
         </ToastTitle>
-        {input.description ? (
+        {input.description?.trim() ? (
           <ToastDescription
             allowFontScaling={false}
             size="sm"

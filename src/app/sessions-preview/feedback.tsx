@@ -30,8 +30,7 @@ export default function FeedbackPreview() {
           onPress={() =>
             toast.show({
               title: "Copied to clipboard",
-              tone: "success",
-              variant: "compact"
+              tone: "success"
             })
           }
         >
