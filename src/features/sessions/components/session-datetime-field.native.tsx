@@ -14,7 +14,6 @@ export function SessionDateTimeField({
   value,
   onChange,
   errorText,
-  appearance,
   renderTrigger
 }: {
   label: string;
@@ -22,7 +21,6 @@ export function SessionDateTimeField({
   value: string;
   onChange: (value: string) => void;
   errorText?: string;
-  appearance?: "default" | "soft";
   renderTrigger?: (onPress: () => void, expanded: boolean) => ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -56,7 +54,6 @@ export function SessionDateTimeField({
         }, open)
       ) : (
         <FieldTrigger
-          appearance={appearance}
           label={label}
           expanded={open}
           invalid={Boolean(errorText)}

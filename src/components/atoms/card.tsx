@@ -1,3 +1,4 @@
+import { FieldSurface } from "./field-surface";
 import {
   atomCardRadius,
   atomPalette,
@@ -57,31 +58,39 @@ export function AppCard({
   style?: StyleProp<ViewStyle>;
   tone?: CardTone;
 }) {
+  const background = StyleSheet.flatten([
+    toneStyles[tone],
+    style
+  ])?.backgroundColor;
   return (
-    <UICard
-      className="border p-0"
-      size="md"
-      style={StyleSheet.flatten([
-        {
-          borderRadius: atomCardRadius,
-          borderWidth: designTokens.border.widthDefault,
-          borderCurve: "continuous",
-          overflow: "hidden"
-        },
-        toneStyles[tone],
-        paddingStyles[padding],
-        surface
-          ? {
-              borderRadius: designTokens.controls.surfaces[surface].radius,
-              padding: designTokens.controls.surfaces[surface].padding
-            }
-          : null,
-        style
-      ])}
-      variant="outline"
-      {...props}
+    <FieldSurface
+      surface={background === atomPalette.surface ? "white" : "tinted"}
     >
-      {children}
-    </UICard>
+      <UICard
+        className="border p-0"
+        size="md"
+        style={StyleSheet.flatten([
+          {
+            borderRadius: atomCardRadius,
+            borderWidth: designTokens.border.widthDefault,
+            borderCurve: "continuous",
+            overflow: "hidden"
+          },
+          toneStyles[tone],
+          paddingStyles[padding],
+          surface
+            ? {
+                borderRadius: designTokens.controls.surfaces[surface].radius,
+                padding: designTokens.controls.surfaces[surface].padding
+              }
+            : null,
+          style
+        ])}
+        variant="outline"
+        {...props}
+      >
+        {children}
+      </UICard>
+    </FieldSurface>
   );
 }

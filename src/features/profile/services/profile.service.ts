@@ -14,3 +14,7 @@ export async function uploadProfileAvatar({
   const avatarPath = await uploadProfileAvatarObject({ asset, userId });
   return getProfileAvatarPublicUrl(avatarPath);
 }
+
+export { deleteUnusedProfileAvatar } from "../repositories/profile-avatar.repository";
+
+export { fetchLinkedIdentities as getLinkedIdentities } from "../repositories/profile-identities.repository";

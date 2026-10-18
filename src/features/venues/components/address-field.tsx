@@ -11,13 +11,11 @@ import type { AddressSuggestion } from "../repositories/address-search.repositor
 export function AddressField({
   value,
   onChange,
-  errorText,
-  appearance
+  errorText
 }: {
   value: string;
   onChange: (value: string) => void;
   errorText?: string;
-  appearance?: "default" | "soft";
 }) {
   const [active, setActive] = useState(false);
   const [resolving, setResolving] = useState(false);
@@ -45,7 +43,6 @@ export function AddressField({
   return (
     <View style={{ gap: atomSpacing[2] }}>
       <TextField
-        appearance={appearance}
         required
         label="Club address"
         value={value}

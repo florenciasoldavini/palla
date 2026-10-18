@@ -1,3 +1,4 @@
+import { FieldSurface } from "@/components/atoms/field-surface";
 import { AppButton, AppText, TextField } from "@/components/atoms";
 import { atomSpacing as sp } from "@/components/atoms/theme";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -79,141 +80,145 @@ export function ChatComposer({
     previous.current = editingId;
   }, [editingId, getValues, reset]);
   return (
-    <View style={{ gap: sp[2] }}>
-      {!editing && reply && (
-        <ChatReplyQuote
-          quote={reply}
-          author={replyAuthor}
-          composer
-          onCancel={onCancelReply}
-        />
-      )}
-      {editing && (
-        <View
-          style={{ flexDirection: "row", alignItems: "center", gap: sp[2] }}
-        >
-          <Pencil size={16} />
-          <AppText variant="caption" style={{ flex: 1 }}>
-            Editing message
-          </AppText>
-          <AppButton
-            variant="ghost"
-            layout="icon"
-            fullWidth={false}
-            icon={X}
-            accessibilityLabel="Cancel editing"
-            isDisabled={saving}
-            onPress={onCancelEdit}
-          />
-        </View>
-      )}
-
-      <View
-        style={{ flexDirection: "row", alignItems: "flex-end", gap: sp[2] }}
-      >
-        {!editing && onPickPhoto && (
-          <AppButton
-            variant="ghost"
-            layout="icon"
-            icon={ImagePlus}
-            fullWidth={false}
-            accessibilityLabel="Choose photo"
-            loading={pickingPhoto}
-            isDisabled={sendDisabled || !draftReady || committing || saving}
-            onPress={() => onPickPhoto(getValues("body"))}
+    <FieldSurface surface="white">
+      <View style={{ gap: sp[2] }}>
+        {!editing && reply && (
+          <ChatReplyQuote
+            quote={reply}
+            author={replyAuthor}
+            composer
+            onCancel={onCancelReply}
           />
         )}
-        <View style={{ flex: 1 }}>
-          <Controller
-            control={control}
-            name="body"
-            render={({ field }) => (
-              <TextField
-                key={editing?.id ?? reply?.id ?? "draft"}
-                autoFocus={!!editing || !!reply}
-                editable={!saving && !committing && draftReady}
-                accessibilityLabel="Write a message"
-                placeholder="Write a message…"
-                multiline
-                scrollEnabled
-                inputStyle={{ maxHeight: 144 }}
-                maxLength={4000}
-                value={field.value}
-                onChangeText={(text) => {
-                  field.onChange(text);
-                  if (!editing) onDraftChange?.(text);
-                  setSendError(null);
-                  onTypingChange?.(!!text.trim());
-                }}
-                onBlur={() => {
-                  field.onBlur();
-                  onTypingChange?.(false);
-                }}
-              />
-            )}
+        {editing && (
+          <View
+            style={{ flexDirection: "row", alignItems: "center", gap: sp[2] }}
+          >
+            <Pencil size={16} />
+            <AppText variant="caption" style={{ flex: 1 }}>
+              Editing message
+            </AppText>
+            <AppButton
+              variant="ghost"
+              layout="icon"
+              fullWidth={false}
+              icon={X}
+              accessibilityLabel="Cancel editing"
+              isDisabled={saving}
+              onPress={onCancelEdit}
+            />
+          </View>
+        )}
+
+        <View
+          style={{ flexDirection: "row", alignItems: "flex-end", gap: sp[2] }}
+        >
+          {!editing && onPickPhoto && (
+            <AppButton
+              variant="ghost"
+              layout="icon"
+              icon={ImagePlus}
+              fullWidth={false}
+              accessibilityLabel="Choose photo"
+              loading={pickingPhoto}
+              isDisabled={sendDisabled || !draftReady || committing || saving}
+              onPress={() => onPickPhoto(getValues("body"))}
+            />
+          )}
+          <View style={{ flex: 1 }}>
+            <Controller
+              control={control}
+              name="body"
+              render={({ field }) => (
+                <TextField
+                  key={editing?.id ?? reply?.id ?? "draft"}
+                  autoFocus={!!editing || !!reply}
+                  editable={!saving && !committing && draftReady}
+                  accessibilityLabel="Write a message"
+                  placeholder="Write a message…"
+                  multiline
+                  scrollEnabled
+                  inputStyle={{ maxHeight: 144 }}
+                  maxLength={4000}
+                  value={field.value}
+                  onChangeText={(text) => {
+                    field.onChange(text);
+                    if (!editing) onDraftChange?.(text);
+                    setSendError(null);
+                    onTypingChange?.(!!text.trim());
+                  }}
+                  onBlur={() => {
+                    field.onBlur();
+                    onTypingChange?.(false);
+                  }}
+                />
+              )}
+            />
+          </View>
+          <AppButton
+            layout="icon"
+            fullWidth={false}
+            color="essential"
+            icon={editing ? Check : Send}
+            accessibilityLabel={
+              editing ? "Save message changes" : "Send message"
+            }
+            loading={saving || committing}
+            isDisabled={
+              sendDisabled ||
+              !draftReady ||
+              committing ||
+              saving ||
+              !watch("body").trim() ||
+              (!!editing && watch("body").trim() === editing.body)
+            }
+            onPress={handleSubmit(async ({ body }) => {
+              const message = messageBodySchema.safeParse(body);
+              if (!message.success) return;
+              onTypingChange?.(false);
+              if (editing) {
+                onSaveEdit?.(message.data);
+                return;
+              }
+              setCommitting(true);
+              try {
+                await onSend(message.data);
+                reset({ body: "" });
+                setSendError(null);
+              } catch {
+                setSendError(
+                  "Couldn’t save this message on your device. Your text is still here. Try again."
+                );
+              } finally {
+                setCommitting(false);
+              }
+            })}
           />
         </View>
-        <AppButton
-          layout="icon"
-          fullWidth={false}
-          color="essential"
-          icon={editing ? Check : Send}
-          accessibilityLabel={editing ? "Save message changes" : "Send message"}
-          loading={saving || committing}
-          isDisabled={
-            sendDisabled ||
-            !draftReady ||
-            committing ||
-            saving ||
-            !watch("body").trim() ||
-            (!!editing && watch("body").trim() === editing.body)
-          }
-          onPress={handleSubmit(async ({ body }) => {
-            const message = messageBodySchema.safeParse(body);
-            if (!message.success) return;
-            onTypingChange?.(false);
-            if (editing) {
-              onSaveEdit?.(message.data);
-              return;
-            }
-            setCommitting(true);
-            try {
-              await onSend(message.data);
-              reset({ body: "" });
-              setSendError(null);
-            } catch {
-              setSendError(
-                "Couldn’t save this message on your device. Your text is still here. Try again."
-              );
-            } finally {
-              setCommitting(false);
-            }
-          })}
-        />
+        {!draftReady && (
+          <AppText variant="caption" tone="subtle">
+            Loading saved draft…
+          </AppText>
+        )}
+        {sendError && (
+          <AppText
+            variant="caption"
+            tone="danger"
+            accessibilityLiveRegion="polite"
+          >
+            {sendError}
+          </AppText>
+        )}
+        {editError && (
+          <AppText
+            variant="caption"
+            tone="danger"
+            accessibilityLiveRegion="polite"
+          >
+            {editError}
+          </AppText>
+        )}
       </View>
-      {!draftReady && (
-        <AppText variant="caption" tone="subtle">
-          Loading saved draft…
-        </AppText>
-      )}
-      {sendError && (
-        <AppText
-          variant="caption"
-          tone="danger"
-          accessibilityLiveRegion="polite"
-        >
-          {sendError}
-        </AppText>
-      )}
-      {editError && (
-        <AppText
-          variant="caption"
-          tone="danger"
-          accessibilityLiveRegion="polite"
-        >
-          {editError}
-        </AppText>
-      )}
-    </View>
+    </FieldSurface>
   );
 }

@@ -1,9 +1,13 @@
+import type { DominantHand, CourtSide } from "@/features/profile/player-traits";
 import type { CategoryStatus } from "@/features/profile/playing-category";
 export interface User {
   id: string;
   first_name: string;
   last_name: string | null;
   avatar: string | null;
+  bio: string | null;
+  dominant_hand: DominantHand | null;
+  preferred_court_side: CourtSide | null;
   email: string;
   phone_number: string | null;
   playing_category: number | null;

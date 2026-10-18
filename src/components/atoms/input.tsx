@@ -1,3 +1,4 @@
+import { useFieldBackground } from "./field-surface";
 import {
   atomControlHeights,
   atomControlRadius,
@@ -55,7 +56,6 @@ type TextFieldProps = Omit<
   "size"
 > & {
   inputStyle?: StyleProp<TextStyle>;
-  appearance?: "default" | "soft";
   accessory?: ReactNode;
   errorText?: string | null;
   helperText?: string | null;
@@ -93,7 +93,6 @@ const sizeMap = {
 };
 
 export function TextField({
-  appearance = "default",
   accessory,
   editable = true,
   errorText,
@@ -112,7 +111,9 @@ export function TextField({
   truncate = false,
   ...props
 }: TextFieldProps) {
+  const fieldBackground = useFieldBackground();
   const { fontScale } = useWindowDimensions();
+  const isMultiline = Boolean(multiline) && !truncate;
   const fieldId = useId();
   const config = sizeMap[size];
   const iconPixelSize = appIconSizes[config.iconSize];
@@ -156,8 +157,8 @@ export function TextField({
   const inputPaddingHorizontal =
     leftIcon || rightSlot ? atomSpacing[3] : atomSpacing[4];
   const inputTextStyle = {
-    color: atomPalette.text,
-    fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize),
+    color: isDisabled ? atomPalette.textSubtle : atomPalette.text,
+    fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize) * fontScale,
     letterSpacing: 0,
     ...(Platform.OS === "web"
       ? { lineHeight: atomTypeScale.bodyMd.lineHeight }
@@ -230,13 +231,9 @@ export function TextField({
           size={config.input}
           style={{
             alignItems: "center",
-            backgroundColor: isDisabled
-              ? atomPalette.surfaceLow
-              : appearance === "soft"
-                ? atomPalette.background
-                : atomPalette.surface,
+            backgroundColor: fieldBackground,
             borderColor,
-            borderRadius: appearance === "soft" ? 12 : config.radius,
+            borderRadius: atomControlRadius,
             borderWidth: 1,
             flexDirection: "row",
 
@@ -281,6 +278,7 @@ export function TextField({
               }}
             >
               <Text
+                allowFontScaling={false}
                 ellipsizeMode="tail"
                 numberOfLines={1}
                 style={{
@@ -295,6 +293,7 @@ export function TextField({
             </Pressable>
           ) : (
             <UIInputField
+              allowFontScaling={false}
               nativeID={fieldId}
               accessibilityHint={errorText || helperText || undefined}
               accessibilityLabel={
@@ -332,10 +331,12 @@ export function TextField({
                 ...inputTextStyle,
                 flex: 1,
                 paddingHorizontal: inputPaddingHorizontal,
-                paddingVertical: 0,
-                ...(Platform.OS === "android"
-                  ? { textAlignVertical: "center" as const }
-                  : null),
+                paddingVertical: isMultiline ? atomSpacing[3] : 0,
+                ...(isMultiline
+                  ? { textAlignVertical: "top" as const }
+                  : Platform.OS === "android"
+                    ? { textAlignVertical: "center" as const }
+                    : null),
                 ...truncateStyle,
                 ...webInputCursorStyle,
                 ...StyleSheet.flatten(inputStyle)
@@ -482,6 +483,7 @@ function WebNumericField({
   onChangeNumber: (value: number) => void;
   value: number;
 }) {
+  const fieldBackground = useFieldBackground();
   const { fontScale } = useWindowDimensions();
   const fieldId = useId();
   const config = sizeMap[size ?? "lg"];
@@ -544,9 +546,7 @@ function WebNumericField({
         size={config.input}
         style={
           {
-            backgroundColor: isDisabled
-              ? atomPalette.surfaceLow
-              : atomPalette.surface,
+            backgroundColor: fieldBackground,
             borderColor,
             borderRadius: config.radius,
             cursor: isDisabled ? "not-allowed" : "text",

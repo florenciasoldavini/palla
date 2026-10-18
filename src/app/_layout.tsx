@@ -1,7 +1,8 @@
+import { AppToastProvider } from "@/components/atoms/toast";
 import { ChatPushSync } from "@/features/notifications/components/chat-push-sync";
 import { ChatRealtimeSync } from "@/features/chat/components/chat-realtime-sync";
 import { AppText, Screen } from "@/components/atoms";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Platform } from "react-native";
 import { atomPalette } from "@/components/atoms/theme";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { AnimatedSplash } from "@/components/splash/animated-splash";
@@ -72,7 +73,9 @@ function RootLayout() {
           <ChatOutboxSync />
           <ChatRealtimeSync>
             <SafeAreaProvider>
-              <RootNavigator />
+              <AppToastProvider>
+                <RootNavigator />
+              </AppToastProvider>
             </SafeAreaProvider>
           </ChatRealtimeSync>
         </AuthProvider>
@@ -106,7 +109,12 @@ function RootNavigator() {
         session && !user && !authHandoff ? (
           <ProfileLoadError />
         ) : (
-          <Stack screenOptions={{ headerShown: false, statusBarStyle: "dark" }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              statusBarStyle: Platform.OS === "android" ? "dark" : undefined
+            }}
+          >
             <Stack.Screen name="index" />
             {/* Auth callbacks must survive changes to the signed-out guard. */}
             <Stack.Screen name="callback" />
@@ -123,6 +131,7 @@ function RootNavigator() {
               <Stack.Screen name="(player)" />
               <Stack.Screen name="notifications" />
               <Stack.Screen name="messages" />
+              <Stack.Screen name="account" />
             </Stack.Protected>
             <Stack.Protected
               guard={ready && user?.organizer_status === "active"}

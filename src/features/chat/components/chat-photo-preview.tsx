@@ -1,3 +1,4 @@
+import { FieldSurface } from "@/components/atoms/field-surface";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -92,17 +93,19 @@ export function ChatPhotoPreview({
                 name="caption"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    placeholder="Add a caption…"
-                    accessibilityLabel="Photo caption"
-                    value={field.value}
-                    onChangeText={field.onChange}
-                    onBlur={field.onBlur}
-                    maxLength={4000}
-                    multiline
-                    inputStyle={{ maxHeight: 120 }}
-                    editable={!busy}
-                  />
+                  <FieldSurface surface="white">
+                    <TextField
+                      placeholder="Add a caption…"
+                      accessibilityLabel="Photo caption"
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      maxLength={4000}
+                      multiline
+                      inputStyle={{ maxHeight: 120 }}
+                      editable={!busy}
+                    />
+                  </FieldSurface>
                 )}
               />
             </View>

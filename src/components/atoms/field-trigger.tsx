@@ -1,3 +1,4 @@
+import { useFieldBackground } from "./field-surface";
 import { AppText } from "./text";
 import {
   atomControlHeights,
@@ -16,8 +17,7 @@ export function FieldTrigger({
   onPress,
   icon: Icon,
   invalid = false,
-  expanded = false,
-  appearance = "default"
+  expanded = false
 }: {
   label: string;
   value: string;
@@ -25,8 +25,8 @@ export function FieldTrigger({
   icon?: LucideIcon;
   invalid?: boolean;
   expanded?: boolean;
-  appearance?: "default" | "soft";
 }) {
+  const fieldBackground = useFieldBackground();
   const { fontScale } = useWindowDimensions();
   const [pressed, setPressed] = useState(false);
   return (
@@ -39,19 +39,17 @@ export function FieldTrigger({
       onPressIn={() => setPressed(true)}
       onPressOut={() => setPressed(false)}
       style={{
-        backgroundColor:
-          appearance === "soft" ? atomPalette.background : atomPalette.surface,
+        backgroundColor: fieldBackground,
         borderColor: invalid
           ? atomPalette.error
           : pressed || expanded
             ? atomPalette.focus
             : atomPalette.borderSubtle,
         borderWidth: 1,
-        borderRadius: appearance === "soft" ? 12 : atomControlRadius,
+        borderRadius: atomControlRadius,
         minHeight: Math.max(
-          appearance === "soft" ? 52 : atomControlHeights.lg,
-          24 * fontScale +
-            (appearance === "soft" ? atomSpacing[4] : atomSpacing[6])
+          atomControlHeights.lg,
+          24 * fontScale + atomSpacing[6]
         ),
         paddingHorizontal: atomSpacing[4],
         paddingVertical: atomSpacing[3],

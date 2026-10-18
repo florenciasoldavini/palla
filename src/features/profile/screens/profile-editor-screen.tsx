@@ -1,0 +1,726 @@
+import { PlayerProfileFields } from "../components/player-profile-fields";
+import type { DominantHand, CourtSide } from "../player-traits";
+import type { CategoryStatus } from "@/features/profile/playing-category";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { useNavigation, usePreventRemove } from "@react-navigation/native";
+import { ArrowLeft } from "lucide-react-native";
+import { getLinkedIdentities } from "../services/profile.service";
+import {
+  AppButton,
+  AppCard,
+  AppText,
+  FieldMessage,
+  AppHeading,
+  PasswordVisibilityToggle,
+  Screen,
+  SegmentedTabs,
+  TextField,
+  useAppToast
+} from "@/components/atoms";
+import { atomPalette, atomRadii, atomSpacing } from "@/components/atoms/theme";
+import { authCardMaxWidth } from "@/features/auth/components/auth-shell";
+import { AuthContext } from "@/features/auth/auth-provider";
+import {
+  useUploadProfileAvatar,
+  useDeleteUnusedProfileAvatar
+} from "@/features/profile/hooks";
+import type { ProfileAvatarAsset } from "@/features/profile/repositories/profile-avatar.repository";
+import {
+  profileInfoSchema,
+  profilePasswordSchema,
+  type ProfileInfoInput,
+  type ProfilePasswordInput
+} from "@/features/profile/validation";
+import { updatePassword } from "@/features/auth/auth";
+import { getSupabaseErrorMessage } from "@/lib/supabase";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { UserIdentity } from "@supabase/supabase-js";
+import { Image } from "expo-image";
+import { ProfilePhotoEditor } from "../components/profile-photo-editor";
+import { CheckCircleIcon, LockIcon, MailIcon } from "@/components/icons";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, View } from "react-native";
+
+const appleLogo = require("@assets/images/auth/apple-logo.png");
+const googleLogo = require("@assets/images/auth/google-logo.png");
+
+type IdentityProvider = "apple" | "email" | "google";
+type ProfileTab = "profile" | "security" | "methods";
+
+const providerCopy = {
+  apple: {
+    label: "Apple",
+    supporting: "Apple account"
+  },
+  email: {
+    label: "Email",
+    supporting: "Password access"
+  },
+  google: {
+    label: "Google",
+    supporting: "Google account"
+  }
+} satisfies Record<IdentityProvider, { label: string; supporting: string }>;
+
+const profileTabs = [
+  { value: "profile", label: "Profile" },
+  { value: "security", label: "Security" },
+  { value: "methods", label: "Sign-In" }
+] satisfies { value: ProfileTab; label: string }[];
+
+function getProfileInfoDefaults(
+  profile:
+    | {
+        playing_category?: number | null;
+        category_status?: CategoryStatus;
+        avatar?: string | null;
+        bio?: string | null;
+        dominant_hand?: DominantHand | null;
+        preferred_court_side?: CourtSide | null;
+        first_name?: string | null;
+        last_name?: string | null;
+        phone_number?: string | null;
+      }
+    | null
+    | undefined
+): ProfileInfoInput {
+  return {
+    playingCategory: profile?.playing_category ?? null,
+    categoryStatus: profile?.category_status ?? "unknown",
+    avatar: profile?.avatar ?? "",
+    bio: profile?.bio ?? "",
+    dominantHand: profile?.dominant_hand ?? null,
+    preferredCourtSide: profile?.preferred_court_side ?? null,
+    firstName: profile?.first_name ?? "",
+    lastName: profile?.last_name ?? "",
+    phoneNumber: profile?.phone_number ?? ""
+  };
+}
+
+export default function ProfileEditorScreen({
+  section = "profile"
+}: {
+  section?: "profile" | "security";
+}) {
+  const router = useRouter();
+  const toast = useAppToast();
+  const { session, updateUserProfile, user } = useContext(AuthContext);
+  const [avatarAsset, setAvatarAsset] = useState<ProfileAvatarAsset | null>(
+    null
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [identities, setIdentities] = useState<UserIdentity[]>([]);
+  const [identityError, setIdentityError] = useState<string | null>(null);
+  const [identityLoading, setIdentityLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<ProfileTab>(section);
+  const { mode } = useLocalSearchParams<{ mode?: string }>();
+  const organizerMode =
+    mode === "organizer" && user?.organizer_status === "active";
+  const navigation = useNavigation();
+  const uploadAvatarMutation = useUploadProfileAvatar();
+  const cleanupAvatar = useDeleteUnusedProfileAvatar();
+  const [pendingCleanup, setPendingCleanup] = useState<string[]>([]);
+  const retryCleanup = async (urls = pendingCleanup) => {
+    if (!user) return;
+    const remaining: string[] = [];
+    for (const url of urls) {
+      try {
+        await cleanupAvatar.mutateAsync({ url, userId: user.id });
+      } catch {
+        remaining.push(url);
+      }
+    }
+    setPendingCleanup(remaining);
+    return remaining;
+  };
+  const retryCleanupWithFeedback = async (
+    urls = pendingCleanup
+  ): Promise<void> => {
+    const remaining = await retryCleanup(urls);
+    toast.show({
+      title: remaining?.length
+        ? "Couldn’t delete previous photo"
+        : "Photo cleanup complete",
+      description: remaining?.length
+        ? "Try again when you have a connection."
+        : undefined,
+      tone: remaining?.length ? "error" : "success",
+      action: remaining?.length
+        ? {
+            label: "Retry cleanup",
+            onPress: () => retryCleanupWithFeedback(remaining)
+          }
+        : undefined
+    });
+  };
+  const profileForm = useForm<ProfileInfoInput>({
+    defaultValues: getProfileInfoDefaults(user),
+    mode: "onChange",
+    resolver: zodResolver(profileInfoSchema)
+  });
+  const securityForm = useForm<ProfilePasswordInput>({
+    defaultValues: {
+      confirmPassword: "",
+      password: ""
+    },
+    mode: "onChange",
+    resolver: zodResolver(profilePasswordSchema)
+  });
+  const {
+    control: profileControl,
+    formState: { isDirty: isProfileDirty, isValid: isProfileValid },
+    handleSubmit: handleProfileSubmit,
+    reset: resetProfileForm,
+    watch: watchProfileField
+  } = profileForm;
+  const {
+    control: passwordControl,
+    formState: { isValid: isPasswordChangeValid, isDirty: isPasswordDirty },
+    handleSubmit: handlePasswordSubmit,
+    reset: resetPasswordForm
+  } = securityForm;
+  const avatar = watchProfileField("avatar");
+  const isProfileSaving = isSaving || uploadAvatarMutation.isPending;
+  const isProfileSaveDisabled =
+    isProfileSaving || !isProfileValid || (!isProfileDirty && !avatarAsset);
+
+  usePreventRemove(
+    !!user &&
+      (isProfileSaving ||
+        isUpdatingPassword ||
+        (section === "profile"
+          ? isProfileDirty || !!avatarAsset
+          : isPasswordDirty)),
+    ({ data }) => {
+      if (isProfileSaving || isUpdatingPassword) return;
+      Alert.alert("Discard changes?", "Your unsaved changes will be lost.", [
+        { text: "Keep editing", style: "cancel" },
+        {
+          text: "Discard",
+          style: "destructive",
+          onPress: () => navigation.dispatch(data.action)
+        }
+      ]);
+    }
+  );
+  const linkedProviders = useMemo(() => {
+    return new Set(
+      identities.map((identity) => identity.provider.toLowerCase())
+    );
+  }, [identities]);
+
+  const refreshIdentities = useCallback(async () => {
+    if (!session) {
+      setIdentities([]);
+      return;
+    }
+
+    setIdentityLoading(true);
+    setIdentityError(null);
+
+    try {
+      setIdentities(await getLinkedIdentities());
+    } catch (error) {
+      setIdentityError(getSupabaseErrorMessage(error));
+    } finally {
+      setIdentityLoading(false);
+    }
+  }, [session]);
+
+  const profileDefaults = useMemo(() => getProfileInfoDefaults(user), [user]);
+  useEffect(() => {
+    setAvatarAsset(null);
+    resetProfileForm(profileDefaults);
+    resetPasswordForm({
+      confirmPassword: "",
+      password: ""
+    });
+  }, [profileDefaults, resetProfileForm, resetPasswordForm]);
+
+  useEffect(() => {
+    void refreshIdentities();
+  }, [refreshIdentities]);
+
+  const saveProfile = handleProfileSubmit(async (values) => {
+    if (!user) {
+      toast.show({
+        title: "Couldn’t update profile",
+        description: "Sign in again and try saving your changes.",
+        tone: "error"
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const previousAvatar = user.avatar;
+      const avatarUrl = avatarAsset
+        ? await uploadAvatarMutation.mutateAsync({
+            asset: avatarAsset,
+            userId: user.id
+          })
+        : values.avatar;
+
+      const updatedUser = await updateUserProfile({
+        avatar: avatarUrl,
+        bio: values.bio,
+        ...(!organizerMode
+          ? {
+              dominant_hand: values.dominantHand,
+              preferred_court_side: values.preferredCourtSide
+            }
+          : {}),
+        first_name: values.firstName.trim(),
+        last_name: values.lastName,
+        phone_number: values.phoneNumber,
+        playing_category: values.playingCategory,
+        category_status: values.categoryStatus ?? "unknown"
+      });
+
+      if (!updatedUser)
+        throw new Error("Couldn’t update your profile. Try again.");
+      setAvatarAsset(null);
+      resetProfileForm(getProfileInfoDefaults(updatedUser));
+      const remaining =
+        previousAvatar && previousAvatar !== avatarUrl
+          ? await retryCleanup([
+              ...new Set([...pendingCleanup, previousAvatar])
+            ])
+          : pendingCleanup;
+      toast.show({
+        title: "Profile updated",
+        tone: remaining?.length ? "warning" : "success",
+        description: remaining?.length
+          ? "Your changes are saved, but the previous photo couldn’t be deleted."
+          : undefined,
+        action: remaining?.length
+          ? {
+              label: "Retry cleanup",
+              onPress: () => retryCleanupWithFeedback(remaining)
+            }
+          : undefined
+      });
+    } catch (error) {
+      toast.show({
+        title: "Couldn’t update profile",
+        description: getSupabaseErrorMessage(error),
+        tone: "error",
+        action: { label: "Retry", onPress: (): Promise<void> => saveProfile() }
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  });
+
+  const changePassword = handlePasswordSubmit(async ({ password }) => {
+    setIsUpdatingPassword(true);
+
+    try {
+      await updatePassword(password);
+      resetPasswordForm({
+        confirmPassword: "",
+        password: ""
+      });
+      toast.show({ title: "Password updated", tone: "success" });
+    } catch (error) {
+      toast.show({
+        title: "Couldn’t update password",
+        description: getSupabaseErrorMessage(error),
+        tone: "error",
+        action: {
+          label: "Retry",
+          onPress: (): Promise<void> => changePassword()
+        }
+      });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  });
+
+  return (
+    <Screen keyboardSafe scrollResetKey={activeTab}>
+      <View
+        style={{
+          alignSelf: "center",
+          gap: atomSpacing[5],
+          maxWidth: section === "profile" ? 560 : authCardMaxWidth,
+          width: "100%"
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <AppButton
+            variant="ghost"
+            layout="icon"
+            icon={ArrowLeft}
+            fullWidth={false}
+            accessibilityLabel="Back to profile"
+            onPress={() =>
+              router.canGoBack()
+                ? router.back()
+                : router.replace(
+                    user?.preferred_mode === "organizer"
+                      ? "/(organizer)/organizer-profile"
+                      : "/(player)/profile"
+                  )
+            }
+          />
+          <AppHeading variant="section" style={{ flex: 1 }}>
+            {section === "profile" ? "Edit profile" : "Account & security"}
+          </AppHeading>
+        </View>
+        {section === "security" && (
+          <SegmentedTabs
+            onChange={setActiveTab}
+            options={profileTabs.filter((tab) => tab.value !== "profile")}
+            value={activeTab}
+          />
+        )}
+
+        {activeTab === "profile" ? (
+          <AppCard padding="lg">
+            <View style={{ gap: atomSpacing[5] }}>
+              <AppHeading variant="section">Basic information</AppHeading>
+              <View style={{ gap: atomSpacing[4] }}>
+                <View
+                  style={{
+                    alignItems: "center",
+                    gap: atomSpacing[3]
+                  }}
+                >
+                  <ProfilePhotoEditor
+                    currentUrl={avatar}
+                    onChange={setAvatarAsset}
+                    value={avatarAsset}
+                    disabled={isProfileSaving || cleanupAvatar.isPending}
+                    onRemove={() =>
+                      Alert.alert(
+                        "Remove profile photo?",
+                        "Your photo will be removed when you save. Your initials will appear instead.",
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          {
+                            text: "Remove photo",
+                            style: "destructive",
+                            onPress: () => {
+                              setAvatarAsset(null);
+                              profileForm.setValue("avatar", "", {
+                                shouldDirty: true,
+                                shouldValidate: true
+                              });
+                            }
+                          }
+                        ]
+                      )
+                    }
+                  />
+                </View>
+
+                <Controller
+                  control={profileControl}
+                  name="firstName"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      errorText={fieldState.error?.message}
+                      label="First name"
+                      onBlur={field.onBlur}
+                      onChangeText={field.onChange}
+                      placeholder="First name"
+                      required
+                      size="md"
+                      value={field.value}
+                    />
+                  )}
+                />
+
+                <Controller
+                  control={profileControl}
+                  name="lastName"
+                  render={({ field }) => (
+                    <TextField
+                      label="Last name"
+                      onBlur={field.onBlur}
+                      onChangeText={field.onChange}
+                      placeholder="Last name"
+                      size="md"
+                      value={field.value}
+                    />
+                  )}
+                />
+
+                <Controller
+                  control={profileControl}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <TextField
+                      autoComplete="tel"
+                      keyboardType="phone-pad"
+                      label="Phone number"
+                      onBlur={field.onBlur}
+                      onChangeText={field.onChange}
+                      placeholder="Add a phone number"
+                      size="md"
+                      textContentType="telephoneNumber"
+                      value={field.value}
+                    />
+                  )}
+                />
+                <Controller
+                  control={profileControl}
+                  name="bio"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label="About me"
+                      placeholder="Tell people a little about yourself…"
+                      helperText="Shared across your player and organizer profiles · Up to 500 characters."
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      errorText={fieldState.error?.message}
+                      multiline
+                      maxLength={500}
+                      editable={!isProfileSaving}
+                      inputStyle={{ minHeight: 104, textAlignVertical: "top" }}
+                    />
+                  )}
+                />
+              </View>
+            </View>
+          </AppCard>
+        ) : null}
+        {activeTab === "profile" && !organizerMode && (
+          <PlayerProfileFields form={profileForm} disabled={isProfileSaving} />
+        )}
+        {activeTab === "profile" && (
+          <View style={{ gap: atomSpacing[3] }}>
+            <AppButton
+              color="essential"
+              isDisabled={isProfileSaveDisabled}
+              loading={isProfileSaving}
+              onPress={() => {
+                void saveProfile();
+              }}
+              size="md"
+            >
+              Save changes
+            </AppButton>
+
+            {pendingCleanup.length > 0 && (
+              <View style={{ gap: 8 }}>
+                <AppButton
+                  variant="ghost"
+                  loading={cleanupAvatar.isPending}
+                  onPress={() => void retryCleanupWithFeedback()}
+                >
+                  Retry photo cleanup
+                </AppButton>
+              </View>
+            )}
+          </View>
+        )}
+
+        {activeTab === "security" ? (
+          <AppCard padding="lg">
+            <View style={{ gap: atomSpacing[5] }}>
+              <View style={{ gap: atomSpacing[1] }}>
+                <AppText variant="label">Account Security</AppText>
+                <AppText tone="muted">Password settings</AppText>
+              </View>
+
+              <View style={{ gap: atomSpacing[4] }}>
+                <View style={{ gap: atomSpacing[3] }}>
+                  <Controller
+                    control={passwordControl}
+                    name="password"
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        autoCapitalize="none"
+                        autoComplete="new-password"
+                        errorText={fieldState.error?.message}
+                        helperText={
+                          !fieldState.error
+                            ? "Use 8+ chars with uppercase, number, and symbol."
+                            : null
+                        }
+                        label="New Password"
+                        leftIcon={LockIcon}
+                        onBlur={field.onBlur}
+                        onChangeText={field.onChange}
+                        placeholder="new-password"
+                        required
+                        rightSlot={
+                          <PasswordVisibilityToggle
+                            onPress={() => {
+                              setPasswordVisible((current) => !current);
+                            }}
+                            visible={passwordVisible}
+                          />
+                        }
+                        size="md"
+                        textContentType="newPassword"
+                        type={passwordVisible ? "text" : "password"}
+                        value={field.value}
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    control={passwordControl}
+                    name="confirmPassword"
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        autoCapitalize="none"
+                        autoComplete="new-password"
+                        errorText={fieldState.error?.message}
+                        label="Confirm Password"
+                        leftIcon={LockIcon}
+                        onBlur={field.onBlur}
+                        onChangeText={field.onChange}
+                        placeholder="confirm-password"
+                        required
+                        rightSlot={
+                          <PasswordVisibilityToggle
+                            onPress={() => {
+                              setConfirmPasswordVisible((current) => !current);
+                            }}
+                            visible={confirmPasswordVisible}
+                          />
+                        }
+                        size="md"
+                        textContentType="newPassword"
+                        type={confirmPasswordVisible ? "text" : "password"}
+                        value={field.value}
+                      />
+                    )}
+                  />
+
+                  <AppButton
+                    isDisabled={!isPasswordChangeValid || isUpdatingPassword}
+                    loading={isUpdatingPassword}
+                    onPress={() => {
+                      void changePassword();
+                    }}
+                    size="md"
+                  >
+                    Change Password
+                  </AppButton>
+                </View>
+              </View>
+            </View>
+          </AppCard>
+        ) : null}
+
+        {activeTab === "methods" ? (
+          <AppCard padding="lg">
+            <View style={{ gap: atomSpacing[5] }}>
+              <View style={{ gap: atomSpacing[1] }}>
+                <AppText variant="label">Sign-In Methods</AppText>
+                <AppText tone="muted">Connected access</AppText>
+              </View>
+
+              <View style={{ gap: atomSpacing[3] }}>
+                <IdentityMethodRow
+                  isLinked={linkedProviders.has("email")}
+                  provider="email"
+                />
+                <IdentityMethodRow
+                  isLinked={linkedProviders.has("google")}
+                  provider="google"
+                />
+                <IdentityMethodRow
+                  isLinked={linkedProviders.has("apple")}
+                  provider="apple"
+                />
+              </View>
+
+              {identityLoading ? (
+                <FieldMessage>Checking linked methods...</FieldMessage>
+              ) : null}
+              {identityError ? (
+                <FieldMessage tone="error">{identityError}</FieldMessage>
+              ) : null}
+            </View>
+          </AppCard>
+        ) : null}
+      </View>
+    </Screen>
+  );
+}
+
+function IdentityMethodRow({
+  isLinked,
+  provider
+}: {
+  isLinked: boolean;
+  provider: IdentityProvider;
+}) {
+  const copy = providerCopy[provider];
+
+  return (
+    <View
+      style={{
+        alignItems: "center",
+        borderColor: atomPalette.border,
+        borderRadius: atomRadii.lg,
+        borderWidth: 1,
+        flexDirection: "row",
+        gap: atomSpacing[3],
+        justifyContent: "space-between",
+        padding: atomSpacing[4]
+      }}
+    >
+      <View
+        style={{
+          alignItems: "center",
+          flex: 1,
+          flexDirection: "row",
+          gap: atomSpacing[3]
+        }}
+      >
+        <ProviderIcon provider={provider} />
+        <View style={{ flex: 1, gap: atomSpacing[1] }}>
+          <AppText>{copy.label}</AppText>
+          <AppText tone="muted" variant="bodySm">
+            {copy.supporting}
+          </AppText>
+        </View>
+      </View>
+
+      {isLinked ? (
+        <View
+          style={{
+            alignItems: "center",
+            flexDirection: "row",
+            gap: atomSpacing[1]
+          }}
+        >
+          <CheckCircleIcon color={atomPalette.successText} size="sm" />
+          <AppText tone="success" variant="label">
+            Linked
+          </AppText>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function ProviderIcon({ provider }: { provider: IdentityProvider }) {
+  if (provider === "google" || provider === "apple") {
+    return (
+      <Image
+        source={provider === "google" ? googleLogo : appleLogo}
+        style={{
+          height: 24,
+          resizeMode: "contain",
+          width: 24
+        }}
+      />
+    );
+  }
+
+  return <MailIcon color={atomPalette.textMuted} size="lg" />;
+}

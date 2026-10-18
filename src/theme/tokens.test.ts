@@ -20,6 +20,18 @@ function contrast(a: string, b: string) {
 }
 
 describe("light design system contrast", () => {
+  it("keeps toast text, actions, dismiss controls and status icons readable", () => {
+    const toast = designTokens.controls.toasts;
+    for (const text of [toast.text, toast.secondary])
+      expect(contrast(text, toast.bg)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(toast.text, toast.actionBg)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(toast.dismiss, toast.bg)).toBeGreaterThanOrEqual(3);
+    for (const tone of Object.values(toast.tones))
+      expect(contrast(tone.icon, tone.bg)).toBeGreaterThanOrEqual(3);
+    expect(
+      contrast(toast.compactIcon, toast.compactIconBg)
+    ).toBeGreaterThanOrEqual(3);
+  });
   it("keeps text readable across the light surfaces", () => {
     const { bg, text } = designTokens.colors.semantic;
     for (const foreground of [
@@ -28,7 +40,12 @@ describe("light design system contrast", () => {
       text.muted,
       text.accent
     ]) {
-      for (const background of [bg.canvas, bg.surface, bg.surfaceLow]) {
+      for (const background of [
+        bg.canvas,
+        bg.surface,
+        bg.surfaceLow,
+        ...Object.values(designTokens.controls.fields)
+      ]) {
         expect(contrast(foreground, background)).toBeGreaterThanOrEqual(4.5);
       }
     }

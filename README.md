@@ -68,3 +68,5 @@ Routes are separated into `(auth)`, `(player)`, and `(organizer)` groups. Route 
 Development, preview, and production values are described in `env-sync.config.json`. `.env.local` is ignored and remains the local source of truth. Regenerate `.env.example` with `npm run env:example`.
 
 No production Supabase, EAS, Vercel, or Sentry project identifiers are committed.
+
+Profile overview and account-menu behavior: [docs/profile.md](docs/profile.md).

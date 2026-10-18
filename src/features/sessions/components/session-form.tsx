@@ -273,7 +273,6 @@ export function SessionForm({
       name={name}
       render={({ field, fieldState }) => (
         <TextField
-          appearance="soft"
           size="md"
           label={label}
           placeholder={
@@ -405,7 +404,6 @@ export function SessionForm({
                 name="description"
                 render={({ field, fieldState }) => (
                   <TextAreaField
-                    appearance="soft"
                     label="Description & format notes"
                     placeholder="Describe the format, what to bring, and anything players should know."
                     value={field.value}
@@ -468,7 +466,6 @@ export function SessionForm({
                     )}
                     {text("venueName", "Club name", true)}
                     <AddressField
-                      appearance="soft"
                       value={values.venueAddress}
                       onChange={(v) => {
                         change("venueAddress", v);

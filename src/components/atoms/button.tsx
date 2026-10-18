@@ -37,7 +37,6 @@ export type ButtonColor = ButtonBaseColor | "success" | "warning";
 export type ButtonVariant = "solid" | "bordered" | "ghost";
 export type ButtonSize = "sm" | "md" | "lg" | "iconLg";
 export type ButtonLayout = "default" | "icon";
-export type ButtonShape = "default" | "pill";
 
 const sizeMap = {
   sm: {
@@ -45,7 +44,6 @@ const sizeMap = {
     height: atomControlHeights.sm,
     iconSize: "sm" as AppIconSize,
     imageVisualSize: 18,
-    radius: atomRadii.md,
     textToken: atomTypeScale.buttonSm
   },
   md: {
@@ -53,7 +51,6 @@ const sizeMap = {
     height: atomControlHeights.md,
     iconSize: "sm" as AppIconSize,
     imageVisualSize: 18,
-    radius: atomRadii.lg,
     textToken: atomTypeScale.buttonMd
   },
   lg: {
@@ -61,7 +58,6 @@ const sizeMap = {
     height: atomControlHeights.lg,
     iconSize: "md" as AppIconSize,
     imageVisualSize: 20,
-    radius: atomControlRadius,
     textToken: atomTypeScale.buttonLg
   },
   iconLg: {
@@ -69,7 +65,6 @@ const sizeMap = {
     height: atomControlHeights.iconLg,
     iconSize: "lg" as AppIconSize,
     imageVisualSize: 22,
-    radius: atomControlRadius,
     textToken: atomTypeScale.buttonLg
   }
 };
@@ -99,7 +94,6 @@ export function AppButton({
   onPress,
   onPressIn,
   onPressOut,
-  shape = "default",
   size = "lg",
   style,
   variant = "solid",
@@ -114,7 +108,6 @@ export function AppButton({
   layout?: ButtonLayout;
   loading?: boolean;
   onDisabledPress?: () => void;
-  shape?: ButtonShape;
   size?: ButtonSize;
   style?: StyleProp<ViewStyle>;
   variant?: ButtonVariant;
@@ -232,7 +225,8 @@ export function AppButton({
             alignItems: "center",
             backgroundColor: surfaceStyle.backgroundColor,
             borderColor: surfaceStyle.borderColor,
-            borderRadius: shape === "pill" ? atomRadii.full : sizeConfig.radius,
+            borderRadius:
+              layout === "icon" ? atomRadii.full : atomControlRadius,
             borderWidth: surfaceStyle.borderWidth,
             flexDirection: "row",
             gap: atomSpacing[2],
@@ -253,7 +247,13 @@ export function AppButton({
               }
             : null,
           webCursorStyle,
-          style
+          style,
+          {
+            borderRadius: layout === "icon" ? atomRadii.full : atomControlRadius
+          },
+          variant === "ghost"
+            ? { backgroundColor: "transparent", borderWidth: 0 }
+            : null
         ]),
         animatedPressStyle
       ]}
@@ -294,18 +294,18 @@ function getButtonSurfaceStyle(
 ) {
   const token = buttonColors[color];
   const backgroundColor =
-    variant === "solid"
-      ? state === "hover"
-        ? token.hover
+    variant === "ghost"
+      ? "transparent"
+      : variant === "solid"
+        ? state === "hover"
+          ? token.hover
+          : state === "pressed"
+            ? token.pressed
+            : token.bg
         : state === "pressed"
-          ? token.pressed
-          : token.bg
-      : state === "pressed"
-        ? atomPalette.surfaceStrong
-        : state === "hover"
-          ? atomPalette.surfaceLow
-          : variant === "ghost"
-            ? "transparent"
+          ? atomPalette.surfaceStrong
+          : state === "hover"
+            ? atomPalette.surfaceLow
             : atomPalette.surface;
   return {
     backgroundColor,

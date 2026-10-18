@@ -135,7 +135,6 @@ export function ChatSearchNavigation({ search }: { search: ChatSearchState }) {
       </AppText>
       <AppButton
         variant="ghost"
-        style={{ backgroundColor: c.surfaceRaised }}
         layout="icon"
         fullWidth={false}
         icon={ChevronUp}
@@ -148,7 +147,6 @@ export function ChatSearchNavigation({ search }: { search: ChatSearchState }) {
       />
       <AppButton
         variant="ghost"
-        style={{ backgroundColor: c.surfaceRaised }}
         layout="icon"
         fullWidth={false}
         icon={ChevronDown}

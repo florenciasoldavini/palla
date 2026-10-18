@@ -171,7 +171,7 @@ components:
     rounded: "{rounded.md}"
     padding: "12px 16px"
   text-field:
-    backgroundColor: "{colors.surface}"
+    backgroundColor: "{colors.surface-low}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
     padding: "0px 16px"
@@ -286,7 +286,7 @@ Hanken Grotesk is the primary face. Geist is a secondary proportional face. Nati
 
 The frontmatter names source roles: hero/title for screen headings, section for major sections, card for subordinate headings, bodyMd/bodySm for copy, caption for helper details, and meta for short metadata. Form labels use the label token: Geist SemiBold (600), 14px/20px, 0.28px tracking, and primary dark charcoal (#1A1B22), verified against Stitch Step 1’s title and description labels. Optional markers and helper text keep their secondary colors; AppText's `label` variant resolves to buttonSm. Buttons use buttonSm, buttonMd, or buttonLg according to size.
 
-The approved onboarding extends the ramp with onboardingTitle and onboardingRole. ModeChoice currently applies onboardingRole size, line height, and weight but inherits card tracking; its token tracking is not fully applied. Inputs enforce a minimum 16px text size. Preserve semantic heading levels and allow controls to grow with text scaling. AppText, AppHeading, and ButtonText multiply both font size and line height by the platform font scale before rendering with native automatic font scaling disabled. This avoids double scaling and fixed-line-box clipping; it continues to honor the user’s larger-text setting. Button labels wrap and shrink within the available row width.
+The approved onboarding extends the ramp with onboardingTitle and onboardingRole. ModeChoice currently applies onboardingRole size, line height, and weight but inherits card tracking; its token tracking is not fully applied. Inputs enforce a minimum 16px text size. Multiline TextField inputs use 12px vertical padding and top alignment, matching TextAreaField. Single-line and truncated fields keep their centered alignment and zero internal vertical padding. Preserve semantic heading levels and allow controls to grow with text scaling. AppText, AppHeading, and ButtonText multiply both font size and line height by the platform font scale before rendering with native automatic font scaling disabled. This avoids double scaling and fixed-line-box clipping; it continues to honor the user’s larger-text setting. Button labels wrap and shrink within the available row width.
 
 ## Layout
 
@@ -300,15 +300,15 @@ Tonal layering and thin borders carry most depth. The shared shadow vocabulary i
 
 ## Shapes
 
-Controls use the medium radius; default cards and compact rows use the large radius, while spacious panels use the extra-large radius; segmented-control tracks use the large radius, while chips and radio circles use full rounding. Buttons also support a pill shape. The medium-size button uses the large radius; other button sizes use the medium radius. Standard and strong borders are one unit; the selected onboarding panel uses two.
+All text buttons and form controls use the medium radius (12px), consistently across colors and sizes. Icon-only buttons are circular. Ghost buttons have no background or border, including pressed, loading and disabled states. Pills are reserved for chips, filters and badges, not text actions. Default cards and compact rows use the large radius, spacious panels use the extra-large radius, segmented tracks use the large radius, and radio indicators are circular. Standard and strong borders are one unit; the selected onboarding panel uses two.
 
 ## Components
 
 ### Buttons
 
-Essential solid is the lime main action; neutral solid is ink with white text. Accent, danger, success, and warning colors preserve their semantic roles. Bordered and ghost treatments reduce emphasis without changing action meaning. Solid colors follow their shared hover and pressed steps; bordered and ghost surfaces use low and strong surface feedback.
+Essential solid is the lime main action; neutral solid is ink with white text. Accent, danger, success, and warning colors preserve their semantic roles. Bordered and ghost treatments reduce emphasis without changing action meaning. Solid colors follow their shared hover and pressed steps; bordered buttons use low/strong surface feedback. Ghost feedback uses text/icon color and the shared press motion while the surface remains transparent.
 
-All sizes provide a minimum 48-unit target and grow with type. Default padding is 12px vertically and 16px horizontally; labels wrap. Disabled/loading treatment uses a muted strong surface; loading retains the label, adds a spinner, announces busy state, and prevents duplicate execution. Press feedback scales to 0.98 using shared short timing.
+All sizes provide a minimum 48-unit target and grow with type. Default padding is 12px vertically and 16px horizontally; labels wrap. Disabled/loading treatment uses a muted strong surface for solid/bordered buttons; ghost actions remain transparent with muted text/icons; loading retains the label, adds a spinner, announces busy state, and prevents duplicate execution. Press feedback scales to 0.98 using shared short timing.
 
 ### Cards / Containers
 
@@ -320,9 +320,9 @@ EmptyState and ErrorState reuse the current light surfaces, headings, body copy,
 
 ### Inputs / Fields
 
-White fields use a subtle border and rounded corners, shifting to default border on hover and olive on focus. Error text and border identify invalid state; disabled fields use low surfaces. Fields begin at a 48-unit minimum and expand with font scale. Labels, optional markers, helper messages, and errors retain accessible associations. Text inputs and textareas expose meaningful accessibilityLabel and aria-label values. Errors remain readable text and announce updates politely.
+Field fill is determined by the surrounding surface: pale lilac (`surfaceLow`, #f4f2fd) on white cards/panels; white (`surface`, #ffffff) on lilac pages or inset panels. Text fields, numeric inputs, textareas, picker/dropdown triggers and search bars follow this same rule. All have a subtle border and 12px corners. Hover changes the border, focus uses the olive border, and error uses an error border plus supporting text. Focus, error and disabled states preserve the inherited fill; disabled text is muted. Surface choice never changes dimensions, radius or padding. Fields begin at a 48-unit minimum and expand with font scale. Labels, optional markers, helper messages, and errors retain accessible associations. Text inputs and textareas expose meaningful accessibilityLabel and aria-label values. Errors remain readable text and announce updates politely.
 
-Native picker triggers use `FieldTrigger`, sharing the white surface, subtle border, medium rounding, 16-unit horizontal padding, and scalable height of `TextField`. Values use body text with a trailing calendar, clock, or chevron icon. Pressed/open triggers use an olive border; invalid date/time fields use an error border. Native selects open a scrollable white bottom sheet with selected checkmarks and Done, independent of trigger measurement.
+Native picker triggers use `FieldTrigger`, sharing TextField’s inherited fill, subtle border, medium rounding, 16-unit horizontal padding and scalable height. Values use body text with a trailing calendar, clock, or chevron icon. Pressed/open triggers use an olive border; invalid date/time fields use an error border. Native selects open a scrollable white bottom sheet with selected checkmarks and Done, independent of trigger measurement.
 
 ### Chips
 
@@ -397,3 +397,23 @@ Live Google evidence (October 14, 2026): visually reviewed `google-search-live-i
 Occurrence foundation update (October 14, 2026): extracted implemented values from `src/theme/tokens.js`, shared card/text/heading/button/screen atoms, and `session-occurrence-detail.tsx` / `occurrence-placeholders.tsx`. Code verification passed with 43 unit tests and 13 existing lint warnings. Native recaptures and the current occurrence-detail runtime review were pending at this documentation pass; earlier session captures above do not validate the new screen. No new native acceptance claim is made here.
 
 Card-border correction (October 14, 2026): AppCard now applies the unchanged one-unit border token explicitly in native styles. The registration strip and waitlist inset cards use the subtle border; summary metric blocks intentionally remain borderless. Visually inspected `card-borders-ios.png` and `card-borders-android.png` under `.impeccable/review/native/occurrence/`; the finish reviewer accepted this narrow correction. This adds bounded visual evidence on both platforms without extending the earlier flow, keyboard, or screen-reader claims. Code verification remains 43 passing unit tests and 13 existing lint warnings.
+
+### Feedback placement
+
+Transient action results use the shared toast: successful saves, failed requests and other completed actions. Input validation and form constraints stay inline by their fields. Persistent loading/error surfaces keep their reusable state components and recovery actions. A partial success uses a warning toast and keeps any required retry control available. Toasts must appear above native navigation and respect safe areas; use `useAppToast`.
+
+Toast variants share one borderless charcoal shell, white titles, muted lilac descriptions and gray close icons. Status colors live only in the icon treatment. Standard cards use 16px corners with a pale icon tile/darker matching icon; brief compact toasts use a content-sized capsule and a small status circle. Both sizes use the same background token. Toast actions are raised charcoal rectangles with white text; Retry includes the retry icon. Compact confirmations dismiss after 3s and standard success/info after 4.5s. Error/warning and actionable results persist until acted on or dismissed. Title-only feedback automatically uses compact; supporting detail or an action automatically uses standard. Callers do not choose the layout.
+
+Toast entry uses the toast-specific 280ms ease-out with a subtle 8px downward settle and fade; exit fades over 200ms. Reduce Motion uses opacity only. Motion runs on the UI thread and never animates layout dimensions.
+
+## Profile identity cards
+
+Player and organizer overviews use one white identity panel with a circular 96-unit photo, outlined rectangular Edit profile action, name, optional shared bio and a single lilac pill below the bio. Player category appears once in a small overlapping photo badge; court side and dominant hand share the pill. No separate specifications section remains. The organizer uses the user-approved neon photo badge with a dark verification-style rosette/check and a Session host pill. This is a visual host marker for now; no verification status or process is implemented. Badges keep a white separation ring, and their text grows with native text size. Long pill copy wraps within the card. Chip placement below the bio is the current trial layout.
+
+## Host recognition banners (UI placeholder)
+
+Organizer profiles show a compact charcoal Verified Host invitation between the identity card and account menu. The alternate Superhost design is available in the development profile preview via `recognition=superhost`. Both use a subtle neon-to-transparent radial olive glow from the top-right corner over charcoal, neon status icons on olive-tinted tiles, white titles, muted light supporting text, compact outlined reward tags and the shared progress action. These banner-only reward tags follow the reference: 6px corners, a translucent lighter charcoal fill, a soft gray outline, 14px neon icons and 8px horizontal / 4px vertical padding. They are static labels rather than filter chips. The tile occupies a separate left column; the title, copy, rewards and action share one aligned right column. Larger accessibility text stacks the tile above the content to preserve readable width. Coming soon / proposed milestones text distinguishes this design placeholder from a live achievement program. View progress keeps its enabled neon appearance and press feedback, with no action handler, as requested; no dismiss, info action, progress modal, eligibility counters or award behavior is wired yet. Player profiles do not show these banners. Reviews, confirmations, eligibility rules, reward delivery and earned badge persistence are deferred to another branch. No database or authentication changes are part of this UI.
+
+## Notification preferences
+
+The account Notifications screen contains one Chat messages switch. A white panel on the lilac page holds the bell tile, label, supporting text and native switch; the enabled track uses the existing neon accent. Loading uses the shared skeleton, read failures use ErrorState with retry, saves disable the switch and show a saving indicator, and outcomes use shared toasts. Preference confirmation is immediate on the server without a separate Save button. More settings will be introduced only with their implemented notification features.

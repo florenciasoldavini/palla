@@ -6,7 +6,6 @@ export function SessionDateTimeField({
   value,
   onChange,
   errorText,
-  appearance,
   renderTrigger: _renderTrigger
 }: {
   label: string;
@@ -14,12 +13,10 @@ export function SessionDateTimeField({
   value: string;
   onChange: (value: string) => void;
   errorText?: string;
-  appearance?: "default" | "soft";
   renderTrigger?: (onPress: () => void, expanded: boolean) => ReactNode;
 }) {
   return (
     <TextField
-      appearance={appearance}
       label={label}
       value={value}
       onChangeText={onChange}

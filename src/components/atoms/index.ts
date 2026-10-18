@@ -25,3 +25,5 @@ export * from "@/components/atoms/tabs";
 export * from "@/components/atoms/text";
 export * from "@/components/atoms/textarea";
 export * from "@/components/atoms/toast";
+
+export * from "./field-surface";
