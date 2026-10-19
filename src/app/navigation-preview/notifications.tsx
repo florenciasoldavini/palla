@@ -1,1 +1,1 @@
-export { default } from "@/features/notifications/notifications-screen";
+export { default } from "@/features/reviews/components/reviews-preview";

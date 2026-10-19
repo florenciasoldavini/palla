@@ -23,29 +23,20 @@ export function FieldLabel({
         gap: atomSpacing[3]
       }}
     >
-      <View
-        style={{
-          alignItems: "center",
-          flexDirection: "row",
-          flexWrap: "wrap",
-          flexShrink: 1,
-          gap: atomSpacing[1]
-        }}
+      <AppText
+        style={{ flexShrink: 1 }}
+        nativeID={nativeID}
+        tone="default"
+        variant="formLabel"
       >
-        <AppText
-          style={{ flexShrink: 1 }}
-          nativeID={nativeID}
-          tone="default"
-          variant="formLabel"
-        >
-          {children}
-        </AppText>
+        {children}
         {!required ? (
           <AppText tone="subtle" variant="formLabel">
+            {" "}
             (optional)
           </AppText>
         ) : null}
-      </View>
+      </AppText>
       {accessory}
     </View>
   );

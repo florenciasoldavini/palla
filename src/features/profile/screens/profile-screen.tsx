@@ -30,7 +30,7 @@ export default function ProfileScreen({
       onMenu={(section) =>
         router.push(
           section === "notifications"
-            ? "/account/notifications"
+            ? { pathname: "/account/notifications", params: { mode } }
             : section === "security"
               ? "/account/security"
               : { pathname: "/account/[section]", params: { section } }

@@ -328,6 +328,8 @@ Native picker triggers use `FieldTrigger`, sharing TextField’s inherited fill,
 
 Selectable chips are bordered pills with 48-unit targets. Selected chips use olive text/border and a translucent olive wash; hover and press strengthen the wash. These compact bounded labels differ from wrapping form controls.
 
+List filters use shared `FilterChip` and `FilterChipGroup` components. Chat and notification filters share the same 48-unit minimum height, full-pill radius, 16-unit horizontal / 8-unit vertical padding, 8-unit row gap, one-unit border and label typography. Unselected filters use the raised lilac surface with subtle ink text/border; selected filters use ink with inverse text. Press uses the shared stronger surface tokens. Optional count badges are at least 24 units, lilac by default and neon when selected, with visual counts above 99 capped at 99+. Counts are omitted when a reliable total is unavailable. Labels/counts grow with native text size, and the shared row scrolls horizontally rather than clipping. Disabled filters expose their state and do not respond to press. Single-choice list filters are distinct from the bordered olive selectable chips used in forms.
+
 ### Navigation
 
 SegmentedTabs uses a low-surface bordered track, equally sized 48-unit tabs, and an ink or olive selected indicator with inverse text. The indicator alone moves using the shared thumb duration. Labels can wrap. The preview sidecar records visual samples; it does not implement app navigation.
@@ -416,4 +418,20 @@ Organizer profiles show a compact charcoal Verified Host invitation between the 
 
 ## Notification preferences
 
-The account Notifications screen contains one Chat messages switch. A white panel on the lilac page holds the bell tile, label, supporting text and native switch; the enabled track uses the existing neon accent. Loading uses the shared skeleton, read failures use ErrorState with retry, saves disable the switch and show a saving indicator, and outcomes use shared toasts. Preference confirmation is immediate on the server without a separate Save button. More settings will be introduced only with their implemented notification features.
+The account Notifications screen uses the database catalog to show shared Chat messages plus Review reminders in player mode or New reviews in organizer mode. A white panel on the lilac page holds the bell tile, label, supporting text and native switch; the enabled track uses the existing neon accent. Loading uses the shared skeleton, read failures use ErrorState with retry, saves disable the switch and show a saving indicator, and outcomes use shared toasts. Preference confirmation is immediate on the server without a separate Save button. More settings will be introduced only with their implemented notification features.
+
+## Session reviews and in-app notifications
+
+Review invitations open a single bottom sheet over the notification inbox, with orange 1–5 stars and an optional comment. There are no manual tags or extra form steps. Keep the handle/title/round close target above the scrolling body so the close control remains reachable with a keyboard or large text. White sheet surfaces use tinted inputs. The primary Post review / Save changes / Submit report action uses the essential neon button; deletion uses a ghost danger action followed by confirmation. Show the review deadline and public-identity disclosure.
+
+Notification rows use white bordered cards for both read and unread items, lilac rounded-square star tiles (review reminders) or round initials avatars with a small lilac star badge at the lower-right (received reviews), message/session/time hierarchy and a neon unread dot. The unread dot alone distinguishes unread rows visually; their card background does not change. All/Unread filters remain pills. Each active mode shows its own review events. Read, reviewed, removed and closed-window items remain understandable. Loading, failure/retry and empty states reuse shared primitives.
+
+Native modals mount `AppToastHost` to place the shared toast viewport inside Android’s modal window. Submission failures keep the draft and show a standard error toast; success closes the sheet and shows a compact toast. Shared field labels keep label and optional suffix in one wrapping text flow to avoid Android clipping.
+
+Review sheets use a horizontal 132×76 rounded court thumbnail beside the session title, host/date and clock/time row, separated from the rating form by a subtle divider. Enlarged text stacks the summary. Court artwork is illustrative until session photos exist; show authored reviews with a compact neon Reviewed pill and dark checkmark.
+
+The review form keeps the interactive star row centered within a 288-unit maximum width, with 48-unit touch targets. A compact 96-unit minimum comment field and right-aligned counter, tightly grouped privacy/deadline helper rows, and a pale circular close button follow the approved mockup. TextAreaField accepts a minimum height for compact forms while retaining the standard field default elsewhere.
+
+Completed review invitations use the shared AppBadge essential tone: neon fill, dark olive check and label, full pill corners, aligned below the timestamp in the text column. It is a passive status, not another button. Removed reviews keep neutral explanatory text. Expired unreviewed invitations omit inline status text and open the 14-day explanation sheet.
+
+Expired review invitations use an informational bottom sheet with a pale lilac clock tile, Review period ended heading, short 14-day rule, session/deadline context, circular close control and neon Got it action. It has no rating stars, comment field or publish action. Existing submitted reviews remain readable after their edit window.

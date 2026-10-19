@@ -74,3 +74,11 @@ The header includes a step count. The first step offers sign out; the name step 
 ### Icons on tinted backgrounds
 
 Pair an icon with a lighter background from the same color family, using a darker tone for the icon. For brand icons use `volt[100]` behind `volt[800]`; never place green icons on lilac backgrounds. Blocking explanation rows use pale lilac circles with dark lilac icons (`#6b6385`), keeping this secondary information quiet. Align icon circles vertically with the complete adjacent text group, and keep separators outside that group so padding does not shift the alignment.
+
+### List-filter chips
+
+Use `FilterChipGroup` with `FilterChip` from the shared atoms for list filters. Supply `label`, `selected`, `onPress`, and an optional `count`/accessible count label. Chat and notification inboxes consume this same component; keep typography, spacing, surfaces, borders and selected/pressed states inside the shared implementation. Filter counts must come from the feature's authoritative totals, not from the currently loaded page. Form selection remains `SelectableChip`; navigation tabs remain `AppTabs`.
+
+TextAreaField supports an explicit minHeight for compact form contexts (the review sheet uses 96 units). Its standard height, typography, padding, validation, and surface rules remain the default elsewhere.
+
+AppBadge supports an essential tone for the approved Reviewed completion state: neon fill with dark olive text and an optional matching icon. It remains a passive status pill, distinct from selectable filter chips and action buttons.

@@ -13,13 +13,15 @@ import { atomPalette } from "@/components/atoms/theme";
 import { getSansFontStyle } from "@/theme/fonts";
 import { useChatInbox } from "@/features/chat/hooks/use-chat";
 import { designTokens } from "@/theme/tokens";
+import { useNotificationCount } from "@/features/notifications/hooks/use-notifications";
 import { NavigationHeader } from "./navigation-header";
 import { NavigationChromeContext, RoleModeContext } from "./chrome-context";
 
 export function RoleTabs({
   mode,
   routes,
-  notificationsPath = "/notifications"
+  notificationsPath = "/notifications",
+  notificationUnreadCount
 }: {
   mode: "player" | "organizer";
   routes: {
@@ -29,9 +31,11 @@ export function RoleTabs({
     profile: string;
   };
   notificationsPath?: Href;
+  notificationUnreadCount?: number;
 }) {
   const router = useRouter();
   const inbox = useChatInbox();
+  const notificationCount = useNotificationCount(mode);
   const unread = inbox.counts?.badge ?? 0;
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
@@ -58,7 +62,14 @@ export function RoleTabs({
           screenOptions={{
             header: () => (
               <NavigationHeader
-                onNotifications={() => router.push(notificationsPath)}
+                unread={notificationUnreadCount ?? notificationCount.data ?? 0}
+                onNotifications={() =>
+                  router.push(
+                    notificationsPath === "/notifications"
+                      ? { pathname: "/notifications", params: { mode } }
+                      : notificationsPath
+                  )
+                }
               />
             ),
             headerStyle: { height: insets.top + 64 },

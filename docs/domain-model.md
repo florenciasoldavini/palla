@@ -104,3 +104,7 @@ No remote database changes are authorized by these local contracts alone. The MV
 ## Private messaging
 
 The implemented private chat model has one organizer/player conversation per pair, sequenced text messages and participant read cursors. Registration is not a backend prerequisite. The organizer roster currently exposes initiation; both roles can reply through their inbox. See [private realtime chat](chat.md) for fields, RPCs, authorization, limits and verification scope.
+
+## Session reviews and notification catalog
+
+Session reviews are implemented as one record per confirmed registration/occurrence, with a single rating, optional comment, authoritative session/organizer/reviewer associations, status and timestamps. Reviews never change attendance. Private report/moderation records preserve evidence; private notification items and queued push jobs implement invitations and first-publication host alerts. Notification audience/defaults live in a database catalog; account overrides use `(profile_id, notification_type)`. See [session-reviews.md](session-reviews.md) for the full lifecycle, RPC/RLS boundary, delivery rules and deferred public display scope.
