@@ -21,3 +21,7 @@ The October 19 review migrations add automatic completion, review/report moderat
 For another environment, apply the migrations in order and deploy the updated `chat-push` Edge Function (including `review-worker.ts` and its `deno.json`). It shares the existing worker authentication/secrets and installation registry; no new client environment variables are required. The review completion/invitation cron runs every five minutes, and the existing worker schedule dispatches both chat and review queues.
 
 The connected project already has these migrations and the updated worker. The rollback-only `tests/session-reviews.sql` and `tests/chat_notification_preferences.sql` cover the new RPC/RLS boundaries and preserve the previous chat opt-out API. See [session reviews](../docs/session-reviews.md) for behavior and [push setup](../docs/chat-push.md) for provider activation and remaining live delivery testing.
+
+## Session announcements
+
+Apply `20261019174936_session_announcements.sql` and `20261019180014_announcement_message_validation.sql`, then deploy `session-announcements` (JWT verification on) and redeploy `chat-push` including `review-worker.ts` and `deno.json`. The existing worker secret/cron, installation registry, notification queue and preference catalog are reused. No new environment variables. See [session announcements](../docs/session-announcements.md) for audience, history, removal and delivery rules. Run the rollback-only `supabase/tests/session-announcements.sql` and existing review tests after deployment.

@@ -10,6 +10,7 @@ import {
   Bell,
   Check,
   ChevronRight,
+  Megaphone,
   Star
 } from "lucide-react-native";
 import {
@@ -135,7 +136,7 @@ export function NotificationInboxView({
                   unread
                     ? "You have no unread notifications."
                     : mode === "player"
-                      ? "Review reminders will appear here after your games."
+                      ? "Session announcements and review reminders will appear here."
                       : "New reviews of your sessions will appear here."
                 }
               />
@@ -152,15 +153,19 @@ export function NotificationInboxView({
               const showGroup =
                 index === 0 ||
                 today(items[index - 1].created_at) !== today(item.created_at);
+              const announcement =
+                item.notification_type === "session_announcements";
               const reminder = item.notification_type === "review_reminders";
               const expired = isExpiredReviewInvitation(item);
               const reviewed =
                 reminder &&
                 (item.review_status === "published" ||
                   item.review_status === "hidden");
-              const title = reminder
-                ? "How was your session?"
-                : `${item.reviewer_name || "A player"} left a review`;
+              const title = announcement
+                ? `Announcement from ${item.host_name || "your host"}`
+                : reminder
+                  ? "How was your session?"
+                  : `${item.reviewer_name || "A player"} left a review`;
               return (
                 <View style={{ gap: 12 }}>
                   {showGroup && (
@@ -176,20 +181,27 @@ export function NotificationInboxView({
                     accessibilityRole="button"
                     accessibilityLabel={`${title}. ${item.session_title}.${item.read_at ? " Read." : " Unread."}${reviewed ? " Reviewed." : ""}`}
                     accessibilityHint={
-                      expired
-                        ? "Learn about the 14-day review period."
-                        : reminder
-                          ? "Open your session review."
-                          : "Open the received review."
+                      announcement
+                        ? "Read the session announcement."
+                        : expired
+                          ? "Learn about the 14-day review period."
+                          : reminder
+                            ? "Open your session review."
+                            : "Open the received review."
                     }
                     style={styles.row}
                   >
                     <View
-                      style={[styles.icon, reminder && styles.reviewIcon]}
+                      style={[
+                        styles.icon,
+                        (reminder || announcement) && styles.reviewIcon
+                      ]}
                       accessibilityElementsHidden
                       importantForAccessibility="no-hide-descendants"
                     >
-                      {reminder ? (
+                      {announcement ? (
+                        <Megaphone size={25} color={c.textSubtle} />
+                      ) : reminder ? (
                         <Star size={25} color={c.textSubtle} />
                       ) : (
                         <AppText variant="label">
@@ -201,7 +213,7 @@ export function NotificationInboxView({
                             .join("") || "P"}
                         </AppText>
                       )}
-                      {!reminder && (
+                      {!reminder && !announcement && (
                         <View style={styles.reviewBadge}>
                           <Star size={12} color={c.text} fill={c.text} />
                         </View>
@@ -214,6 +226,15 @@ export function NotificationInboxView({
                           ? `${item.session_title} with ${item.host_name}.`
                           : item.session_title}
                       </AppText>
+                      {announcement && (
+                        <AppText
+                          variant="bodySm"
+                          tone="subtle"
+                          numberOfLines={2}
+                        >
+                          {item.announcement_preview}
+                        </AppText>
+                      )}
                       <AppText variant="caption" tone="subtle">
                         {ago(item.created_at)}
                         {reminder && item.can_review && !reviewed

@@ -49,6 +49,11 @@ export function registerCurrentPushDevice(
           importance: notifications.AndroidImportance.HIGH,
           sound: "default"
         });
+        await notifications.setNotificationChannelAsync("announcements", {
+          name: "Session announcements",
+          importance: notifications.AndroidImportance.HIGH,
+          sound: "default"
+        });
         await notifications.setNotificationChannelAsync("reviews", {
           name: "Reviews",
           importance: notifications.AndroidImportance.HIGH,

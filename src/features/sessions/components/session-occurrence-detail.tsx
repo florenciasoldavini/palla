@@ -51,8 +51,10 @@ export function SessionOccurrenceDetail({
   waitlist,
   registeredCount,
   occupancyLoading = false,
-  occupancyError = false
+  occupancyError = false,
+  announcements
 }: {
+  announcements?: React.ReactNode;
   session: PadelSession;
   registeredCount?: number;
   occupancyLoading?: boolean;
@@ -280,21 +282,26 @@ export function SessionOccurrenceDetail({
               "Arrange court bookings and payments directly with the club."}
           </AppText>
         </AppCard>
+        {announcements}
         <View style={{ gap: sp[3] }}>
-          <AppButton
-            icon={Megaphone}
-            iconAfter={false}
-            onPress={() => setSoon("Player broadcasts")}
-          >
-            Message players
-          </AppButton>
-          <AppText
-            variant="caption"
-            tone="subtle"
-            style={{ textAlign: "center" }}
-          >
-            Coming soon · No messages sent
-          </AppText>
+          {!announcements && (
+            <>
+              <AppButton
+                icon={Megaphone}
+                iconAfter={false}
+                onPress={() => setSoon("Player broadcasts")}
+              >
+                Message players
+              </AppButton>
+              <AppText
+                variant="caption"
+                tone="subtle"
+                style={{ textAlign: "center" }}
+              >
+                Coming soon · No messages sent
+              </AppText>
+            </>
+          )}
           {editable && (
             <>
               <AppButton

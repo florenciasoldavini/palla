@@ -91,3 +91,34 @@ describe("review push transport", () => {
     );
   });
 });
+
+it("sends announcements through their own Android channel and typed target", async () => {
+  const rpc = vi.fn(async (name: string) =>
+    name === "claim_review_notification_push_jobs"
+      ? [
+          {
+            ...job,
+            kind: "session_announcements",
+            title: "Announcement from Alex",
+            body: "Court 3 today"
+          }
+        ]
+      : []
+  );
+  const fetcher = vi.fn(
+    async (_url: string | URL | Request, _options?: RequestInit) =>
+      Response.json({ data: [{ status: "ok", id: "ticket" }] })
+  );
+  await runReviewPushWorker({ rpc, fetcher: fetcher as typeof fetch });
+  const payload = JSON.parse(fetcher.mock.calls[0][1]!.body as string)[0];
+  expect(payload).toMatchObject({
+    channelId: "announcements",
+    title: "Announcement from Alex",
+    body: "Court 3 today",
+    data: {
+      type: "announcement_notification",
+      notification_id: job.notification_id,
+      recipient_id: job.recipient_id
+    }
+  });
+});
