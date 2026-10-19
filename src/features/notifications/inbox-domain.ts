@@ -4,13 +4,19 @@ export type NotificationMode = "player" | "organizer";
 export const notificationKinds = [
   "chat_messages",
   "review_reminders",
-  "new_reviews"
+  "new_reviews",
+  "session_announcements"
 ] as const;
 export type NotificationKind = (typeof notificationKinds)[number];
 export const notificationCopy: Record<
   NotificationKind,
   { title: string; description: string; group: string }
 > = {
+  session_announcements: {
+    title: "Session announcements",
+    description: "Updates from hosts about sessions you’ve joined.",
+    group: "Sessions"
+  },
   chat_messages: {
     title: "Chat messages",
     description: "Push notifications for new messages across all chats.",
@@ -36,9 +42,19 @@ export const settingSchema = z.object({
 export type NotificationSetting = z.infer<typeof settingSchema>;
 export const inboxItemSchema = z.object({
   id: z.uuid(),
-  notification_type: z.enum(["review_reminders", "new_reviews"]),
+  notification_type: z.enum([
+    "review_reminders",
+    "new_reviews",
+    "session_announcements"
+  ]),
   registration_id: z.uuid(),
   review_id: z.uuid().nullable(),
+  announcement_id: z.uuid().nullable().optional(),
+  announcement_preview: z.string().nullable().optional(),
+  announcement_removed_at: z.iso
+    .datetime({ offset: true })
+    .nullable()
+    .optional(),
   created_at: z.iso.datetime({ offset: true }),
   read_at: z.iso.datetime({ offset: true }).nullable(),
   session_id: z.uuid(),
@@ -51,6 +67,7 @@ export const inboxItemSchema = z.object({
 });
 export type InboxItem = z.infer<typeof inboxItemSchema>;
 export const notificationTargetSchema = z.object({
+  announcement_id: z.uuid().nullable().optional(),
   id: z.uuid(),
   registration_id: z.uuid(),
   mode: z.enum(["player", "organizer"])
@@ -58,10 +75,11 @@ export const notificationTargetSchema = z.object({
 export const pushSubscriptionSchema = z.object({
   chat_messages: z.boolean(),
   review_reminders: z.boolean(),
-  new_reviews: z.boolean()
+  new_reviews: z.boolean(),
+  session_announcements: z.boolean()
 });
 export const reviewPushSchema = z.object({
-  type: z.literal("review_notification"),
+  type: z.enum(["review_notification", "announcement_notification"]),
   notification_id: z.uuid(),
   recipient_id: z.uuid(),
   mode: z.enum(["player", "organizer"])

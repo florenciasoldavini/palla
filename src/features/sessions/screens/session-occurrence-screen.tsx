@@ -1,3 +1,4 @@
+import { SessionAnnouncements } from "@/features/announcements/components/session-announcements";
 import { useOrganizerRoster } from "@/features/registrations/hooks/use-organizer-attendance";
 import { OrganizerWaitlist } from "@/features/registrations/components/organizer-waitlist";
 import { OrganizerAttendance } from "@/features/registrations/components/organizer-attendance";
@@ -93,6 +94,14 @@ export default function SessionOccurrenceScreen() {
   return (
     <>
       <SessionOccurrenceDetail
+        announcements={
+          <SessionAnnouncements
+            sessionId={session.id}
+            recipients={roster.data}
+            recipientsLoading={roster.isPending}
+          />
+        }
+        timeZone={series?.timezone}
         registeredCount={roster.data?.length}
         occupancyLoading={roster.isPending}
         occupancyError={roster.isError}

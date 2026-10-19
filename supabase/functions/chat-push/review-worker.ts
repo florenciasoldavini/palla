@@ -6,6 +6,7 @@ type Job = {
   notification_id: string;
   recipient_id: string;
   mode: "player" | "organizer";
+  kind?: "review_reminders" | "new_reviews" | "session_announcements";
   title: string;
   body: string;
 };
@@ -76,11 +77,15 @@ export async function runReviewPushWorker({
             "Open Palla to view your session review."
           ),
           sound: "default",
-          channelId: "reviews",
+          channelId:
+            j.kind === "session_announcements" ? "announcements" : "reviews",
           priority: "high",
           ttl: 3600,
           data: {
-            type: "review_notification",
+            type:
+              j.kind === "session_announcements"
+                ? "announcement_notification"
+                : "review_notification",
             notification_id: j.notification_id,
             mode: j.mode,
             recipient_id: j.recipient_id

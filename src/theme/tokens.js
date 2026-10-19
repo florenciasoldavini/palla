@@ -92,6 +92,13 @@ const primitiveColors = {
 };
 
 const semanticColors = {
+  avatar: {
+    neutral: {
+      bg: primitiveColors.neutral[150],
+      text: primitiveColors.ink[900]
+    },
+    info: { bg: primitiveColors.info[100], text: primitiveColors.info[800] }
+  },
   feedback: {
     bg: primitiveColors.ink[900],
     actionBg: primitiveColors.ink[800],

@@ -108,3 +108,5 @@ The implemented private chat model has one organizer/player conversation per pai
 ## Session reviews and notification catalog
 
 Session reviews are implemented as one record per confirmed registration/occurrence, with a single rating, optional comment, authoritative session/organizer/reviewer associations, status and timestamps. Reviews never change attendance. Private report/moderation records preserve evidence; private notification items and queued push jobs implement invitations and first-publication host alerts. Notification audience/defaults live in a database catalog; account overrides use `(profile_id, notification_type)`. See [session-reviews.md](session-reviews.md) for the full lifecycle, RPC/RLS boundary, delivery rules and deferred public display scope.
+
+Session announcements belong to one dated session occurrence and its host. Immutable recipient snapshots reference confirmed registrations at publication; subsequent registration changes do not rewrite the audience. Announcement content/removal belongs to `session_announcements`; notification read state stays in the shared private inbox. See [session-announcements.md](session-announcements.md).

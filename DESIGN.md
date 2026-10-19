@@ -435,3 +435,5 @@ The review form keeps the interactive star row centered within a 288-unit maximu
 Completed review invitations use the shared AppBadge essential tone: neon fill, dark olive check and label, full pill corners, aligned below the timestamp in the text column. It is a passive status, not another button. Removed reviews keep neutral explanatory text. Expired unreviewed invitations omit inline status text and open the 14-day explanation sheet.
 
 Expired review invitations use an informational bottom sheet with a pale lilac clock tile, Review period ended heading, short 14-day rule, session/deadline context, circular close control and neon Got it action. It has no rating stars, comment field or publish action. Existing submitted reviews remain readable after their edit window.
+
+Session announcements reuse the shared `AppBottomSheet`: a host composer from session details and a player reader from compact notification cards. White read/unread cards differ only by the neon unread dot. The reader owns the Message host action; there is no full-screen announcement page or preview step. See `docs/session-announcements.md`.

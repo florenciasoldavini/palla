@@ -1,3 +1,4 @@
+import { AnnouncementSheet } from "@/features/announcements/components/announcement-sheet";
 import { useContext, useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,6 +25,7 @@ export default function NotificationsScreen() {
     rawMode === "organizer" && user?.organizer_status === "active"
       ? "organizer"
       : "player";
+  const [announcement, setAnnouncement] = useState<string | null>(null);
   const [unread, setUnread] = useState(false),
     [registration, setRegistration] = useState<string | null>(null),
     [expiredInvitation, setExpiredInvitation] = useState<InboxItem | null>(
@@ -42,7 +44,9 @@ export default function NotificationsScreen() {
           router.setParams({ mode: target.mode });
           return;
         }
-        setRegistration(target.registration_id);
+        setExpiredInvitation(null);
+        setAnnouncement(target.announcement_id ?? null);
+        setRegistration(target.announcement_id ? null : target.registration_id);
         void markNotificationsRead(mode, target.id)
           .then(() => {
             void refetch();
@@ -95,7 +99,11 @@ export default function NotificationsScreen() {
               )
         }
         onOpen={(item) => {
-          if (isExpiredReviewInvitation(item)) setExpiredInvitation(item);
+          setAnnouncement(null);
+          setRegistration(null);
+          setExpiredInvitation(null);
+          if (item.announcement_id) setAnnouncement(item.announcement_id);
+          else if (isExpiredReviewInvitation(item)) setExpiredInvitation(item);
           else setRegistration(item.registration_id);
           if (!item.read_at) read.mutate(item.id, { onError: failedRead });
         }}
@@ -117,6 +125,16 @@ export default function NotificationsScreen() {
           void query.fetchNextPage();
         }}
       />
+      {announcement && (
+        <AnnouncementSheet
+          key={announcement}
+          id={announcement}
+          onClose={() => {
+            setAnnouncement(null);
+            if (notificationId) router.setParams({ notificationId: "" });
+          }}
+        />
+      )}
       {expiredInvitation && (
         <ReviewExpiredSheet
           sessionTitle={expiredInvitation.session_title}

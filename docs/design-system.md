@@ -82,3 +82,11 @@ Use `FilterChipGroup` with `FilterChip` from the shared atoms for list filters. 
 TextAreaField supports an explicit minHeight for compact form contexts (the review sheet uses 96 units). Its standard height, typography, padding, validation, and surface rules remain the default elsewhere.
 
 AppBadge supports an essential tone for the approved Reviewed completion state: neon fill with dark olive text and an optional matching icon. It remains a passive status pill, distinct from selectable filter chips and action buttons.
+
+### Bottom sheets
+
+`AppBottomSheet` in `src/components/atoms/bottom-sheet.tsx` is the shared sheet shell for reviews and session announcements. It owns the backdrop, safe areas, keyboard avoidance, scrollable content, circular close action, modal toast host and reduced-motion-aware entrance. Callers own dirty-close confirmations and busy state. An optional footer keeps the primary composer action above the keyboard while the form scrolls. The sheet can shrink to the keyboard-reduced viewport, preserving its header safe area. Announcement writing and reading use this shell; list notification cards remain compact and white regardless of read state.
+
+### Avatars and people groups
+
+Use shared `AppAvatar` and `AvatarGroup` for passive people summaries. Photos fall back to initials, including when loading fails. Initials use semantic neutral or info background/text pairs. Groups overlap circular avatars with a surface-colored separator, show at most five circles by default (including a `+N` overflow), and expose one accessible people count. Pass the surrounding surface color when it differs from white. Loading uses circular skeletons; empty groups render nothing. Announcement recipients use 36-point avatars beside the confirmed-player count, populated from the existing authorized roster.
