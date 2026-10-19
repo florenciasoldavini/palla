@@ -9,6 +9,7 @@ import type { PadelSession } from "@/features/sessions/domain";
 import { useRouter } from "expo-router";
 const sample: PadelSession = {
   id: "11111111-1111-4111-8111-111111111111",
+  completed_at: null,
   organizer_id: "11111111-1111-4111-8111-111111111112",
   series_id: "11111111-1111-4111-8111-111111111113",
   venue_id: "11111111-1111-4111-8111-111111111114",

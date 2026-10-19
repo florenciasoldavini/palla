@@ -23,7 +23,11 @@ import { AppToastCard } from "./toast-card";
 import type { AppToastInput } from "./toast-types";
 export type { AppToastTone, AppToastInput } from "./toast-types";
 
-type ToastController = { show: (input: AppToastInput) => void };
+type ToastController = {
+  show: (input: AppToastInput) => void;
+  viewport: ReactNode;
+  registerHost: () => () => void;
+};
 const AppToastContext = createContext<ToastController | null>(null);
 
 /** One transient result at a time, hosted above native navigation screens. */
@@ -31,6 +35,11 @@ export function AppToastProvider({ children }: { children: ReactNode }) {
   const [active, setActive] = useState<(AppToastInput & { id: number }) | null>(
     null
   );
+  const [modalHosts, setModalHosts] = useState(0);
+  const registerHost = useCallback(() => {
+    setModalHosts((count) => count + 1);
+    return () => setModalHosts((count) => Math.max(0, count - 1));
+  }, []);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sequence = useRef(0);
   const { width } = useWindowDimensions();
@@ -124,9 +133,9 @@ export function AppToastProvider({ children }: { children: ReactNode }) {
     </View>
   );
   return (
-    <AppToastContext.Provider value={{ show }}>
+    <AppToastContext.Provider value={{ show, viewport: content, registerHost }}>
       {children}
-      {Platform.OS === "ios" ? (
+      {modalHosts > 0 ? null : Platform.OS === "ios" ? (
         <FullWindowOverlay>{content}</FullWindowOverlay>
       ) : (
         content
@@ -140,4 +149,12 @@ export function useAppToast() {
   if (!context)
     throw new Error("useAppToast must be used within AppToastProvider");
   return context;
+}
+
+/** Mount inside a native Modal so Android feedback appears above its separate window. */
+export function AppToastHost() {
+  const context = useContext(AppToastContext);
+  const register = context?.registerHost;
+  useEffect(() => register?.(), [register]);
+  return context?.viewport ?? null;
 }

@@ -81,6 +81,7 @@ export const sessionSchema = z
     series_id: entityIdSchema.nullable(),
     occurrence_date: z.iso.date().nullable(),
     status: z.enum(["draft", "published", "cancelled", "completed"]),
+    completed_at: timestampSchema.nullable().default(null),
     cancelled_at: timestampSchema.nullable(),
     cancellation_reason: z.string().trim().max(1000).nullable(),
     ...recordTimestamps

@@ -28,7 +28,7 @@ do $$begin
 end$$;
 select pg_temp.reject('select public.set_chat_notification_preference(null)');
 select pg_temp.reject('select * from private.notification_preferences');
-select pg_temp.reject('update private.notification_preferences set chat_messages=true');
+select pg_temp.reject('update private.notification_preferences set push_enabled=true');
 -- A token refresh cannot reset the account preference.
 select public.register_chat_push_device('a3000000-0000-4000-8000-000000000002','ExpoPushToken[qa_only_second_device]','ios','a1000000-0000-4000-8000-000000000002');
 do $$begin assert not public.get_chat_notification_preference();end$$;

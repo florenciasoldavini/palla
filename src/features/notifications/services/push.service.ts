@@ -43,12 +43,18 @@ export function registerCurrentPushDevice(
     .then(async () => {
       const notifications = await import("expo-notifications");
       if (!current() || version !== generation) return;
-      if (Platform.OS === "android")
+      if (Platform.OS === "android") {
         await notifications.setNotificationChannelAsync("chat", {
           name: "Messages",
           importance: notifications.AndroidImportance.HIGH,
           sound: "default"
         });
+        await notifications.setNotificationChannelAsync("reviews", {
+          name: "Reviews",
+          importance: notifications.AndroidImportance.HIGH,
+          sound: "default"
+        });
+      }
       let permission = await notifications.getPermissionsAsync();
       if (!permission.granted && permission.canAskAgain)
         permission = await notifications.requestPermissionsAsync();

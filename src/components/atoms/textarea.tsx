@@ -29,6 +29,7 @@ export function TextAreaField({
   errorText,
   helperText,
   label,
+  minHeight = textAreaHeight,
   onBlur,
   onFocus,
   required = false,
@@ -38,10 +39,15 @@ export function TextAreaField({
   errorText?: string | null;
   helperText?: string | null;
   label?: ReactNode;
+  minHeight?: number;
   required?: boolean;
 }) {
   const fieldBackground = useFieldBackground();
   const { fontScale } = useWindowDimensions();
+  const resolvedMinHeight = Math.max(
+    minHeight,
+    atomTypeScale.bodyMd.lineHeight * fontScale * 3 + atomSpacing[3] * 2
+  );
   const fieldId = useId();
   const [isFocused, setIsFocused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -89,7 +95,7 @@ export function TextAreaField({
           borderWidth: 1,
           borderRadius: atomControlRadius,
 
-          minHeight: textAreaHeight,
+          minHeight: resolvedMinHeight,
           ...webRootCursorStyle
         }}
       >
@@ -124,7 +130,7 @@ export function TextAreaField({
             fontSize: Math.max(16, atomTypeScale.bodyMd.fontSize) * fontScale,
 
             lineHeight: atomTypeScale.bodyMd.lineHeight * fontScale,
-            minHeight: textAreaHeight,
+            minHeight: resolvedMinHeight,
             paddingHorizontal: atomSpacing[4],
             paddingVertical: atomSpacing[3],
             textAlignVertical: "top",

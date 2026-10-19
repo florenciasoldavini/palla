@@ -6,9 +6,11 @@ import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function NavigationHeader({
-  onNotifications
+  onNotifications,
+  unread = 0
 }: {
   onNotifications: () => void;
+  unread?: number;
 }) {
   const insets = useSafeAreaInsets();
   const [pressed, setPressed] = useState(false);
@@ -32,7 +34,9 @@ export function NavigationHeader({
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Notifications"
+            accessibilityLabel={
+              unread ? `Notifications, ${unread} unread` : "Notifications"
+            }
             onPress={onNotifications}
             onPressIn={() => setPressed(true)}
             onPressOut={() => setPressed(false)}
@@ -48,6 +52,19 @@ export function NavigationHeader({
             }}
           >
             <Bell size={24} color={atomPalette.text} />
+            {unread > 0 && (
+              <View
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: atomPalette.brand
+                }}
+              />
+            )}
           </Pressable>
         </View>
       </View>

@@ -9,6 +9,8 @@ import {
   AppHeading,
   AppText,
   EmptyState,
+  FilterChip,
+  FilterChipGroup,
   ErrorState,
   Screen,
   SkeletonBlock,
@@ -24,7 +26,6 @@ import {
   FlatList,
   Pressable,
   StyleSheet,
-  ScrollView,
   View,
   type ViewToken
 } from "react-native";
@@ -123,7 +124,6 @@ export function ChatInbox({
     filters?.category ??
     (filters ? (filters.unread ? "unread" : "all") : localFilter);
   const unread = filter === "unread";
-  const [pressedFilter, setPressedFilter] = useState<InboxFilter | null>(null);
   const term = search.trim().toLocaleLowerCase();
   const matching = filters
     ? conversations
@@ -194,12 +194,7 @@ export function ChatInbox({
         maxLength={200}
         returnKeyType="search"
       />
-      <ScrollView
-        horizontal
-        keyboardShouldPersistTaps="handled"
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filters}
-      >
+      <FilterChipGroup>
         {(["all", "unread", "upcoming", "past"] as const).map((value) => {
           const selected = filter === value;
           const label = {
@@ -217,11 +212,12 @@ export function ChatInbox({
                   matching.filter((row) => matchesInboxFilter(row, value))
                     .length);
           return (
-            <Pressable
-              key={String(value)}
-              accessibilityRole="button"
+            <FilterChip
+              key={value}
+              label={label}
+              selected={selected}
+              count={showCounts ? count : undefined}
               accessibilityLabel={`${label}${showCounts ? `, ${count} ${count === 1 ? "conversation" : "conversations"}` : ""}`}
-              accessibilityState={{ selected }}
               onPress={() =>
                 filters
                   ? filters.onCategory
@@ -229,43 +225,10 @@ export function ChatInbox({
                     : filters.onUnread(value === "unread")
                   : setFilter(value)
               }
-              onPressIn={() => setPressedFilter(value)}
-              onPressOut={() => setPressedFilter(null)}
-              style={[
-                styles.filter,
-                selected && styles.filterSelected,
-                pressedFilter === value && {
-                  backgroundColor: selected
-                    ? c.surfaceInversePressed
-                    : c.surfaceStrong
-                }
-              ]}
-            >
-              <AppText
-                variant="label"
-                style={{ color: selected ? c.textInverse : c.textSubtle }}
-              >
-                {label}
-              </AppText>
-              {showCounts && (
-                <View
-                  style={[
-                    styles.filterCount,
-                    selected && styles.filterCountSelected
-                  ]}
-                >
-                  <AppText
-                    variant="caption"
-                    style={{ color: selected ? c.text : c.textSubtle }}
-                  >
-                    {count > 99 ? "99+" : count}
-                  </AppText>
-                </View>
-              )}
-            </Pressable>
+            />
           );
         })}
-      </ScrollView>
+      </FilterChipGroup>
     </View>
   );
   return (
@@ -583,31 +546,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: c.brand
   },
-  filters: { flexDirection: "row", gap: sp[2], paddingVertical: sp[1] },
-  filter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: sp[2],
-    minHeight: 48,
-    paddingHorizontal: sp[4],
-    paddingVertical: sp[2],
-    borderRadius: 999,
-    backgroundColor: c.surfaceRaised,
-    borderWidth: 1,
-    borderColor: c.borderSubtle
-  },
-  filterSelected: { backgroundColor: c.text, borderColor: c.text },
-  filterCount: {
-    minWidth: 24,
-    minHeight: 24,
-    paddingHorizontal: sp[1],
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: c.surfaceStrong
-  },
-  filterCountSelected: { backgroundColor: c.brand },
   row: {
     flexDirection: "row",
     alignItems: "center",

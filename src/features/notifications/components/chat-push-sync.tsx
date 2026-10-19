@@ -5,11 +5,12 @@ import { onlineManager, useQueryClient } from "@tanstack/react-query";
 import { AuthContext } from "@/features/auth/auth-provider";
 import { loadConversations } from "@/features/chat/services/chat.service";
 import { parseChatPush, shouldPresentChatPush } from "../push-domain";
+import { usePushSubscriptions } from "../hooks/use-notifications";
 import {
-  chatNotificationPreferenceKey,
-  useChatNotificationPreference
-} from "../hooks/use-chat-notification-preference";
-import { loadChatNotificationPreference } from "../services/preferences.service";
+  loadPushSubscriptions,
+  loadNotificationTarget
+} from "../services/inbox.service";
+import { parseReviewPush, type PushSubscriptions } from "../inbox-domain";
 import {
   cancelPushRegistration,
   pushSupported,
@@ -22,10 +23,11 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
   const router = useRouter();
   const path = usePathname();
   const client = useQueryClient();
-  const preference = useChatNotificationPreference(actor);
-  const chatEnabled = preference.data === true;
-  const state = useRef({ actor, path, chatEnabled });
-  state.current = { actor, path, chatEnabled };
+  const preference = usePushSubscriptions(actor);
+  const preferences = preference.data;
+  const chatEnabled = preferences?.chat_messages === true;
+  const state = useRef({ actor, path, chatEnabled, preferences });
+  state.current = { actor, path, chatEnabled, preferences };
   useEffect(() => {
     if (!pushSupported()) return;
     let alive = true;
@@ -35,18 +37,22 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
       if (valid())
         void client
           .fetchQuery({
-            queryKey: chatNotificationPreferenceKey(actor),
-            queryFn: loadChatNotificationPreference,
+            queryKey: ["push-subscriptions", actor],
+            queryFn: loadPushSubscriptions,
             staleTime: 0
           })
           .then((enabled) => {
-            if (enabled && valid())
+            if (Object.values(enabled).some(Boolean) && valid())
               return registerCurrentPushDevice(
                 actor!,
                 () =>
                   valid() &&
-                  client.getQueryData(chatNotificationPreferenceKey(actor)) ===
-                    true
+                  Object.values(
+                    client.getQueryData<PushSubscriptions>([
+                      "push-subscriptions",
+                      actor
+                    ]) ?? {}
+                  ).some(Boolean)
               );
           })
           .catch(() => undefined);
@@ -61,14 +67,21 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
               AppState.currentState === "active"
                 ? current.path.match(/^\/messages\/([^/]+)$/)?.[1]
                 : undefined;
+            const review = parseReviewPush(notification.request.content.data);
+            const reviewEnabled =
+              review?.mode === "player"
+                ? current.preferences?.review_reminders
+                : current.preferences?.new_reviews;
             const show =
-              alive &&
-              current.chatEnabled &&
-              shouldPresentChatPush(
-                notification.request.content.data,
-                current.actor,
-                open
-              );
+              alive && review && review.recipient_id === current.actor
+                ? reviewEnabled === true
+                : alive &&
+                  current.chatEnabled &&
+                  shouldPresentChatPush(
+                    notification.request.content.data,
+                    current.actor,
+                    open
+                  );
             return {
               shouldShowBanner: show,
               shouldShowList: show,
@@ -90,6 +103,22 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
             const data = parseChatPush(
               response.notification.request.content.data
             );
+            const review = parseReviewPush(
+              response.notification.request.content.data
+            );
+            if (review && review.recipient_id === actor) {
+              const target = await loadNotificationTarget(
+                review.notification_id
+              );
+              if (!valid()) return;
+              router.push({
+                pathname: "/notifications",
+                params: { mode: target.mode, notificationId: target.id }
+              });
+              handled.add(responseId);
+              await notifications.clearLastNotificationResponseAsync();
+              return;
+            }
             if (!data || data.recipient_id !== actor) {
               await notifications.clearLastNotificationResponseAsync();
               return;
@@ -125,10 +154,14 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
         );
         subscriptions.push(
           notifications.addNotificationReceivedListener(() => {
-            if (valid())
-              void client.invalidateQueries({
-                queryKey: ["chat-inbox", actor]
-              });
+            if (valid()) {
+              for (const key of [
+                "chat-inbox",
+                "notification-inbox",
+                "notification-count"
+              ])
+                void client.invalidateQueries({ queryKey: [key, actor] });
+            }
           })
         );
         subscriptions.push(notifications.addPushTokenListener(refresh));
@@ -155,6 +188,6 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
       cancelPushRegistration();
       subscriptions.forEach((s) => s.remove());
     };
-  }, [actor, chatEnabled, client, router]);
+  }, [actor, chatEnabled, preferences, client, router]);
   return null;
 }

@@ -26,7 +26,7 @@ The Palla Stitch project is the visual reference for colors, typography, card co
 
 ## Evidence on hand
 
-Product and schema decisions are recorded in docs/mvp.md and docs/domain-model.md. Organizer session management reads live Supabase inventory and supports drafts, bounded weekly creation, editing, and cancellation. Player discovery and legacy dashboard content still use illustrative data; registration and notifications are not implemented.
+Product and schema decisions are recorded in docs/mvp.md and docs/domain-model.md. Organizer session management reads live Supabase inventory and supports drafts, bounded weekly creation, editing, and cancellation. Player discovery and legacy dashboard content still use illustrative data; player registration and My games remain deferred. Organizer roster/attendance and waitlist management, chat push preferences, and the review notification inbox are implemented. Session review behavior and remaining public display scope are recorded in docs/session-reviews.md.
 
 Session settings now persist optional registration opening/closing, optional player cancellation cutoff, public/private visibility, explicit allowed categories, and waitlist configuration. The implemented creation form has five steps: Details, Schedule, Players, Waitlist, and Policies and review. It exposes canonical settings, explicit category multi-select, gender policy, and optional minute-based deadlines. Existing price values remain in the save payload without fee controls; no new payment settings are included. Visibility and waitlist configuration do not yet implement discovery access or player registration/queue operations.
 
