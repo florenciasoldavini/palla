@@ -2,7 +2,6 @@ import { AuthContext } from "@/features/auth/auth-provider";
 import {
   loadOrganizerSessions,
   saveOrganizerSession,
-  cancelOrganizerSession,
   deleteOrganizerDraft
 } from "@/features/sessions/services/organizer-sessions.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -29,7 +28,6 @@ export function useSessionMutations() {
   };
   return {
     save: useMutation({ mutationFn: saveOrganizerSession, onSuccess }),
-    cancel: useMutation({ mutationFn: cancelOrganizerSession, onSuccess }),
     remove: useMutation({
       mutationFn: ({ id, version }: { id: string; version: string }) =>
         deleteOrganizerDraft(id, version),

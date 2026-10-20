@@ -83,6 +83,16 @@ export const sessionSchema = z
     status: z.enum(["draft", "published", "cancelled", "completed"]),
     completed_at: timestampSchema.nullable().default(null),
     cancelled_at: timestampSchema.nullable(),
+    cancellation_reason_code: z
+      .enum([
+        "weather",
+        "venue_issue",
+        "host_emergency",
+        "insufficient_players",
+        "other"
+      ])
+      .nullable()
+      .default(null),
     cancellation_reason: z.string().trim().max(1000).nullable(),
     ...recordTimestamps
   })

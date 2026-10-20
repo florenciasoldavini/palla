@@ -1,10 +1,5 @@
 import type { ButtonColor } from "@/components/atoms/button";
-import {
-  AppButton,
-  AppHeading,
-  AppText,
-  TextAreaField
-} from "@/components/atoms";
+import { AppButton, AppHeading, AppText } from "@/components/atoms";
 import { atomPalette, atomSpacing } from "@/components/atoms/theme";
 import {
   Modal,
@@ -91,21 +86,5 @@ export function SessionConfirmation({
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
-  );
-}
-export function CancellationReason({
-  value,
-  onChange
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <TextAreaField
-      label="Reason"
-      value={value}
-      onChangeText={onChange}
-      maxLength={1000}
-    />
   );
 }

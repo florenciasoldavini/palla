@@ -1,3 +1,4 @@
+import { cancellationReasons } from "@/features/cancellations/domain";
 import {
   AppButton,
   AppCard,
@@ -257,9 +258,15 @@ export function SessionOccurrenceDetail({
           <AppHeading variant="section">Session information</AppHeading>
           {venue?.address && <AppText>{venue.address}</AppText>}
           {s.description && <AppText>{s.description}</AppText>}
+          {s.cancellation_reason_code && (
+            <AppText variant="bodySm" tone="subtle">
+              Cancellation reason:{" "}
+              {cancellationReasons[s.cancellation_reason_code]}
+            </AppText>
+          )}
           {s.cancellation_reason && (
             <AppText tone="danger">
-              Cancellation reason: {s.cancellation_reason}
+              Message to players: {s.cancellation_reason}
             </AppText>
           )}
           <AppText variant="bodySm" tone="subtle">
@@ -314,8 +321,8 @@ export function SessionOccurrenceDetail({
                 Cancel session
               </AppButton>
               <AppText variant="caption" tone="subtle">
-                Choose this date or future sessions before confirming. Club
-                payments are handled outside Palla.
+                Only this occurrence will be cancelled. Club payments are
+                handled outside Palla.
               </AppText>
             </>
           )}

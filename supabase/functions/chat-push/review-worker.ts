@@ -6,7 +6,11 @@ type Job = {
   notification_id: string;
   recipient_id: string;
   mode: "player" | "organizer";
-  kind?: "review_reminders" | "new_reviews" | "session_announcements";
+  kind?:
+    | "review_reminders"
+    | "new_reviews"
+    | "session_announcements"
+    | "session_cancellations";
   title: string;
   body: string;
 };
@@ -78,14 +82,20 @@ export async function runReviewPushWorker({
           ),
           sound: "default",
           channelId:
-            j.kind === "session_announcements" ? "announcements" : "reviews",
+            j.kind === "session_cancellations"
+              ? "cancellations"
+              : j.kind === "session_announcements"
+                ? "announcements"
+                : "reviews",
           priority: "high",
           ttl: 3600,
           data: {
             type:
-              j.kind === "session_announcements"
-                ? "announcement_notification"
-                : "review_notification",
+              j.kind === "session_cancellations"
+                ? "cancellation_notification"
+                : j.kind === "session_announcements"
+                  ? "announcement_notification"
+                  : "review_notification",
             notification_id: j.notification_id,
             mode: j.mode,
             recipient_id: j.recipient_id

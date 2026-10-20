@@ -1,10 +1,6 @@
 import { AppButton, AppHeading, AppText, Screen } from "@/components/atoms";
 import { SessionForm } from "@/features/sessions/components/session-form";
 import {
-  SessionConfirmation,
-  CancellationReason
-} from "@/features/sessions/components/session-confirmation";
-import {
   initialSessionForm,
   type SessionFormValues
 } from "@/features/sessions/validation/session-form";
@@ -16,8 +12,6 @@ export default function SessionsPreview() {
   const [formStep, setFormStep] = useState(0);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [result, setResult] = useState<string | null>(null);
-  const [confirmation, setConfirmation] = useState<"cancel" | null>(null);
-  const [reason, setReason] = useState("");
   const [generation, setGeneration] = useState(0);
   const example: SessionFormValues = {
     ...initialSessionForm(),
@@ -79,33 +73,8 @@ export default function SessionsPreview() {
                 )
               }
             />
-            {formStep === 5 && mode === "edit" && (
-              <AppButton
-                color="danger"
-                variant="ghost"
-                onPress={() => setConfirmation("cancel")}
-              >
-                Cancel session
-              </AppButton>
-            )}
           </>
         )}
-        <SessionConfirmation
-          visible={confirmation !== null}
-          title="Cancel this session?"
-          description="The session will stay in your history."
-          confirmLabel="Cancel session"
-          keepLabel="Keep session"
-          onClose={() => setConfirmation(null)}
-          onConfirm={() => {
-            setResult("Session cancelled");
-            setConfirmation(null);
-          }}
-        >
-          {confirmation === "cancel" && (
-            <CancellationReason value={reason} onChange={setReason} />
-          )}
-        </SessionConfirmation>
       </View>
     </Screen>
   );

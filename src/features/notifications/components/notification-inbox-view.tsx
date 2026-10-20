@@ -1,3 +1,4 @@
+import { cancellationReasons } from "@/features/cancellations/domain";
 import {
   ActivityIndicator,
   FlatList,
@@ -8,6 +9,7 @@ import {
 import {
   ArrowLeft,
   Bell,
+  CalendarX,
   Check,
   ChevronRight,
   Megaphone,
@@ -136,7 +138,7 @@ export function NotificationInboxView({
                   unread
                     ? "You have no unread notifications."
                     : mode === "player"
-                      ? "Session announcements and review reminders will appear here."
+                      ? "Session updates and review reminders will appear here."
                       : "New reviews of your sessions will appear here."
                 }
               />
@@ -153,6 +155,8 @@ export function NotificationInboxView({
               const showGroup =
                 index === 0 ||
                 today(items[index - 1].created_at) !== today(item.created_at);
+              const cancellation =
+                item.notification_type === "session_cancellations";
               const announcement =
                 item.notification_type === "session_announcements";
               const reminder = item.notification_type === "review_reminders";
@@ -161,11 +165,13 @@ export function NotificationInboxView({
                 reminder &&
                 (item.review_status === "published" ||
                   item.review_status === "hidden");
-              const title = announcement
-                ? `Announcement from ${item.host_name || "your host"}`
-                : reminder
-                  ? "How was your session?"
-                  : `${item.reviewer_name || "A player"} left a review`;
+              const title = cancellation
+                ? "Session cancelled"
+                : announcement
+                  ? `Announcement from ${item.host_name || "your host"}`
+                  : reminder
+                    ? "How was your session?"
+                    : `${item.reviewer_name || "A player"} left a review`;
               return (
                 <View style={{ gap: 12 }}>
                   {showGroup && (
@@ -181,25 +187,30 @@ export function NotificationInboxView({
                     accessibilityRole="button"
                     accessibilityLabel={`${title}. ${item.session_title}.${item.read_at ? " Read." : " Unread."}${reviewed ? " Reviewed." : ""}`}
                     accessibilityHint={
-                      announcement
-                        ? "Read the session announcement."
-                        : expired
-                          ? "Learn about the 14-day review period."
-                          : reminder
-                            ? "Open your session review."
-                            : "Open the received review."
+                      cancellation
+                        ? "Read the cancellation details."
+                        : announcement
+                          ? "Read the session announcement."
+                          : expired
+                            ? "Learn about the 14-day review period."
+                            : reminder
+                              ? "Open your session review."
+                              : "Open the received review."
                     }
                     style={styles.row}
                   >
                     <View
                       style={[
                         styles.icon,
-                        (reminder || announcement) && styles.reviewIcon
+                        (reminder || announcement || cancellation) &&
+                          styles.reviewIcon
                       ]}
                       accessibilityElementsHidden
                       importantForAccessibility="no-hide-descendants"
                     >
-                      {announcement ? (
+                      {cancellation ? (
+                        <CalendarX size={25} color={c.textSubtle} />
+                      ) : announcement ? (
                         <Megaphone size={25} color={c.textSubtle} />
                       ) : reminder ? (
                         <Star size={25} color={c.textSubtle} />
@@ -213,7 +224,7 @@ export function NotificationInboxView({
                             .join("") || "P"}
                         </AppText>
                       )}
-                      {!reminder && !announcement && (
+                      {!reminder && !announcement && !cancellation && (
                         <View style={styles.reviewBadge}>
                           <Star size={12} color={c.text} fill={c.text} />
                         </View>
@@ -226,6 +237,33 @@ export function NotificationInboxView({
                           ? `${item.session_title} with ${item.host_name}.`
                           : item.session_title}
                       </AppText>
+                      {cancellation && item.session_starts_at && (
+                        <AppText variant="bodySm" tone="subtle">
+                          {new Date(item.session_starts_at).toLocaleDateString(
+                            undefined,
+                            {
+                              day: "numeric",
+                              month: "short",
+                              timeZone: item.session_timezone
+                            }
+                          )}{" "}
+                          ·{" "}
+                          {new Date(item.session_starts_at).toLocaleTimeString(
+                            undefined,
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                              timeZone: item.session_timezone
+                            }
+                          )}
+                        </AppText>
+                      )}
+                      {cancellation && item.cancellation_reason_code && (
+                        <AppText variant="bodySm" tone="subtle">
+                          {cancellationReasons[item.cancellation_reason_code]}
+                        </AppText>
+                      )}
                       {announcement && (
                         <AppText
                           variant="bodySm"

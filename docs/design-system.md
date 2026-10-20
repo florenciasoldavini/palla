@@ -90,3 +90,7 @@ AppBadge supports an essential tone for the approved Reviewed completion state: 
 ### Avatars and people groups
 
 Use shared `AppAvatar` and `AvatarGroup` for passive people summaries. Photos fall back to initials, including when loading fails. Initials use semantic neutral or info background/text pairs. Groups overlap circular avatars with a surface-colored separator, show at most five circles by default (including a `+N` overflow), and expose one accessible people count. Pass the surrounding surface color when it differs from white. Loading uses circular skeletons; empty groups render nothing. Announcement recipients use 36-point avatars beside the confirmed-player count, populated from the existing authorized roster.
+
+### Structured cancellation reasons
+
+The dedicated cancellation screen uses white rounded reason rows on the lilac canvas, with a small same-tone icon tile and a trailing radio indicator. Selection uses a pale volt fill and dark olive outline/radio; the selected icon sits on white. All reasons remain visible in one scrollable screen. The optional message uses the shared white-on-tinted field treatment, and the final destructive action uses the existing danger button. Session summaries are shared between announcements and cancellations.
