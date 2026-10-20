@@ -239,9 +239,6 @@ export function PublicSessionView({
               Total for 1 player · {s.currency}
             </AppText>
             <AppHeading variant="title">{price}</AppHeading>
-            <AppText variant="caption" tone="muted">
-              Payment at the club
-            </AppText>
           </View>
           <AppButton
             style={{ flex: stacked ? undefined : 1 }}

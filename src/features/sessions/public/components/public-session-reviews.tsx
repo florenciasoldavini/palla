@@ -54,7 +54,12 @@ export function PublicSessionReviews({
           {data.items.slice(0, 2).map((review) => (
             <PublicReviewCard key={review.id} review={review} />
           ))}
-          <AppButton variant="bordered" icon={ArrowRight} onPress={onAll}>
+          <AppButton
+            color="essential"
+            variant="ghost"
+            icon={ArrowRight}
+            onPress={onAll}
+          >
             See all {data.total} {data.total === 1 ? "review" : "reviews"}
           </AppButton>
         </>
