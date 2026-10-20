@@ -5,6 +5,7 @@ import {
   atomControlHeights,
   atomPalette,
   atomRadii,
+  atomShadows,
   atomSpacing
 } from "@/components/atoms/theme";
 import { Check, ChevronDown, type LucideIcon } from "lucide-react-native";
@@ -22,7 +23,7 @@ import {
   type ViewStyle
 } from "react-native";
 import { FieldTrigger } from "./field-trigger";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 export interface SelectMenuOption<TValue extends string> {
@@ -49,7 +50,8 @@ export function SelectMenu<TValue extends string>({
 }) {
   const fieldBackground = useFieldBackground();
   const triggerRef = useRef<View>(null);
-  const { height, width } = useWindowDimensions();
+  const { height, width, fontScale } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredValue, setHoveredValue] = useState<TValue | null>(null);
   const [isTriggerHovered, setIsTriggerHovered] = useState(false);
@@ -62,179 +64,110 @@ export function SelectMenu<TValue extends string>({
     Math.max(triggerLayout?.width ?? minWidth, minWidth),
     width - atomSpacing[4] * 2
   );
-  const menuHeightEstimate = options.length * 44 + atomSpacing[2] * 2;
-  const fallbackLeft = (width - menuWidth) / 2;
-  const fallbackTop = (height - menuHeightEstimate) / 2;
+  const gap = atomSpacing[2];
+  const margin = atomSpacing[4];
   const menuLeft = clamp(
-    triggerLayout?.x ?? fallbackLeft,
-    atomSpacing[4],
-    width - menuWidth - atomSpacing[4]
+    triggerLayout?.x ?? margin,
+    margin,
+    width - menuWidth - margin
   );
   const preferredTop =
-    (triggerLayout?.y ?? 0) + (triggerLayout?.height ?? 0) + atomSpacing[2];
-  const menuTop =
-    preferredTop + menuHeightEstimate > height - atomSpacing[4] && triggerLayout
-      ? Math.max(atomSpacing[4], triggerLayout.y - menuHeightEstimate)
-      : clamp(
-          triggerLayout ? preferredTop : fallbackTop,
-          atomSpacing[4],
-          height - menuHeightEstimate - atomSpacing[4]
-        );
+    (triggerLayout?.y ?? insets.top) + (triggerLayout?.height ?? 0) + gap;
+  const spaceBelow = height - insets.bottom - margin - preferredTop;
+  const spaceAbove =
+    (triggerLayout?.y ?? insets.top) - insets.top - margin - gap;
+  const estimatedHeight =
+    options.length * Math.max(48, 24 * fontScale + 16) + 8;
+  const opensAbove = estimatedHeight > spaceBelow && spaceAbove > spaceBelow;
+  const menuMaxHeight = Math.max(48, opensAbove ? spaceAbove : spaceBelow);
 
   const openMenu = () => {
     Keyboard.dismiss();
-    if (Platform.OS !== "web") {
-      setIsOpen(true);
-      return;
-    }
     triggerRef.current?.measureInWindow(
       (x, y, measuredWidth, measuredHeight) => {
         setTriggerLayout({
           height: measuredHeight,
           width: measuredWidth,
           x,
-          y
+          // Android measurements exclude the status-bar inset; the modal includes it.
+          y: y + (Platform.OS === "android" ? insets.top : 0)
         });
         setIsOpen(true);
       }
     );
   };
 
-  if (Platform.OS !== "web")
-    return (
-      <>
-        <FieldTrigger
-          label={accessibilityLabel ?? labelPrefix ?? "Choose an option"}
-          value={
-            labelPrefix
-              ? `${labelPrefix}: ${selectedOption?.label ?? ""}`
-              : (selectedOption?.label ?? "")
-          }
-          icon={ChevronDown}
-          expanded={isOpen}
-          onPress={openMenu}
-        />
-        <Modal
-          visible={isOpen}
-          transparent
-          animationType="slide"
-          onRequestClose={() => setIsOpen(false)}
-        >
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "flex-end",
-              backgroundColor: "rgba(0,0,0,0.25)"
-            }}
-          >
-            <Pressable
-              accessibilityLabel="Close select menu"
-              onPress={() => setIsOpen(false)}
-              style={StyleSheet.absoluteFill}
-            />
-            <SafeAreaView
-              edges={["bottom"]}
-              style={{
-                backgroundColor: atomPalette.surface,
-                padding: atomSpacing[6],
-                borderTopLeftRadius: atomRadii.lg,
-                borderTopRightRadius: atomRadii.lg,
-                maxHeight: "80%"
-              }}
-            >
-              <AppText variant="body" style={{ marginBottom: atomSpacing[4] }}>
-                {accessibilityLabel ?? labelPrefix ?? "Choose an option"}
-              </AppText>
-              <ScrollView
-                keyboardShouldPersistTaps="handled"
-                style={{ flexGrow: 0 }}
-              >
-                {options.map((option) => (
-                  <Pressable
-                    key={option.value}
-                    accessibilityRole="button"
-                    accessibilityLabel={option.label}
-                    accessibilityState={{ selected: option.value === value }}
-                    onPress={() => {
-                      onChange(option.value);
-                      setIsOpen(false);
-                    }}
-                    style={[
-                      styles.option,
-                      option.value === value && styles.optionSelected
-                    ]}
-                  >
-                    <AppText variant="body" style={{ flex: 1 }}>
-                      {option.label}
-                    </AppText>
-                    {option.value === value && (
-                      <Check size={20} color={atomPalette.accent} />
-                    )}
-                  </Pressable>
-                ))}
-              </ScrollView>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => setIsOpen(false)}
-                style={styles.option}
-              >
-                <AppText variant="body">Done</AppText>
-              </Pressable>
-            </SafeAreaView>
-          </View>
-        </Modal>
-      </>
-    );
-
   return (
     <>
-      <View collapsable={false} ref={triggerRef}>
-        <Pressable
-          accessibilityLabel={accessibilityLabel}
-          accessibilityRole="button"
-          onHoverIn={() => setIsTriggerHovered(true)}
-          onHoverOut={() => setIsTriggerHovered(false)}
-          onPress={openMenu}
-          style={[
-            styles.triggerRoot,
-            Platform.OS === "web" ? styles.webCursor : null
-          ]}
-        >
-          {({ pressed }) => (
-            <View
-              style={[
-                styles.triggerSurface,
-                { backgroundColor: fieldBackground },
-                isTriggerHovered ? styles.triggerHovered : null,
-                pressed || isOpen ? styles.triggerPressed : null
-              ]}
-            >
-              {Icon ? (
-                <Icon color={atomPalette.text} size={16} strokeWidth={1.9} />
-              ) : null}
-              <AppText
-                numberOfLines={1}
-                style={styles.triggerLabel}
-                variant="bodySm"
+      {/* Keep a native host ref for anchoring; no class styles are needed here. */}
+      <View
+        cssInterop={false}
+        collapsable={false}
+        ref={triggerRef}
+        style={{ alignSelf: "stretch" }}
+      >
+        {Platform.OS !== "web" ? (
+          <FieldTrigger
+            label={accessibilityLabel ?? labelPrefix ?? "Choose an option"}
+            value={
+              labelPrefix
+                ? `${labelPrefix}: ${selectedOption?.label ?? ""}`
+                : (selectedOption?.label ?? "")
+            }
+            icon={ChevronDown}
+            expanded={isOpen}
+            onPress={openMenu}
+          />
+        ) : (
+          <Pressable
+            accessibilityLabel={accessibilityLabel}
+            accessibilityRole="button"
+            onHoverIn={() => setIsTriggerHovered(true)}
+            onHoverOut={() => setIsTriggerHovered(false)}
+            onPress={openMenu}
+            style={[
+              styles.triggerRoot,
+              Platform.OS === "web" ? styles.webCursor : null
+            ]}
+          >
+            {({ pressed }) => (
+              <View
+                style={[
+                  styles.triggerSurface,
+                  { backgroundColor: fieldBackground },
+                  isTriggerHovered ? styles.triggerHovered : null,
+                  pressed || isOpen ? styles.triggerPressed : null
+                ]}
               >
-                {labelPrefix
-                  ? `${labelPrefix}: ${selectedOption?.label ?? ""}`
-                  : selectedOption?.label}
-              </AppText>
-              <ChevronDown
-                color={atomPalette.text}
-                size={16}
-                strokeWidth={1.9}
-              />
-            </View>
-          )}
-        </Pressable>
+                {Icon ? (
+                  <Icon color={atomPalette.text} size={16} strokeWidth={1.9} />
+                ) : null}
+                <AppText
+                  numberOfLines={1}
+                  style={styles.triggerLabel}
+                  variant="bodySm"
+                >
+                  {labelPrefix
+                    ? `${labelPrefix}: ${selectedOption?.label ?? ""}`
+                    : selectedOption?.label}
+                </AppText>
+                <ChevronDown
+                  color={atomPalette.text}
+                  size={16}
+                  strokeWidth={1.9}
+                />
+              </View>
+            )}
+          </Pressable>
+        )}
       </View>
 
       <Modal
         animationType="none"
         onRequestClose={() => setIsOpen(false)}
         transparent
+        statusBarTranslucent
+        navigationBarTranslucent
         visible={isOpen}
       >
         <View style={StyleSheet.absoluteFill}>
@@ -250,51 +183,58 @@ export function SelectMenu<TValue extends string>({
               styles.menu,
               {
                 left: menuLeft,
-                top: menuTop,
+                ...(opensAbove
+                  ? { bottom: height - (triggerLayout?.y ?? 0) + gap }
+                  : { top: preferredTop }),
+                maxHeight: menuMaxHeight,
                 width: menuWidth
               }
             ]}
           >
-            {options.map((option) => {
-              const isSelected = option.value === value;
-              const isHovered = hoveredValue === option.value;
+            <ScrollView keyboardShouldPersistTaps="handled" bounces={false}>
+              {options.map((option) => {
+                const isSelected = option.value === value;
+                const isHovered = hoveredValue === option.value;
 
-              return (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isSelected }}
-                  key={option.value}
-                  onHoverIn={() => setHoveredValue(option.value)}
-                  onHoverOut={() =>
-                    setHoveredValue((current) =>
-                      current === option.value ? null : current
-                    )
-                  }
-                  onPress={() => {
-                    onChange(option.value);
-                    setIsOpen(false);
-                  }}
-                  style={({ pressed }) => [
-                    styles.option,
-                    isSelected ? styles.optionSelected : null,
-                    isHovered && !isSelected ? styles.optionHovered : null,
-                    pressed ? styles.optionPressed : null,
-                    Platform.OS === "web" ? styles.webCursor : null
-                  ]}
-                >
-                  <AppText
-                    numberOfLines={1}
-                    tone={isSelected ? "accent" : "default"}
-                    variant="bodySm"
+                return (
+                  <Pressable
+                    cssInterop={false}
+                    accessibilityRole="button"
+                    accessibilityLabel={option.label}
+                    accessibilityState={{ selected: isSelected }}
+                    key={option.value}
+                    onHoverIn={() => setHoveredValue(option.value)}
+                    onHoverOut={() =>
+                      setHoveredValue((current) =>
+                        current === option.value ? null : current
+                      )
+                    }
+                    onPress={() => {
+                      onChange(option.value);
+                      setIsOpen(false);
+                    }}
+                    style={({ pressed }) => [
+                      styles.option,
+                      isSelected ? styles.optionSelected : null,
+                      isHovered && !isSelected ? styles.optionHovered : null,
+                      pressed ? styles.optionPressed : null,
+                      Platform.OS === "web" ? styles.webCursor : null
+                    ]}
                   >
-                    {option.label}
-                  </AppText>
-                  {isSelected ? (
-                    <Check color={atomPalette.accent} size={16} />
-                  ) : null}
-                </Pressable>
-              );
-            })}
+                    <AppText
+                      style={{ flex: 1 }}
+                      tone={isSelected ? "accent" : "default"}
+                      variant="bodySm"
+                    >
+                      {option.label}
+                    </AppText>
+                    {isSelected ? (
+                      <Check color={atomPalette.accent} size={16} />
+                    ) : null}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
           </Animated.View>
         </View>
       </Modal>
@@ -308,6 +248,7 @@ function clamp(value: number, min: number, max: number) {
 
 const styles = StyleSheet.create({
   menu: {
+    boxShadow: atomShadows.floating,
     backgroundColor: atomPalette.surface,
     borderColor: atomPalette.borderSubtle,
     borderRadius: atomRadii.sm,

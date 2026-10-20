@@ -6,6 +6,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
   ScrollView,
   useWindowDimensions,
   View,
@@ -21,6 +22,8 @@ export function Screen({
   contentStyle,
   floatingAction,
   keyboardSafe = false,
+  onRefresh,
+  refreshing = false,
   scrollable = true,
   scrollResetKey,
   style
@@ -31,6 +34,8 @@ export function Screen({
   contentStyle?: StyleProp<ViewStyle>;
   floatingAction?: ReactNode;
   keyboardSafe?: boolean;
+  onRefresh?: () => void;
+  refreshing?: boolean;
   scrollable?: boolean;
   scrollResetKey?: string | number;
   style?: StyleProp<ViewStyle>;
@@ -176,6 +181,16 @@ export function Screen({
   return renderRoot(
     <ScrollView
       ref={scrollRef}
+      refreshControl={
+        onRefresh ? (
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={atomPalette.accent}
+            colors={[atomPalette.accent]}
+          />
+        ) : undefined
+      }
       automaticallyAdjustKeyboardInsets={shouldAvoidKeyboard}
       bounces={!shouldAvoidKeyboard || keyboardVisible}
       contentContainerStyle={[

@@ -138,6 +138,7 @@ function RootNavigator() {
             >
               <Stack.Screen name="(organizer)" />
               <Stack.Screen name="organizer-session" />
+              <Stack.Screen name="organizer-reviews" />
             </Stack.Protected>
             <Stack.Protected guard={!session}>
               <Stack.Screen name="(auth)" />
