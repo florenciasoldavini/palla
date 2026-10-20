@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { sessionCreationSettingsSchema } from "./session-settings";
 
+import {
+  sessionAttributesSchema,
+  venueAttributesSchema
+} from "@/features/attributes/domain";
+
 export const sessionDraftSchema = z.object({
   settings: z
     .strictObject({
@@ -26,6 +31,10 @@ export const sessionDraftSchema = z.object({
       cancellationHours: z.string()
     })
     .optional(),
+  sessionAttributes: sessionAttributesSchema.optional(),
+  venueAttributes: venueAttributesSchema.optional(),
+  venueAttributesBaseline: venueAttributesSchema.optional(),
+  venueAttributesEdited: z.boolean().optional(),
   title: z.string().max(120),
   venueId: z.string(),
   venueName: z.string().max(160),
@@ -116,6 +125,10 @@ export function initialSessionForm(): SessionFormValues {
     .toISOString()
     .slice(0, 10);
   return {
+    sessionAttributes: [],
+    venueAttributes: [],
+    venueAttributesBaseline: [],
+    venueAttributesEdited: false,
     title: "",
     venueId: "",
     venueName: "",

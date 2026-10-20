@@ -40,6 +40,8 @@ export function sessionErrorMessage(error: unknown) {
     typeof error === "object" && error && "message" in error
       ? String(error.message)
       : "";
+  if (message.includes("Venue amenities changed"))
+    return "Venue amenities changed since you opened this form. Go back and reload before saving.";
   if (message.includes("Session changed"))
     return "This session changed since you opened it. Go back and reload before saving.";
   if (message.includes("Organizer access"))
@@ -59,6 +61,10 @@ export function formFromSession(
     new Date(Date.parse(value) - 10800000).toISOString();
   const form: SessionFormValues = {
     ...original,
+    sessionAttributes: session.attributes,
+    venueAttributes: venue?.attributes ?? [],
+    venueAttributesBaseline: venue?.attributes ?? [],
+    venueAttributesEdited: false,
     repeat: "once",
     lastDate: local(session.starts_at).slice(0, 10),
     title: session.title,

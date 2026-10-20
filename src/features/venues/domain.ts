@@ -1,4 +1,5 @@
 import { entityIdSchema, recordTimestamps } from "@/types/domain-schema";
+import { venueAttributesSchema } from "@/features/attributes/domain";
 import { z } from "zod";
 
 // Google-derived place details are fetched through an adapter, not copied here.
@@ -32,6 +33,7 @@ export const venueSchema = z
     id: entityIdSchema,
     created_by: entityIdSchema,
     is_active: z.boolean(),
+    attributes: venueAttributesSchema.default([]),
     ...recordTimestamps
   })
   .refine(hasLocation, {

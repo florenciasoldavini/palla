@@ -95,6 +95,7 @@ export default function OccurrencePreview() {
         status: mode === "cancelled" ? "cancelled" : sample.status
       }}
       venue={{
+        attributes: [],
         id: sample.venue_id,
         name: "Sunset Athletic Club",
         address: "Av. Córdoba 1234, Buenos Aires",

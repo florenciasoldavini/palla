@@ -1,7 +1,6 @@
 import { PlatformPressable } from "@react-navigation/elements";
 import { Tabs, useRouter, type Href } from "expo-router";
 import {
-  CalendarDays,
   LayoutGrid,
   MessageSquare,
   Search,
@@ -10,6 +9,7 @@ import {
 import { Text, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { atomPalette } from "@/components/atoms/theme";
+import { PadelRacketBallIcon } from "@/components/icons";
 import { getSansFontStyle } from "@/theme/fonts";
 import { useChatInbox } from "@/features/chat/hooks/use-chat";
 import { designTokens } from "@/theme/tokens";
@@ -48,7 +48,7 @@ export function RoleTabs({
     {
       name: routes.secondary,
       label: mode === "player" ? "My games" : "Sessions",
-      icon: CalendarDays
+      icon: PadelRacketBallIcon
     },
     { name: routes.messages, label: "Messages", icon: MessageSquare },
     { name: routes.profile, label: "Profile", icon: UserRound }
@@ -125,7 +125,9 @@ export function RoleTabs({
                   color: atomPalette.text,
                   ...getSansFontStyle("600")
                 },
-                tabBarIcon: ({ color }) => <Icon size={24} color={color} />,
+                tabBarIcon: ({ color }) => (
+                  <Icon size={24} color={color} strokeWidth={2} />
+                ),
                 tabBarLabel: ({ color, focused }) => (
                   <Text
                     maxFontSizeMultiplier={1.3}

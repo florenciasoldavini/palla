@@ -22,7 +22,14 @@ function client() {
 export async function fetchOrganizerInventory(
   userId: string
 ): Promise<OrganizerInventory> {
-  const [series, sessions, venues] = await Promise.all([
+  const [
+    series,
+    sessions,
+    venues,
+    seriesAttributes,
+    sessionAttributes,
+    venueAttributes
+  ] = await Promise.all([
     client()
       .from("session_series")
       .select("*")
@@ -33,14 +40,51 @@ export async function fetchOrganizerInventory(
       .select("*")
       .eq("organizer_id", userId)
       .order("starts_at"),
-    client().from("venues").select("*").eq("is_active", true).order("name")
+    client().from("venues").select("*").eq("is_active", true).order("name"),
+    client()
+      .from("session_series_attributes")
+      .select("series_id, attribute_code"),
+    client().from("session_attributes").select("session_id, attribute_code"),
+    client()
+      .from("organizer_venue_attributes")
+      .select("venue_id, attribute_code")
+      .eq("organizer_id", userId)
   ]);
-  for (const result of [series, sessions, venues])
+  for (const result of [
+    series,
+    sessions,
+    venues,
+    seriesAttributes,
+    sessionAttributes,
+    venueAttributes
+  ])
     if (result.error) throw result.error;
+  const group = (data: unknown, key: string) => {
+    const rows = z.array(z.record(z.string(), z.string())).parse(data);
+    const result = new Map<string, string[]>();
+    for (const row of rows)
+      result.set(row[key], [
+        ...(result.get(row[key]) ?? []),
+        row.attribute_code
+      ]);
+    return result;
+  };
+  const seriesCodes = group(seriesAttributes.data, "series_id");
+  const sessionCodes = group(sessionAttributes.data, "session_id");
+  const venueCodes = group(venueAttributes.data, "venue_id");
+  const withCodes = (data: unknown, codes: Map<string, string[]>) =>
+    z
+      .array(z.object({ id: z.string() }).passthrough())
+      .parse(data)
+      .map((row) => ({ ...row, attributes: codes.get(row.id) ?? [] }));
   return {
-    series: z.array(seriesRecordSchema).parse(series.data),
-    sessions: z.array(sessionSchema).parse(sessions.data),
-    venues: z.array(venueSchema).parse(venues.data)
+    series: z
+      .array(seriesRecordSchema)
+      .parse(withCodes(series.data, seriesCodes)),
+    sessions: z
+      .array(sessionSchema)
+      .parse(withCodes(sessions.data, sessionCodes)),
+    venues: z.array(venueSchema).parse(withCodes(venues.data, venueCodes))
   };
 }
 export interface SaveSessionRequest {

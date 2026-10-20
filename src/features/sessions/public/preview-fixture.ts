@@ -1,5 +1,6 @@
 import type { PublicSession } from "./domain";
 export const publicSessionPreview: PublicSession = {
+  attributes: ["new_balls", "spare_rackets", "snacks"],
   id: "11111111-1111-4111-8111-111111111111",
   title: "Friday Social Padel",
   description:
@@ -22,6 +23,7 @@ export const publicSessionPreview: PublicSession = {
   payment_instructions: null,
   weekly: true,
   venue: {
+    attributes: ["free_parking", "showers", "racket_rental"],
     name: "Club Padel Palermo",
     address: "Palermo, Buenos Aires",
     google_place_id: null,

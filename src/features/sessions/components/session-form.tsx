@@ -56,6 +56,7 @@ import {
 } from "./session-wizard-controls";
 import { SessionScheduleStep } from "./session-schedule-step";
 import { SessionTimingRules } from "./session-timing-rules";
+import { SessionAttributeFields } from "@/features/attributes/components/session-attribute-fields";
 import { SessionReview } from "./session-review";
 const steps = ["Basic Info", "Schedule", "Players", "Waitlist", "Policies"];
 const titles = [
@@ -143,6 +144,12 @@ export function SessionForm({
     form.clearErrors();
     setError(null);
     onDirtyChange?.(true);
+  }
+  function resetVenueAttributes(id: string) {
+    const codes = venues.find((v) => v.id === id)?.attributes ?? [];
+    change("venueAttributes", codes);
+    change("venueAttributesBaseline", codes);
+    change("venueAttributesEdited", false);
   }
   function setting<K extends keyof SessionCreationSettings>(
     key: K,
@@ -285,7 +292,10 @@ export function SessionForm({
           onBlur={field.onBlur}
           onChangeText={(v) => {
             change(name, v);
-            if (name === "venueName") change("venueId", "");
+            if (name === "venueName") {
+              change("venueId", "");
+              resetVenueAttributes("");
+            }
           }}
           maxLength={name === "title" ? 120 : 160}
           errorText={fieldState.error?.message}
@@ -459,6 +469,7 @@ export function SessionForm({
                         onChange={(id) => {
                           const v = venues.find((v) => v.id === id);
                           change("venueId", id);
+                          resetVenueAttributes(id);
                           change("venueName", v?.name ?? "");
                           change("venueAddress", v?.address ?? "");
                         }}
@@ -470,6 +481,7 @@ export function SessionForm({
                       onChange={(v) => {
                         change("venueAddress", v);
                         change("venueId", "");
+                        resetVenueAttributes("");
                       }}
                       errorText={form.formState.errors.venueAddress?.message}
                     />
@@ -477,6 +489,19 @@ export function SessionForm({
                 )}
               </WizardCard>
             </WizardSection>
+            <WizardCard>
+              <SessionAttributeFields
+                sessionCodes={values.sessionAttributes ?? []}
+                venueCodes={values.venueAttributes ?? []}
+                venueName={values.venueName}
+                disabled={busy}
+                onSessionChange={(codes) => change("sessionAttributes", codes)}
+                onVenueChange={(codes) => {
+                  change("venueAttributes", codes);
+                  change("venueAttributesEdited", true);
+                }}
+              />
+            </WizardCard>
           </>
         )}
         {!reviewing && step === 1 && (

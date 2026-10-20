@@ -1,3 +1,7 @@
+import {
+  sessionAttributesSchema,
+  venueAttributesSchema
+} from "@/features/attributes/domain";
 import { z } from "zod";
 import { timestampSchema, timezoneSchema } from "@/types/domain-schema";
 import { allowedCategoriesSchema } from "../validation/session-settings";
@@ -8,6 +12,7 @@ export const publicPlayerSchema = z.object({
   category: z.number().int().min(1).max(8).nullable()
 });
 export const publicSessionSchema = z.object({
+  attributes: sessionAttributesSchema.default([]),
   id: z.uuid(),
   title: z.string(),
   description: z.string().nullable(),
@@ -29,6 +34,7 @@ export const publicSessionSchema = z.object({
   payment_instructions: z.string().nullable(),
   weekly: z.boolean(),
   venue: z.object({
+    attributes: venueAttributesSchema.default([]),
     name: z.string().nullable(),
     address: z.string().nullable(),
     google_place_id: z.string().nullable(),

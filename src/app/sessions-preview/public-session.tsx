@@ -72,7 +72,13 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
     ...(state === "completed" ? { status: "completed" as const } : {}),
     ...(state === "anonymous" ? { players: [] } : {}),
     ...(state === "empty"
-      ? { confirmed_count: 0, players: [], description: null }
+      ? {
+          confirmed_count: 0,
+          players: [],
+          description: null,
+          attributes: [],
+          venue: { ...publicSessionPreview.venue, attributes: [] }
+        }
       : {}),
     ...(state === "map-unavailable"
       ? {

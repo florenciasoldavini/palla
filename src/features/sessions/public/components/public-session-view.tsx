@@ -1,13 +1,7 @@
-import {
-  AppBadge,
-  AppButton,
-  AppCard,
-  AppHeading,
-  AppText
-} from "@/components/atoms";
+import { AppButton, AppCard, AppHeading, AppText } from "@/components/atoms";
 import { AppBottomSheet } from "@/components/atoms/bottom-sheet";
 import { atomPalette as c } from "@/components/atoms/theme";
-import { ArrowRight, Clock3, Repeat2, Users } from "lucide-react-native";
+import { ArrowRight } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   Platform,
@@ -22,6 +16,7 @@ import {
   publicSessionState,
   type PublicSession
 } from "../domain";
+import { PublicSessionAttributes } from "@/features/attributes/components/public-session-attributes";
 import { PublicSessionHeader, PublicSessionHero } from "./public-session-hero";
 import { PublicSessionMap } from "./public-session-map";
 import { PublicSessionPlayers } from "./public-session-players";
@@ -171,25 +166,23 @@ export function PublicSessionView({
               <AppText tone="muted">
                 {s.description || "The host hasn’t added a description yet."}
               </AppText>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                <AppBadge icon={Clock3}>
-                  {Math.round(
-                    (Date.parse(s.ends_at) - Date.parse(s.starts_at)) / 60000
-                  )}{" "}
-                  minutes
-                </AppBadge>
-                <AppBadge icon={Users}>
+              <AppText variant="bodySm" tone="subtle">
+                {
                   {
-                    {
-                      all: "All genders",
-                      men_only: "Men only",
-                      women_only: "Women only"
-                    }[s.participant_gender_policy]
-                  }
-                </AppBadge>
-                {s.weekly ? <AppBadge icon={Repeat2}>Weekly</AppBadge> : null}
-              </View>
+                    all: "All genders",
+                    men_only: "Men only",
+                    women_only: "Women only"
+                  }[s.participant_gender_policy]
+                }
+                {s.weekly ? " · Weekly session" : ""}
+              </AppText>
             </View>
+            {(s.attributes.length > 0 || s.venue.attributes.length > 0) && (
+              <PublicSessionAttributes
+                sessionCodes={s.attributes}
+                venueCodes={s.venue.attributes}
+              />
+            )}
             <PublicSessionReviews {...reviews} />
             <PublicSessionPolicies
               registrationCloses={
