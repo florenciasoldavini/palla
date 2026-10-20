@@ -1,7 +1,6 @@
 import {
   fetchOrganizerInventory,
   saveSessionRecord,
-  cancelSessionRecord,
   deleteDraftRecord,
   setSeriesStatusRecord,
   type SaveSessionRequest
@@ -34,7 +33,6 @@ export async function saveOrganizerSession(request: SaveSessionRequest) {
     }
   });
 }
-export const cancelOrganizerSession = cancelSessionRecord;
 export const deleteOrganizerDraft = deleteDraftRecord;
 export const setOrganizerSeriesStatus = setSeriesStatusRecord;
 export function sessionErrorMessage(error: unknown) {

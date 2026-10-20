@@ -437,3 +437,5 @@ Completed review invitations use the shared AppBadge essential tone: neon fill, 
 Expired review invitations use an informational bottom sheet with a pale lilac clock tile, Review period ended heading, short 14-day rule, session/deadline context, circular close control and neon Got it action. It has no rating stars, comment field or publish action. Existing submitted reviews remain readable after their edit window.
 
 Session announcements reuse the shared `AppBottomSheet`: a host composer from session details and a player reader from compact notification cards. White read/unread cards differ only by the neon unread dot. The reader owns the Message host action; there is no full-screen announcement page or preview step. See `docs/session-announcements.md`.
+
+Session cancellation uses the approved dedicated-screen reference in `.impeccable/mocks/session-cancellations/`: visible structured radio reason cards and a separate message field on the lilac canvas, with a red destructive action and final native confirmation. The player reads the cancellation in a shared bottom sheet. Cancellation is entered from occurrence detail only.

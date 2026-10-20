@@ -1,3 +1,4 @@
+import { CancellationSheet } from "@/features/cancellations/components/cancellation-sheet";
 import { AnnouncementSheet } from "@/features/announcements/components/announcement-sheet";
 import { useContext, useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -25,6 +26,7 @@ export default function NotificationsScreen() {
     rawMode === "organizer" && user?.organizer_status === "active"
       ? "organizer"
       : "player";
+  const [cancellation, setCancellation] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [unread, setUnread] = useState(false),
     [registration, setRegistration] = useState<string | null>(null),
@@ -45,8 +47,13 @@ export default function NotificationsScreen() {
           return;
         }
         setExpiredInvitation(null);
+        setCancellation(target.cancellation_id ?? null);
         setAnnouncement(target.announcement_id ?? null);
-        setRegistration(target.announcement_id ? null : target.registration_id);
+        setRegistration(
+          target.announcement_id || target.cancellation_id
+            ? null
+            : target.registration_id
+        );
         void markNotificationsRead(mode, target.id)
           .then(() => {
             void refetch();
@@ -99,10 +106,12 @@ export default function NotificationsScreen() {
               )
         }
         onOpen={(item) => {
+          setCancellation(null);
           setAnnouncement(null);
           setRegistration(null);
           setExpiredInvitation(null);
-          if (item.announcement_id) setAnnouncement(item.announcement_id);
+          if (item.cancellation_id) setCancellation(item.cancellation_id);
+          else if (item.announcement_id) setAnnouncement(item.announcement_id);
           else if (isExpiredReviewInvitation(item)) setExpiredInvitation(item);
           else setRegistration(item.registration_id);
           if (!item.read_at) read.mutate(item.id, { onError: failedRead });
@@ -125,6 +134,16 @@ export default function NotificationsScreen() {
           void query.fetchNextPage();
         }}
       />
+      {cancellation && (
+        <CancellationSheet
+          key={cancellation}
+          id={cancellation}
+          onClose={() => {
+            setCancellation(null);
+            if (notificationId) router.setParams({ notificationId: "" });
+          }}
+        />
+      )}
       {announcement && (
         <AnnouncementSheet
           key={announcement}

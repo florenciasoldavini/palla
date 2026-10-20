@@ -7,21 +7,12 @@ import {
   EmptyState,
   ErrorState,
   Screen,
-  SelectField,
   SkeletonBlock
 } from "@/components/atoms";
 import { SessionOccurrenceDetail } from "../components/session-occurrence-detail";
-import {
-  CancellationReason,
-  SessionConfirmation
-} from "../components/session-confirmation";
-import {
-  useOrganizerSessions,
-  useSessionMutations
-} from "../hooks/use-organizer-sessions";
+import { useOrganizerSessions } from "../hooks/use-organizer-sessions";
 import { sessionErrorMessage } from "../services/organizer-sessions.service";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
 import { View } from "react-native";
 
 export default function SessionOccurrenceScreen() {
@@ -29,11 +20,6 @@ export default function SessionOccurrenceScreen() {
   const router = useRouter();
   const query = useOrganizerSessions();
   const roster = useOrganizerRoster(id ?? "");
-  const { cancel } = useSessionMutations();
-  const [confirming, setConfirming] = useState(false);
-  const [scope, setScope] = useState<"one" | "future">("one");
-  const [reason, setReason] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const session = query.data?.sessions.find((s) => s.id === id);
   const series = query.data?.series.find((s) => s.id === session?.series_id);
   const weekly = series?.draft_input.repeat === "weekly";
@@ -81,16 +67,6 @@ export default function SessionOccurrenceScreen() {
       s.status === "published" &&
       s.starts_at > session.starts_at
   );
-  const affected =
-    query.data?.sessions.filter(
-      (s) =>
-        s.status === "published" &&
-        Date.parse(s.starts_at) > Date.now() &&
-        (s.id === session.id ||
-          (scope === "future" &&
-            s.series_id === session.series_id &&
-            s.occurrence_date! >= session.occurrence_date!))
-    ) ?? [];
   return (
     <>
       <SessionOccurrenceDetail
@@ -130,55 +106,13 @@ export default function SessionOccurrenceScreen() {
         onEdit={() =>
           router.push({ pathname: "/organizer-session/edit", params: { id } })
         }
-        onCancel={() => {
-          setError(null);
-          setConfirming(true);
-        }}
-      />
-      <SessionConfirmation
-        visible={confirming}
-        title="Cancel session?"
-        description={`${affected.length} upcoming ${affected.length === 1 ? "session" : "sessions"} will be cancelled. Cancelled dates remain in your history. Payments and court arrangements remain your responsibility.`}
-        confirmLabel={
-          scope === "one" ? "Confirm cancellation" : "Cancel future sessions"
+        onCancel={() =>
+          router.push({
+            pathname: "/organizer-session/cancel",
+            params: { id: session.id }
+          })
         }
-        keepLabel="Keep session"
-        busy={cancel.isPending}
-        error={error}
-        onClose={() => setConfirming(false)}
-        onConfirm={() => {
-          if (!affected.length) {
-            setError(
-              "This session has already started or changed. Reload your sessions."
-            );
-            return;
-          }
-          void cancel
-            .mutateAsync({
-              id,
-              scope,
-              reason,
-              expectedVersion: session.updated_at
-            })
-            .then(() => {
-              setConfirming(false);
-            })
-            .catch((e) => setError(sessionErrorMessage(e)));
-        }}
-      >
-        {weekly && (
-          <SelectField
-            label="Cancel"
-            value={scope}
-            onChange={setScope}
-            options={[
-              { label: "Only this date", value: "one" },
-              { label: "This and future dates", value: "future" }
-            ]}
-          />
-        )}
-        <CancellationReason value={reason} onChange={setReason} />
-      </SessionConfirmation>
+      />
     </>
   );
 }

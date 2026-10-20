@@ -31,7 +31,7 @@ end $$;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','a9000000-0000-4000-8000-000000000002',true);
 do $$declare response jsonb; v uuid; original timestamptz;begin
- assert jsonb_array_length(public.get_notification_settings('player'))=3;
+ assert jsonb_array_length(public.get_notification_settings('player'))=4;
  perform pg_temp.expect_error($s$select public.get_notification_settings('organizer')$s$,'Organizer access required');
  assert public.set_notification_preference('chat_messages',false)=false;
  assert public.get_chat_notification_preference()=false,'Old API preserved';

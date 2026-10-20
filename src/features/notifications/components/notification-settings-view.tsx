@@ -1,5 +1,11 @@
 import { ActivityIndicator, Switch, View } from "react-native";
-import { ArrowLeft, Bell, Star, Megaphone } from "lucide-react-native";
+import {
+  ArrowLeft,
+  MessageSquare,
+  Star,
+  Megaphone,
+  CalendarX
+} from "lucide-react-native";
 import {
   AppButton,
   AppCard,
@@ -78,10 +84,12 @@ export function NotificationSettingsView({
                     const copy = notificationCopy[row.key as NotificationKind],
                       Icon =
                         row.key === "chat_messages"
-                          ? Bell
-                          : row.key === "session_announcements"
-                            ? Megaphone
-                            : Star;
+                          ? MessageSquare
+                          : row.key === "session_cancellations"
+                            ? CalendarX
+                            : row.key === "session_announcements"
+                              ? Megaphone
+                              : Star;
                     const pending = saving === row.key;
                     return (
                       <AppCard key={row.key} surface="panel">

@@ -8,10 +8,7 @@ import {
 } from "@/components/atoms";
 import { atomSpacing } from "@/components/atoms/theme";
 import { SessionForm } from "@/features/sessions/components/session-form";
-import {
-  SessionConfirmation,
-  CancellationReason
-} from "@/features/sessions/components/session-confirmation";
+import { SessionConfirmation } from "@/features/sessions/components/session-confirmation";
 import {
   useOrganizerSessions,
   useSessionMutations
@@ -44,24 +41,17 @@ export default function SessionEditorScreen() {
     input: SessionFormValues;
     version?: string;
   } | null>(null);
-  const [formStep, setFormStep] = useState(0);
   const [scope, setScope] = useState<"one" | "future">("one");
   const [dirty, setDirty] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [pendingAction, setPendingAction] = useState<NavigationAction | null>(
     null
   );
-  const [confirmation, setConfirmation] = useState<"cancel" | null>(null);
-  const [reason, setReason] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const session = query.data?.sessions.find((s) => s.id === id);
   const series = query.data?.series.find(
     (s) => s.id === (session?.series_id ?? draft)
   );
-  const busy =
-    mutations.save.isPending ||
-    mutations.cancel.isPending ||
-    mutations.remove.isPending;
+  const busy = mutations.save.isPending || mutations.remove.isPending;
   usePreventRemove((dirty || busy) && !leaving, ({ data }) => {
     if (!busy) setPendingAction(data.action);
   });
@@ -126,22 +116,6 @@ export default function SessionEditorScreen() {
   const impact = dates.length
     ? `${dates.length} upcoming ${dates.length === 1 ? "session" : "sessions"} · ${displayDate(dates[0])}${dates.length > 1 ? `–${displayDate(dates[dates.length - 1])}` : ""}`
     : "No upcoming sessions in this scope";
-  async function destructive() {
-    setError(null);
-    try {
-      if (confirmation === "cancel" && session)
-        await mutations.cancel.mutateAsync({
-          id: session.id,
-          scope,
-          reason,
-          expectedVersion: snapshot!.version!
-        });
-      setConfirmation(null);
-      setLeaving(true);
-    } catch (error) {
-      setError(sessionErrorMessage(error));
-    }
-  }
   return (
     <Screen
       keyboardSafe
@@ -255,7 +229,6 @@ export default function SessionEditorScreen() {
                   session ? `Changes apply to ${impact}.` : undefined
                 }
                 onDirtyChange={setDirty}
-                onStepChange={setFormStep}
                 onSave={async (input, publish) => {
                   await mutations.save.mutateAsync({
                     id: series?.id ?? requestId,
@@ -270,19 +243,6 @@ export default function SessionEditorScreen() {
                 }}
               />
             )}
-            {formStep === 5 && session && (
-              <AppButton
-                color="danger"
-                variant="ghost"
-                isDisabled={busy}
-                onPress={() => {
-                  setError(null);
-                  setConfirmation("cancel");
-                }}
-              >
-                Cancel session
-              </AppButton>
-            )}
           </>
         )}
         <SessionConfirmation
@@ -294,40 +254,6 @@ export default function SessionEditorScreen() {
           onConfirm={() => setLeaving(true)}
           onClose={() => setPendingAction(null)}
         />
-        <SessionConfirmation
-          visible={confirmation !== null}
-          title="Cancel this session?"
-          description={`${impact} will be cancelled. Cancelled sessions stay in your history. Court arrangements and payments remain your responsibility.`}
-          confirmLabel={
-            scope === "future" ? "Cancel future sessions" : "Cancel session"
-          }
-          keepLabel="Keep session"
-          busy={busy}
-          error={error}
-          onConfirm={() => void destructive()}
-          onClose={() => setConfirmation(null)}
-        >
-          {confirmation === "cancel" && (
-            <>
-              <View pointerEvents={busy ? "none" : "auto"}>
-                <SelectField
-                  required
-                  helperText={impact}
-                  label="Cancel"
-                  value={scope}
-                  onChange={(v) => {
-                    if (!busy) setScope(v);
-                  }}
-                  options={[
-                    { label: "Only this session", value: "one" },
-                    { label: "This and future sessions", value: "future" }
-                  ]}
-                />
-              </View>
-              <CancellationReason value={reason} onChange={setReason} />
-            </>
-          )}
-        </SessionConfirmation>
       </View>
     </Screen>
   );

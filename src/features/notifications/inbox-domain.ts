@@ -5,13 +5,19 @@ export const notificationKinds = [
   "chat_messages",
   "review_reminders",
   "new_reviews",
-  "session_announcements"
+  "session_announcements",
+  "session_cancellations"
 ] as const;
 export type NotificationKind = (typeof notificationKinds)[number];
 export const notificationCopy: Record<
   NotificationKind,
   { title: string; description: string; group: string }
 > = {
+  session_cancellations: {
+    title: "Session cancellations",
+    description: "When a session you joined or waitlisted for is cancelled.",
+    group: "Sessions"
+  },
   session_announcements: {
     title: "Session announcements",
     description: "Updates from hosts about sessions you’ve joined.",
@@ -45,10 +51,26 @@ export const inboxItemSchema = z.object({
   notification_type: z.enum([
     "review_reminders",
     "new_reviews",
-    "session_announcements"
+    "session_announcements",
+    "session_cancellations"
   ]),
   registration_id: z.uuid(),
   review_id: z.uuid().nullable(),
+  cancellation_id: z.uuid().nullable().optional(),
+  session_starts_at: z.iso.datetime({ offset: true }).optional(),
+  session_ends_at: z.iso.datetime({ offset: true }).optional(),
+  session_timezone: z.string().optional(),
+  recipient_status: z.enum(["confirmed", "waitlisted"]).nullable().optional(),
+  cancellation_reason_code: z
+    .enum([
+      "weather",
+      "venue_issue",
+      "host_emergency",
+      "insufficient_players",
+      "other"
+    ])
+    .nullable()
+    .optional(),
   announcement_id: z.uuid().nullable().optional(),
   announcement_preview: z.string().nullable().optional(),
   announcement_removed_at: z.iso
@@ -67,6 +89,7 @@ export const inboxItemSchema = z.object({
 });
 export type InboxItem = z.infer<typeof inboxItemSchema>;
 export const notificationTargetSchema = z.object({
+  cancellation_id: z.uuid().nullable().optional(),
   announcement_id: z.uuid().nullable().optional(),
   id: z.uuid(),
   registration_id: z.uuid(),
@@ -76,10 +99,15 @@ export const pushSubscriptionSchema = z.object({
   chat_messages: z.boolean(),
   review_reminders: z.boolean(),
   new_reviews: z.boolean(),
+  session_cancellations: z.boolean().default(false),
   session_announcements: z.boolean()
 });
 export const reviewPushSchema = z.object({
-  type: z.enum(["review_notification", "announcement_notification"]),
+  type: z.enum([
+    "review_notification",
+    "announcement_notification",
+    "cancellation_notification"
+  ]),
   notification_id: z.uuid(),
   recipient_id: z.uuid(),
   mode: z.enum(["player", "organizer"])

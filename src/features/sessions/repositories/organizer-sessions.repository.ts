@@ -63,21 +63,6 @@ export async function saveSessionRecord(request: SaveSessionRequest) {
   if (error) throw error;
   return z.uuid().parse(data);
 }
-export async function cancelSessionRecord(request: {
-  id: string;
-  scope: "one" | "future";
-  reason: string;
-  expectedVersion: string;
-}) {
-  const { data, error } = await client().rpc("cancel_organizer_session", {
-    p_session_id: request.id,
-    p_scope: request.scope,
-    p_reason: request.reason,
-    p_expected_version: request.expectedVersion
-  });
-  if (error) throw error;
-  return z.number().int().positive().parse(data);
-}
 export async function deleteDraftRecord(id: string, version: string) {
   const { data, error } = await client()
     .from("session_series")

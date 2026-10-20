@@ -706,3 +706,29 @@ The corrected Android failed-send flow also passes with the draft preserved, toa
 ### Announcement recipient avatars — 19 October 2026
 
 The shared `AvatarGroup` is used beside the announcement composer’s confirmed-player count, using the existing organizer roster without new database queries. Inspected overlapping initials, surface separators, overflow (`+4` for eight recipients), loading skeletons and zero-recipient behavior on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 (API 37). The group exposes one accessible recipient count. Enlarged text wraps the recipient label onto its own line; simulator font settings are restored after testing. Screenshots are under the ignored `.impeccable/review/native/session-announcements/` directory. Android loading screenshots use direct capture because continuously animated skeletons prevent UI Automator from reaching idle. Full `npm run verify` passed (170 tests; existing lint warnings only).
+
+## Session cancellations — October 20, 2026
+
+Devices: iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Existing native development clients and Metro were used, without browser substitution.
+
+Both platforms passed the production-component, no-write preview flow: required reason validation, reason selection, optional message entry with keyboard, draft-discard protection, native keep-editing/cancel confirmation, cancellation success feedback, cancelled occurrence detail, unread/read inbox filtering, cancellation reader and simulated Message host action. The confirmation explicitly names one occurrence. Loading, error, unavailable-session, no-recipient, failed-save/draft retention and waitlisted-recipient states were inspected. Player notification settings include Session cancellations. Runtime screenshots are ignored evidence under `.impeccable/review/native/session-cancellations/`.
+
+iOS additionally passed reader retry, enlarged text at accessibility-large, and long-message scrolling with the action reachable. Normal font settings were restored. Android reader retry was obstructed by recurring React Native development network-warning overlays; the reader error state itself was inspected, but that retry interaction is not claimed as verified.
+
+`npm run verify` passes 174 tests across 38 files, including application enforcement of single-occurrence scope and typed cancellation push targets/channel. Hosted rollback-only cancellation, announcement and review SQL checks pass. They cover authorization, reason/message validation, stale context, retry deduplication, recipient snapshots, preference enforcement, post-cancellation inbox access, queue delivery despite cancelled registrations and grouped backend cancellation. Temporary fixture checks returned zero remaining records.
+
+After explicit deployment approval, the cancellation, inbox-schedule and request-serialization migrations and updated chat-push worker were applied to the connected project. Native preview saves and conversation actions are simulations; no real session was cancelled. Real APNs/FCM delivery remains unverified pending the existing provider setup described in `docs/chat-push.md`.
+
+Android enlarged-text checks at 140% passed for summary/reason wrapping, form scrolling and reachable footer actions; font scale was restored to 100% and independently checked. Both platforms' settings previews show the player-only cancellation preference.
+
+Android long-message reader scrolling also passed, with Message host reachable. Final handoff leaves iOS on the cancellation form and Android on sample cancellation notifications; both are no-write previews.
+
+Real-account follow-up: prepared a clearly labelled weekly two-occurrence cancellation test (21 and 28 October) under the existing iOS account, registering the existing Android account. Android initially failed backend DNS resolution despite IP connectivity; restarting the emulator with explicit DNS restored resolution and its persisted authenticated session. Existing sessions/accounts were preserved. The cancellation-preview announcement placeholder was corrected to match the production solid black megaphone button and Announcements section.
+
+Real native flow passed: the signed-in iOS host cancelled only the 21 October test occurrence with Weather selected and a test message. Database checks confirmed that occurrence/registration cancelled and the 28 October occurrence/registration remained published/confirmed. The signed-in Android player refreshed the actual inbox, opened the actual notification, saw the saved reason/message, and opened the existing host conversation without sending a message. Read state was independently verified in the database. These labelled account-owned test records remain for the user's inspection and manual testing; they are separate from the earlier rollback-only fixtures. OS push delivery is still not claimed.
+
+The corrected announcement preview was visually inspected on both native platforms: solid black button, white megaphone/label, section heading and existing empty-state copy. TypeScript, targeted ESLint, formatting and diff checks pass for that correction.
+
+Chat notification setting icon: replaced the bell with the same MessageSquare icon used by the Messages navigation tab. Visually verified the actual settings screen on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37; preferences were not toggled. Targeted ESLint, formatting and diff checks pass.
+
+Insufficient-player cancellation reason icon: changed Users to UserMinus. Visually checked the production reason component through the no-write form preview on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Targeted ESLint, formatting and diff checks pass.
