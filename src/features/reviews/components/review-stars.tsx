@@ -4,15 +4,22 @@ import { atomPalette as c } from "@/components/atoms/theme";
 export function ReviewStars({
   value,
   onChange,
-  disabled = false
+  disabled = false,
+  size = 22
 }: {
   value: number;
   onChange?: (value: number) => void;
   disabled?: boolean;
+  size?: number;
 }) {
   return (
     <View
-      style={{ flexDirection: "row", justifyContent: "space-between", gap: 4 }}
+      style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        gap: 4,
+        alignSelf: onChange ? "stretch" : "flex-start"
+      }}
       accessibilityRole={onChange ? "radiogroup" : undefined}
       accessibilityLabel={
         onChange ? "Session rating" : `${value} out of 5 stars`
@@ -43,12 +50,19 @@ export function ReviewStars({
             />
           </Pressable>
         ) : (
-          <Star
-            key={score}
-            size={22}
-            color={score <= value ? "#ff9500" : c.borderStrong}
-            fill={score <= value ? "#ff9500" : "none"}
-          />
+          <View key={score} style={{ width: size, height: size }}>
+            <Star size={size} color={c.borderStrong} />
+            <View
+              style={{
+                position: "absolute",
+                overflow: "hidden",
+                width: size * Math.min(1, Math.max(0, value - score + 1)),
+                height: size
+              }}
+            >
+              <Star size={size} color="#ff9500" fill="#ff9500" />
+            </View>
+          </View>
         )
       )}
     </View>

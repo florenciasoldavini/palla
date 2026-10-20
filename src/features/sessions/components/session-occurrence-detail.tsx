@@ -9,14 +9,14 @@ import {
 import { atomPalette as c, atomSpacing as sp } from "@/components/atoms/theme";
 import type { PadelSession } from "@/features/sessions/domain";
 import type { Venue } from "@/features/venues/domain";
-import { PlaceholderAction } from "./occurrence-placeholders";
+
 import {
   ArrowLeft,
   Calendar,
   Clock,
   Megaphone,
   Pencil,
-  QrCode,
+  Share2,
   Repeat,
   UserPlus,
   XCircle
@@ -47,6 +47,9 @@ export function SessionOccurrenceDetail({
   onBack,
   onEdit,
   onCancel,
+  onShare,
+  onPublicView,
+  sharing = false,
   preview = false,
   attendance,
   waitlist,
@@ -67,6 +70,9 @@ export function SessionOccurrenceDetail({
   onBack: () => void;
   onEdit: () => void;
   onCancel: () => void;
+  onShare?: () => void;
+  onPublicView?: () => void;
+  sharing?: boolean;
   preview?: boolean;
   attendance: (between: React.ReactNode) => React.ReactNode;
   waitlist: React.ReactNode;
@@ -119,12 +125,15 @@ export function SessionOccurrenceDetail({
               onPress={onEdit}
             />
           )}
-          <PlaceholderAction
-            label="Share session or QR"
-            onPress={() => setSoon("Session sharing")}
-          >
-            <QrCode color={c.text} size={22} />
-          </PlaceholderAction>
+          <AppButton
+            accessibilityLabel="Share session"
+            layout="icon"
+            variant="ghost"
+            fullWidth={false}
+            icon={Share2}
+            loading={sharing}
+            onPress={onShare ?? (() => setSoon("Session sharing"))}
+          />
         </View>
         {preview && (
           <AppText variant="bodySm" tone="subtle">
@@ -253,6 +262,11 @@ export function SessionOccurrenceDetail({
             />
           </View>
         </AppCard>
+        {onPublicView ? (
+          <AppButton variant="bordered" onPress={onPublicView}>
+            View public session
+          </AppButton>
+        ) : null}
         {attendance(waitlist)}
         <AppCard surface="panel" style={{ gap: sp[3] }}>
           <AppHeading variant="section">Session information</AppHeading>
