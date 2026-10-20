@@ -326,6 +326,8 @@ Native picker triggers use `FieldTrigger`, sharing TextField’s inherited fill,
 
 ### Chips
 
+Dropdown selects use the shared `SelectMenu`: a floating menu anchored below the trigger on iOS and Android, with a selected checkmark, outside-tap dismissal and Android Back dismissal. When there is insufficient space below, the menu opens above; long option lists scroll within safe-area bounds. Dropdowns do not open a bottom sheet or require a Done action. Keep this behavior consistent across compact filters and form dropdowns.
+
 Selectable chips are bordered pills with 48-unit targets. Selected chips use olive text/border and a translucent olive wash; hover and press strengthen the wash. These compact bounded labels differ from wrapping form controls.
 
 List filters use shared `FilterChip` and `FilterChipGroup` components. Chat and notification filters share the same 48-unit minimum height, full-pill radius, 16-unit horizontal / 8-unit vertical padding, 8-unit row gap, one-unit border and label typography. Unselected filters use the raised lilac surface with subtle ink text/border; selected filters use ink with inverse text. Press uses the shared stronger surface tokens. Optional count badges are at least 24 units, lilac by default and neon when selected, with visual counts above 99 capped at 99+. Counts are omitted when a reliable total is unavailable. Labels/counts grow with native text size, and the shared row scrolls horizontally rather than clipping. Disabled filters expose their state and do not respond to press. Single-choice list filters are distinct from the bordered olive selectable chips used in forms.

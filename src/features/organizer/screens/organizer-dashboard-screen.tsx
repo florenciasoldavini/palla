@@ -1,134 +1,54 @@
-import {
-  AppButton,
-  AppCard,
-  AppHeading,
-  AppText,
-  Screen
-} from "@/components/atoms";
-import { atomPalette, atomSpacing } from "@/components/atoms/theme";
-import { CalendarIcon, PlusIcon, UsersIcon } from "@/components/icons";
-import {
-  ManagedSessionCard,
-  OrganizerStatCard
-} from "@/features/organizer/components";
-import { Pressable, View } from "react-native";
-import { useRouter } from "expo-router";
-
-const courtImage =
-  "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=900&q=80";
+import { useCallback, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { ReviewSheet } from "@/features/reviews/components/review-sheet";
+import { DashboardView } from "../dashboard/components/dashboard-view";
+import { useOrganizerDashboard } from "../dashboard/hooks/use-dashboard";
+import { type DashboardPeriod } from "../dashboard/domain";
 
 export default function OrganizerDashboardScreen() {
   const router = useRouter();
+  const [period, setPeriod] = useState<DashboardPeriod>("this_month");
+  const [refreshing, setRefreshing] = useState(false);
+  const [registration, setRegistration] = useState<string | null>(null);
+  const query = useOrganizerDashboard(period);
+  const refetch = query.refetch;
+  useFocusEffect(
+    useCallback(() => {
+      void refetch();
+    }, [refetch])
+  );
   return (
-    <Screen contentContainerStyle={{ paddingBottom: atomSpacing[16] }}>
-      <View style={{ gap: atomSpacing[8] }}>
-        <View style={{ gap: atomSpacing[6] }}>
-          <View style={{ gap: atomSpacing[2] }}>
-            <AppText tone="accent" variant="label">
-              Organizer dashboard
-            </AppText>
-            <AppHeading variant="hero">Manage your courts</AppHeading>
-          </View>
-        </View>
-
-        <View style={{ flexDirection: "row", gap: atomSpacing[3] }}>
-          <OrganizerStatCard
-            icon={UsersIcon}
-            label="Active players"
-            value="0"
-          />
-          <OrganizerStatCard
-            icon={CalendarIcon}
-            label="Sessions today"
-            value="0"
-          />
-        </View>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Create session"
-          onPress={() => router.push("/organizer-session/new")}
-        >
-          <AppCard
-            style={{
-              backgroundColor: atomPalette.brand,
-              borderColor: atomPalette.brand,
-              gap: atomSpacing[4]
-            }}
-          >
-            <View
-              style={{
-                alignItems: "center",
-                flexDirection: "row",
-                justifyContent: "space-between"
-              }}
-            >
-              <AppText
-                style={{ color: atomPalette.brandText }}
-                variant="bodySm"
-              >
-                Quick start
-              </AppText>
-              <PlusIcon color={atomPalette.brandText} size="sm" />
-            </View>
-            <AppHeading style={{ color: atomPalette.brandText }} variant="card">
-              Create session
-            </AppHeading>
-          </AppCard>
-        </Pressable>
-
-        <View style={{ gap: atomSpacing[4] }}>
-          <View
-            style={{
-              alignItems: "center",
-              flexDirection: "row",
-              justifyContent: "space-between"
-            }}
-          >
-            <AppHeading variant="section">Your sessions</AppHeading>
-            <AppText tone="accent" variant="label">
-              Filter
-            </AppText>
-          </View>
-
-          <ManagedSessionCard
-            imageUrl={courtImage}
-            level="Advanced · 4.5+"
-            schedule="Tuesday, 20:00–21:30"
-            title="Main court · Session preview"
-          />
-
-          <AppCard
-            style={{
-              alignItems: "center",
-              backgroundColor: atomPalette.surfaceLow,
-              borderColor: atomPalette.borderSubtle,
-              gap: atomSpacing[3],
-              paddingVertical: atomSpacing[8]
-            }}
-          >
-            <AppHeading variant="card">
-              Create your first live session
-            </AppHeading>
-            <AppText
-              style={{ textAlign: "center" }}
-              tone="muted"
-              variant="bodySm"
-            >
-              The preview above shows how registrations and availability will
-              appear.
-            </AppText>
-            <AppButton
-              color="essential"
-              fullWidth={false}
-              icon={PlusIcon}
-              size="md"
-            >
-              Create session
-            </AppButton>
-          </AppCard>
-        </View>
-      </View>
-    </Screen>
+    <>
+      <DashboardView
+        data={query.data}
+        period={period}
+        loading={query.isPending}
+        error={query.isError}
+        refreshing={refreshing}
+        onPeriod={setPeriod}
+        onRefresh={() => {
+          setRefreshing(true);
+          void refetch().finally(() => setRefreshing(false));
+        }}
+        onSession={(id) =>
+          router.push({ pathname: "/organizer-session/[id]", params: { id } })
+        }
+        onSessions={() => router.push("/(organizer)/sessions")}
+        onMessages={() => router.push("/(organizer)/organizer-messages")}
+        onReview={setRegistration}
+        onReviews={() =>
+          router.push({ pathname: "/organizer-reviews", params: { period } })
+        }
+      />
+      {registration && (
+        <ReviewSheet
+          registration={registration}
+          onClose={() => {
+            setRegistration(null);
+            void refetch();
+          }}
+        />
+      )}
+    </>
   );
 }
