@@ -1,0 +1,23 @@
+Create a NEW high-fidelity mobile UI mockup board for Palla, focused EXCLUSIVELY on WRITING A REVIEW. Use the attached screenshot and prior proposal only as STYLE references, not as layouts to copy wholesale. Produce exactly TWO equally sized TALL mobile screen frames side by side, readable and generous, on a very light lilac backdrop. Board title small outside phones "Write a review". Captions outside frames "Initial state" and "Ready to post". These are two states of the SAME ONE-PAGE SCROLLABLE FORM, NOT steps or alternate designs. Render complete scroll content in extended-height frames if necessary so all sixteen chips are readable at natural native size; do not shrink everything into tiny type. No hardware bezel, no review list, no public reviews, no host profile, no invitation panel, no report/delete screens, no notification settings, no other product flows.
+Palla/Stitch design system: page #fbf8ff, white content panels, delicate #e3e1ec border, 22px panel corners, charcoal #1a1b22 text, clean Hanken Grotesk/Geist-like font, headings22-24pt and body14-16pt. 20-24px page spacing. Main CTA neon #d4ff00 with DARK text, rectangular12px radius, 48px native height, never pill-shaped or black with neon text. Neutral/dark lilac line icons only on pale lilac tiles, consistent same hue. Form textarea on white panel is pale lilac #f4f2fd with12px radius,14-16pt text, generous real top padding. Icon-only back ghostcircle. Orange #ff9500 stars as in newest reference. Selectable feedback tags ARE pill-shaped: unselected pale lilac with dark text and thin lilac border; selected charcoal with white text and small white check. No green on lilac, no neon tag chips, no gold gradient, no shadows/heavy decoration.
+IDENTICAL COMPOSITION ON BOTH SCREENS:
+Header back arrow and "Write a review".
+Below a compact session context row, small rounded padel-court thumbnail at left and text "Friday Social Padel", "Alex Rivera · 23 Oct", no avatar or fabricated badges.
+A white main form panel below with:
+1. "How was your session?" and ONE row of FIVE large accessible stars. Initial: five outlined lilac-gray stars, helper "Choose a rating". Ready: four filled orange stars, one outline, helper "Good".
+2. Label "What stood out? (optional)", helper "Choose up to 4" and right aligned counter. Initial counter "0 / 4", Ready counter "3 / 4".
+3. "About the session": EXACT TEN wrapping pill tags, in this order:
+"Started on time", "Started late",
+"Plenty of playing time", "Too much waiting",
+"Good court conditions", "Court issues",
+"Good level match", "Level mismatch",
+"Matched the description", "Different from advertised".
+4. Subtle horizontal divider, then "About the host": EXACT SIX wrapping pill tags:
+"Friendly host", "Unfriendly host",
+"Quick to respond", "Hard to reach",
+"Well organized", "Disorganized".
+There must be exactly16 distinct chips on EACH screen; no extra "Great atmosphere" or invented tags. Let tags wrap to2lines if very long, do not abbreviate them.
+Initial all tags unselected. Ready selected EXACTLY "Good level match", "Friendly host", "Well organized"; all other tags unselected. Never select opposing pairs.
+5. "Your review (optional)" then a generous lilac multiline textarea. Initial placeholder "Tell us about your experience…" and muted small "0 / 2,000" below. Ready textarea exact "Great games and a friendly host. Everything ran smoothly." with small "57 / 2,000".
+6. Muted privacy helper "Published with your profile name and photo." No attendance checkbox or attendance claims.
+Below the main panel, a small clock outline with "You can post or edit until 6 Nov." Then a safe-area bottom action tray with full-width rectangular "Post review". Initial CTA disabled muted lilac-gray with muted dark text; ready CTA solid neon with dark text. Both actions same geometry. No separate Save or second rating. Use proportional mobile spacing, meaningful breathing room, precisely aligned left edges and no text/star/tag collisions. The form can be long and scrollable; present full content for design review rather than omit fields. Example content, not real account data.

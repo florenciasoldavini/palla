@@ -1,0 +1,30 @@
+Create a NEW high-fidelity Palla native mobile UI mockup board, EXACTLY TWO same-size STANDARD HEIGHT phone screen frames side by side (native 390x844pt equivalent), showing the REVISED two-step writing-review flow. Use attached previous mockup only as a visual design-system reference. The information organization MUST change: FIRST rating AND review comment together; SECOND all optional tags together. No host feedback on first step, no comment or star-rating repeated on second step. No review list, report/delete, public-profile, invitations or notifications UI. No hardware bezels or excessively tall stretched full-scroll phone frames.
+Palla / Stitch style: near-white lilac #fbf8ff page, white panels thin #e3e1ec borders,22px panel corners, dark charcoal #1a1b22 Hanken Grotesk/Geist-like text, modest22px headings and14-16px body. Natural20px margins. Primary action neon #d4ff00 DARK text, rectangular12px corners48px high, NEVER pill buttons. Tag chips ARE fully pill-rounded, unselected pale lilac / dark text, selected charcoal / white text and small white check. Orange #ff9500 rating stars, pale lilac outline for unselected. Textarea pale lilac #f4f2fd on white panel with real16px top/side padding. No unnecessary decoration, no giant photography or marketing typography. Ghost circular back arrow. Precise spacing, avoid collisions and unreadably tiny tags. No invented attendance claims.
+Each screen header: back arrow + "Write a review", right small "1 of 2" / "2 of 2". Two-segment slim progress line: LEFT first segment charcoal second lilac, RIGHT BOTH segments charcoal. Compact identical context row below with tiny padel court thumbnail at left, "Friday Social Padel" bold and "Alex Rivera · 23 Oct" muted at right. Frame captions below left "Step 1 · Rating & review", right "Step 2 · Optional tags".
+LEFT SCREEN:
+ONE white content-sized panel heading "How was your session?".
+One centered row five tappable stars, four filled orange and last outline; helper "Good".
+Below a real gap, label "Your review (optional)".
+A generous multiline lilac textarea, around150px tall, with exact comment "Great games and a friendly host. Everything ran smoothly." in normal14-16pt native text; counter "57 / 2,000" below right.
+Small muted line below text field "Published with your profile name and photo." with tiny neutral profile icon.
+No tags or tag count anywhere in first panel.
+Keep the rest of this first screen calm and naturally blank rather than stretching the card to match right card height.
+Bottom safe-area action tray: small clock icon + "You can post or edit until 6 Nov." above full-width solid neon rectangular "Continue" with small right arrow. Do NOT put Post review on first step.
+RIGHT SCREEN:
+Heading "What stood out?" with supporting "Optional · Choose up to 4 tags" and right small count "3 / 4".
+All SIXTEEN tags inside ONE white panel, natural content height; organise in TWO groups separated by a light divider.
+Group "About the session" with EXACT TEN chips natural wrapping (can use compact2-column rows if it fits; do not force fixed identical chip widths):
+"Started on time", "Started late",
+"Plenty of playing time", "Too much waiting",
+"Good court conditions", "Court issues",
+"Good level match", "Level mismatch",
+"Matched the description", "Different from advertised".
+Select ONLY "Good level match" in this group.
+Group "About the host" with EXACT SIX chips:
+"Friendly host", "Unfriendly host",
+"Quick to respond", "Hard to reach",
+"Well organized", "Disorganized".
+Select ONLY "Friendly host" and "Well organized". Total selected3, no opposing selections. Selected chips have a small white check. All16tags appear on this second screen, no extra fabricated tags.
+A short muted helper below the tag panel "You can post without selecting any tags." Optional step must not seem required.
+Bottom safe-area tray with same muted deadline as left; equalheight outlined rectangular "Back" at left30% and neon rectangular "Post review" at rightremainingwidth.
+Fit second step naturally within a standard phone at normal text size using restrained chip heights~30-32px,5rows session tags+3rowshosttags. Tiny extra scrolling is acceptable in implementation but mockup must not distort phone proportions. Form panels size to content, both FOOTERS aligned bottom; do not fill left blank space with unrelated content. Stars and textarea LEFT only; tags RIGHT only. All content readable. Mockup only; preserve exact button/chip geometry and current brand visual language.

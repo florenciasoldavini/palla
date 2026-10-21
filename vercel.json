@@ -1,0 +1,30 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "cleanUrls": true,
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/session",
+      "destination": "/api/session"
+    },
+    {
+      "source": "/.well-known/apple-app-site-association",
+      "destination": "/api/app-links?platform=ios"
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/api/app-links?platform=android"
+    }
+  ],
+  "functions": {
+    "api/session.ts": {
+      "includeFiles": "dist/session.html",
+      "maxDuration": 15
+    },
+    "api/session-image.ts": {
+      "includeFiles": "public/og/palla-og-cover.png",
+      "maxDuration": 40
+    }
+  }
+}

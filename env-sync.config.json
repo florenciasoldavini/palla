@@ -1,0 +1,135 @@
+{
+  "sourceFile": ".env.local",
+  "variables": {
+    "EXPO_PUBLIC_SUPABASE_URL": {
+      "section": "Frontend / Public",
+      "example": "https://your-project-ref.supabase.co",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": {
+      "example": "sb_publishable_your_publishable_key",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_SITE_URL": {
+      "comment": "Public app base URL for auth redirects and shared web links.",
+      "example": "https://palla.vercel.app",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_SENTRY_DSN": {
+      "section": "Observability / Public",
+      "example": "https://public-key@o0000000000000000.ingest.us.sentry.io/0000000000000000",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "EXPO_PUBLIC_APP_ENV": {
+      "section": "Runtime",
+      "comment": "Distinguishes development, preview, and production telemetry.",
+      "example": "development"
+    },
+    "SENTRY_ORG": {
+      "section": "Sentry / Optional Build-Time Source Maps",
+      "example": "your-sentry-org-slug"
+    },
+    "SENTRY_PROJECT": {
+      "example": "palla"
+    },
+    "SENTRY_AUTH_TOKEN": {
+      "example": "sntrys_your_auth_token",
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "sensitive"
+      }
+    },
+    "RESEND_API_KEY": {
+      "section": "Email / Server",
+      "example": "re_your_resend_api_key"
+    },
+    "EMAIL_FROM": {
+      "example": "Palla <onboarding@resend.dev>"
+    },
+    "EMAIL_REPLY_TO": {
+      "example": "hello@example.com"
+    },
+    "SITE_URL": {
+      "example": "https://palla.vercel.app"
+    },
+    "GOOGLE_PLACES_API_KEY": {
+      "section": "Google Places / Server",
+      "comment": "Supabase Edge Function secret only. Never expose in Expo public variables. Restrict to Places API (New).",
+      "example": "your_server_places_api_key"
+    },
+    "EXPO_ACCESS_TOKEN": {
+      "section": "Push Notifications / Server",
+      "comment": "Optional server-only Expo push access token when Enhanced Push Security is enabled. Set only in Supabase Edge Function secrets; never EXPO_PUBLIC.",
+      "example": "your_expo_push_access_token"
+    },
+    "GOOGLE_SERVICES_JSON": {
+      "section": "Push Notifications / Native Build",
+      "comment": "Path to Firebase google-services.json for the Android native build. Use a file environment variable in EAS; do not commit the file. Not synchronized by the generic env-sync script.",
+      "example": "/secure/path/google-services.json"
+    },
+    "EXPO_PUBLIC_SESSION_SHARE_URL": {
+      "section": "Session Sharing / Public",
+      "comment": "HTTPS origin for public session links and native app-link association. Separate from local auth redirects.",
+      "example": "https://palla-pink.vercel.app",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "SESSION_SHARE_SUPABASE_ANON_KEY": {
+      "section": "Session Sharing / Server",
+      "comment": "Legacy public anon JWT for invoking the existing JWT-verified session-cover function. Never use a service-role key.",
+      "example": "your_legacy_anon_jwt",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      }
+    },
+    "APPLE_TEAM_ID": {
+      "section": "Session Sharing / Signing",
+      "comment": "Apple Developer Team ID for associated domains and the public AASA response.",
+      "example": "YOURTEAMID1",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "ANDROID_APP_LINK_FINGERPRINTS": {
+      "section": "Session Sharing / Signing",
+      "comment": "Comma-separated SHA-256 release/Play signing certificate fingerprints. Do not publish debug keys on the production domain.",
+      "example": "YOUR_RELEASE_SHA256_FINGERPRINTS",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      }
+    }
+  }
+}

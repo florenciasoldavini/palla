@@ -4,49 +4,102 @@
     "slug": "palla",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/app-icons/palla-app-icon.png",
     "scheme": "palla",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
-      "bundleIdentifier": "com.palla.app",
+      "bundleIdentifier": "com.florenciasoldavini.palla",
       "config": {
         "usesNonExemptEncryption": false
       },
-      "icon": "./assets/expo.icon",
-      "supportsTablet": false
+      "icon": "./assets/images/app-icons/palla-app-icon.png",
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/app-icons/palla-android-foreground.png",
+        "backgroundImage": "./assets/images/app-icons/palla-android-background.png",
+        "backgroundColor": "#062C22",
+        "monochromeImage": "./assets/images/app-icons/palla-android-monochrome.png"
       },
-      "package": "com.palla.app",
-      "predictiveBackGestureEnabled": false
+      "package": "com.florenciasoldavini.palla",
+      "edgeToEdgeEnabled": true,
+      "icon": "./assets/images/app-icons/palla-app-icon.png"
     },
     "web": {
+      "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "florencia-soldavini",
+          "project": "palla"
+        }
+      ],
       "expo-router",
+      "expo-sqlite",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F7F6F2",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#062C22",
+          "android": {
+            "image": "./assets/images/app-icons/palla-android-foreground.png",
+            "imageWidth": 200
+          }
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose a profile photo or share a photo in your Palla chats."
         }
       ],
       "expo-secure-store",
-      "expo-notifications",
-      "@sentry/react-native",
-      "expo-localization"
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "chat",
+          "color": "#D4FF00",
+          "icon": "./assets/images/app-icons/palla-notification-icon.png"
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/HankenGrotesk-Regular.ttf",
+            "./assets/fonts/HankenGrotesk-Medium.ttf",
+            "./assets/fonts/HankenGrotesk-SemiBold.ttf",
+            "./assets/fonts/HankenGrotesk-Bold.ttf",
+            "./assets/fonts/Geist-Bold.ttf",
+            "./assets/fonts/Geist-Medium.ttf",
+            "./assets/fonts/Geist-Regular.ttf",
+            "./assets/fonts/Geist-SemiBold.ttf"
+          ]
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Palla to access photos you choose to share.",
+          "savePhotosPermission": "Allow Palla to save chat photos to your photo library.",
+          "granularPermissions": ["photo"]
+        }
+      ]
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
-    }
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "96d4f9c0-039c-4a09-9e0a-1626afbcf9cd"
+      }
+    },
+    "owner": "florenciasoldavini"
   }
 }

@@ -1,5 +1,14 @@
-import { Stack } from 'expo-router';
-
+import { RoleTabs } from "@/components/navigation/role-tabs";
 export default function PlayerLayout() {
-  return <Stack screenOptions={{ headerShadowVisible: false }} />;
+  return (
+    <RoleTabs
+      mode="player"
+      routes={{
+        home: "discover",
+        secondary: "my-games",
+        messages: "player-messages",
+        profile: "profile"
+      }}
+    />
+  );
 }
