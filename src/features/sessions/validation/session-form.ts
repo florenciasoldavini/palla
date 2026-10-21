@@ -31,6 +31,13 @@ export const sessionDraftSchema = z.object({
       cancellationHours: z.string()
     })
     .optional(),
+  coverImagePath: z
+    .string()
+    .regex(/^[0-9a-f-]{36}\/[0-9a-f-]{36}\.jpg$/)
+    .nullable()
+    .optional(),
+  coverLocalUri: z.string().optional(),
+  coverEdited: z.boolean().optional(),
   sessionAttributes: sessionAttributesSchema.optional(),
   venueAttributes: venueAttributesSchema.optional(),
   venueAttributesBaseline: venueAttributesSchema.optional(),
@@ -125,6 +132,7 @@ export function initialSessionForm(): SessionFormValues {
     .toISOString()
     .slice(0, 10);
   return {
+    coverImagePath: null,
     sessionAttributes: [],
     venueAttributes: [],
     venueAttributesBaseline: [],

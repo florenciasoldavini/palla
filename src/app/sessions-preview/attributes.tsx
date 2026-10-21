@@ -59,6 +59,7 @@ function AttributesPreviewContent({ failFirst }: { failFirst: boolean }) {
     return (
       <PublicSessionView
         preview
+        previewCoverUri={saved.coverLocalUri}
         session={{
           ...publicSessionPreview,
           attributes: saved.sessionAttributes ?? [],

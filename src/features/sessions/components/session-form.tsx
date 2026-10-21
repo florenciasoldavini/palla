@@ -57,6 +57,7 @@ import {
 import { SessionScheduleStep } from "./session-schedule-step";
 import { SessionTimingRules } from "./session-timing-rules";
 import { SessionAttributeFields } from "@/features/attributes/components/session-attribute-fields";
+import { SessionCoverField } from "@/features/session-covers/components/cover-field";
 import { SessionReview } from "./session-review";
 const steps = ["Basic Info", "Schedule", "Players", "Waitlist", "Policies"];
 const titles = [
@@ -95,6 +96,8 @@ export function SessionForm({
   initialValues,
   venues,
   editing = false,
+  inheritedCoverPath = null,
+  coverScope = "one",
   onSave,
   onDirtyChange,
   onStepChange,
@@ -105,6 +108,8 @@ export function SessionForm({
   initialValues: SessionFormValues;
   venues: Venue[];
   editing?: boolean;
+  inheritedCoverPath?: string | null;
+  coverScope?: "one" | "future";
   onSave: (input: SessionFormValues, publish: boolean) => Promise<void>;
   onDirtyChange?: (dirty: boolean) => void;
   onStepChange?: (step: number) => void;
@@ -117,7 +122,9 @@ export function SessionForm({
   const [step, setStep] = useState(0);
   const [reviewing, setReviewing] = useState(false);
   const [editingFromReview, setEditingFromReview] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [savingBusy, setBusy] = useState(false);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const busy = savingBusy || coverBusy;
   const [error, setError] = useState<string | null>(null);
   const [locationEditing, setLocationEditing] = useState(
     !initialValues.venueName
@@ -137,7 +144,7 @@ export function SessionForm({
     name: K,
     value: SessionFormValues[K]
   ) {
-    if (saving.current) return;
+    if (saving.current || coverBusy) return;
     form.setValue(name, value as PathValue<SessionFormValues, K>, {
       shouldDirty: true
     });
@@ -158,7 +165,7 @@ export function SessionForm({
     change("settings", { ...settings, [key]: value });
   }
   function move(next: number) {
-    if (saving.current) return;
+    if (saving.current || coverBusy) return;
     Keyboard.dismiss();
     setError(null);
     setReviewing(false);
@@ -234,7 +241,7 @@ export function SessionForm({
     return true;
   }
   async function save(publish: boolean) {
-    if (saving.current) return;
+    if (saving.current || coverBusy) return;
     Keyboard.dismiss();
     setError(null);
     if (publish && !validate(true)) return;
@@ -489,6 +496,28 @@ export function SessionForm({
                 )}
               </WizardCard>
             </WizardSection>
+            <WizardCard>
+              <SessionCoverField
+                path={values.coverImagePath ?? null}
+                localUri={values.coverLocalUri}
+                inheritedPath={
+                  coverScope === "future" &&
+                  values.coverEdited &&
+                  !values.coverImagePath
+                    ? null
+                    : inheritedCoverPath
+                }
+                onBusyChange={setCoverBusy}
+                clearToVenue={coverScope === "future"}
+                editing={editing}
+                disabled={busy}
+                onChange={(path, uri) => {
+                  change("coverEdited", true);
+                  change("coverImagePath", path);
+                  change("coverLocalUri", uri);
+                }}
+              />
+            </WizardCard>
             <WizardCard>
               <SessionAttributeFields
                 sessionCodes={values.sessionAttributes ?? []}

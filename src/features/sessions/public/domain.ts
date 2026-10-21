@@ -12,6 +12,7 @@ export const publicPlayerSchema = z.object({
   category: z.number().int().min(1).max(8).nullable()
 });
 export const publicSessionSchema = z.object({
+  has_cover_image: z.boolean().default(false),
   attributes: sessionAttributesSchema.default([]),
   id: z.uuid(),
   title: z.string(),

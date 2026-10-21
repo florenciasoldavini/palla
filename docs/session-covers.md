@@ -1,0 +1,21 @@
+# Session cover photos
+
+First functional version, 20 October 2026. This extends the existing native session form and public detail without changing the incumbent design system.
+
+Cover photo is optional within Basic Info. Add photo opens the native image library; cancelling retains the previous choice. Selection produces a local JPEG preview but does not upload. Change photo replaces the selection, and removal follows the displayed edit-scope guidance. The field retains the shared headings, body/caption text and buttons, with a rounded image preview, loading copy and inline failure message.
+
+The image service rejects inputs above 48 million pixels, resizes the longest dimension to at most 1600 pixels, and compresses to JPEG. Draft save and publish upload to an immutable organizer/UUID path in the private `session-covers` bucket; uploads are limited to 4 MB. Local device URIs are removed from persisted form input. A failed session save attempts to remove its unused upload; replacing an image attempts to remove the previous unused object. Storage policies prevent deleting objects still referenced by a series, draft or occurrence.
+
+Migration `20261020215957_session_cover_images.sql` adds the series default and occurrence override/inherited snapshot paths. New occurrences receive the series cover snapshot. A one-occurrence edit changes only its override; clearing it falls back to that occurrence’s inherited cover. A future edit updates the series default and selected future published occurrences, clearing those occurrence overrides. Older occurrences retain their snapshots. The existing save RPC retains ownership, optimistic-version and idempotent publish behavior.
+
+Public detail exposes whether an uploaded cover exists, not the private storage path. The `session-cover` Edge Function checks occurrence visibility before resolving an override, inherited cover or venue photo. Uploaded images use 30-minute signed URLs. Gateway JWT verification remains enabled; a request using the app’s actual publishable key reached the handler and returned the expected unavailable response for an unknown occurrence. Successful anonymous photo delivery for a published public occurrence remains unverified.
+
+Without a usable upload, the function may resolve a Google Places venue photo using a server-only key. A stored place ID is accepted only when the returned name/address match; text-search fallback accepts exactly one matching candidate. Missing, ambiguous or unavailable results produce a neutral unavailable state rather than unrelated court artwork. Google Maps and contributor attribution appear beneath a displayed Google photo, with links when supplied. Responses use `Cache-Control: no-store`; photo results remain in mounted query memory with no persistent image cache. Upload URLs refresh while mounted before expiry.
+
+Google requests have an 8-second timeout per call and bounded server-side quotas: 10 resolutions per client-IP hash per minute, 300 per day, and a reservation of up to three provider calls against the shared monthly 9,000-call ceiling. Quota exhaustion returns the neutral unavailable state. The key and privileged storage signing remain server-side.
+
+Native evidence is under `.impeccable/review/native/session-attributes/`: `ios-ios-cover-selected.png`, `ios-cover-public-final.png`, `ios-cover-resumed.png` and `android-cover-live-reopened.png`. Android exercised selection, a real draft save and reopening the private signed image. iOS exercised selection, cancellation, no-write draft save/resume and public preview. SQL coverage is in `supabase/tests/session-covers.sql`; pure matching/domain tests cover provider decision logic. A live successful Google provider response remains unverified. Temporary QA cleanup status belongs in the final verification record, not this feature contract.
+
+Replaced/removed covers are cleaned up on a best-effort basis. A process killed between upload and save can leave an unused object; periodic orphan cleanup is not yet implemented. Referenced covers are protected from client deletion.
+
+Provider references: [Google Places photos](https://developers.google.com/maps/documentation/places/web-service/place-photos), [Places policies](https://developers.google.com/maps/documentation/places/web-service/policies).

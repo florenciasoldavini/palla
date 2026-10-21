@@ -38,6 +38,7 @@ export function PublicSessionView({
   onRefresh,
   refreshing = false,
   preview = false,
+  previewCoverUri,
   reviews
 }: {
   session: PublicSession;
@@ -49,6 +50,7 @@ export function PublicSessionView({
   onRefresh?: () => void;
   refreshing?: boolean;
   preview?: boolean;
+  previewCoverUri?: string;
   reviews: PublicReviewsState;
 }) {
   const { fontScale, width } = useWindowDimensions();
@@ -124,7 +126,12 @@ export function PublicSessionView({
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <View style={{ width: "100%", maxWidth: 600, alignSelf: "center" }}>
-          <PublicSessionHero session={s} status={status} />
+          <PublicSessionHero
+            session={s}
+            status={status}
+            preview={preview}
+            previewCoverUri={previewCoverUri}
+          />
           <View style={{ paddingHorizontal: 20, paddingBottom: 28, gap: 28 }}>
             {preview ? (
               <AppText tone="subtle" variant="caption">

@@ -1,6 +1,7 @@
 import {
   fetchOrganizerInventory,
   saveSessionRecord,
+  fetchSavedCoverPath,
   deleteDraftRecord,
   setSeriesStatusRecord,
   type SaveSessionRequest
@@ -13,6 +14,10 @@ import {
 } from "@/features/sessions/validation/session-form";
 import type { PadelSession } from "@/features/sessions/domain";
 import { settingsFromForm } from "./session-settings.adapter";
+import {
+  uploadCover,
+  removeUnusedCover
+} from "@/features/session-covers/repositories/cover.repository";
 import type { Venue } from "@/features/venues/domain";
 export { fetchOrganizerInventory as loadOrganizerSessions };
 export async function saveOrganizerSession(request: SaveSessionRequest) {
@@ -24,14 +29,32 @@ export async function saveOrganizerSession(request: SaveSessionRequest) {
     (!input.courtConfirmed || sessionStart(input).getTime() <= Date.now())
   )
     throw new Error("Check the schedule and court confirmation");
-  const { legacySettingsBaseline: _baseline, ...persisted } = input;
-  return saveSessionRecord({
-    ...request,
-    input: {
-      ...persisted,
-      ...(request.publish ? { settings: settingsFromForm(input) } : {})
-    }
-  });
+  const {
+    legacySettingsBaseline: _baseline,
+    coverLocalUri,
+    ...persisted
+  } = input;
+  const previousCover = input.coverEdited
+    ? await fetchSavedCoverPath(request)
+    : null;
+  if (coverLocalUri && input.coverImagePath)
+    await uploadCover(input.coverImagePath, coverLocalUri);
+  try {
+    const id = await saveSessionRecord({
+      ...request,
+      input: {
+        ...persisted,
+        ...(request.publish ? { settings: settingsFromForm(input) } : {})
+      }
+    });
+    if (previousCover && previousCover !== input.coverImagePath)
+      await removeUnusedCover(previousCover).catch(() => {});
+    return id;
+  } catch (error) {
+    if (coverLocalUri && input.coverImagePath)
+      await removeUnusedCover(input.coverImagePath).catch(() => {});
+    throw error;
+  }
 }
 export const deleteOrganizerDraft = deleteDraftRecord;
 export const setOrganizerSeriesStatus = setSeriesStatusRecord;
@@ -61,6 +84,9 @@ export function formFromSession(
     new Date(Date.parse(value) - 10800000).toISOString();
   const form: SessionFormValues = {
     ...original,
+    coverImagePath: session.cover_image_path,
+    coverLocalUri: undefined,
+    coverEdited: false,
     sessionAttributes: session.attributes,
     venueAttributes: venue?.attributes ?? [],
     venueAttributesBaseline: venue?.attributes ?? [],

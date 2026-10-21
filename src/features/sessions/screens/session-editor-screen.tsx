@@ -73,7 +73,9 @@ export default function SessionEditorScreen() {
           query.data?.venues.find((v) => v.id === session.venue_id),
           series.draft_input
         )
-      : (series?.draft_input ?? initialSessionForm());
+      : series
+        ? { ...series.draft_input, coverImagePath: series.cover_image_path }
+        : initialSessionForm();
   useEffect(() => {
     if (snapshot && snapshot.identity !== identity) {
       setSnapshot(null);
@@ -90,7 +92,9 @@ export default function SessionEditorScreen() {
               query.data.venues.find((v) => v.id === session.venue_id),
               series.draft_input
             )
-          : (series?.draft_input ?? initialSessionForm()),
+          : series
+            ? { ...series.draft_input, coverImagePath: series.cover_image_path }
+            : initialSessionForm(),
       version: session?.updated_at ?? series?.updated_at
     });
   }, [query.data, snapshot, id, draft, session, series, identity]);
@@ -215,7 +219,9 @@ export default function SessionEditorScreen() {
                 key={session?.id ?? series?.id ?? requestId}
                 initialValues={snapshot.input}
                 venues={query.data?.venues ?? []}
+                coverScope={scope}
                 editing={Boolean(session)}
+                inheritedCoverPath={session?.inherited_cover_image_path ?? null}
                 onExit={() => {
                   if (navigation.canGoBack()) router.back();
                   else if (dirty)

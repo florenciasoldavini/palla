@@ -7,6 +7,7 @@ import {
 import { type SessionFormValues } from "@/features/sessions/validation/session-form";
 import { venueSchema, type Venue } from "@/features/venues/domain";
 import { z } from "zod";
+import { removeUnusedCover } from "@/features/session-covers/repositories/cover.repository";
 
 export const seriesRecordSchema = sessionSeriesSchema;
 export type SeriesRecord = z.infer<typeof seriesRecordSchema>;
@@ -95,6 +96,16 @@ export interface SaveSessionRequest {
   scope?: "one" | "future";
   expectedVersion?: string;
 }
+export async function fetchSavedCoverPath(request: SaveSessionRequest) {
+  const one = Boolean(request.sessionId && request.scope !== "future");
+  const { data, error } = await client()
+    .from(one ? "sessions" : "session_series")
+    .select("cover_image_path")
+    .eq("id", one ? request.sessionId! : request.id)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.cover_image_path as string | null | undefined;
+}
 export async function saveSessionRecord(request: SaveSessionRequest) {
   const { data, error } = await client().rpc("save_organizer_session", {
     p_id: request.id,
@@ -114,10 +125,12 @@ export async function deleteDraftRecord(id: string, version: string) {
     .eq("id", id)
     .eq("status", "draft")
     .eq("updated_at", version)
-    .select("id")
+    .select("id,cover_image_path")
     .single();
   if (error || !data)
     throw error ?? new Error("Session changed. Reload before saving");
+  if (data.cover_image_path)
+    await removeUnusedCover(data.cover_image_path).catch(() => {});
 }
 
 export async function setSeriesStatusRecord(request: {
