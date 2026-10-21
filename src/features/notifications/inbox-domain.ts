@@ -6,13 +6,25 @@ export const notificationKinds = [
   "review_reminders",
   "new_reviews",
   "session_announcements",
-  "session_cancellations"
+  "session_cancellations",
+  "new_registrations",
+  "player_cancellations"
 ] as const;
 export type NotificationKind = (typeof notificationKinds)[number];
 export const notificationCopy: Record<
   NotificationKind,
   { title: string; description: string; group: string }
 > = {
+  new_registrations: {
+    title: "New registrations",
+    description: "When a player joins a session you host.",
+    group: "Sessions"
+  },
+  player_cancellations: {
+    title: "Player cancellations",
+    description: "When a player cancels their registration for your session.",
+    group: "Sessions"
+  },
   session_cancellations: {
     title: "Session cancellations",
     description: "When a session you joined or waitlisted for is cancelled.",
@@ -52,9 +64,12 @@ export const inboxItemSchema = z.object({
     "review_reminders",
     "new_reviews",
     "session_announcements",
-    "session_cancellations"
+    "session_cancellations",
+    "new_registrations",
+    "player_cancellations"
   ]),
   registration_id: z.uuid(),
+  actor_name: z.string().nullable().optional(),
   review_id: z.uuid().nullable(),
   cancellation_id: z.uuid().nullable().optional(),
   session_starts_at: z.iso.datetime({ offset: true }).optional(),
@@ -89,6 +104,8 @@ export const inboxItemSchema = z.object({
 });
 export type InboxItem = z.infer<typeof inboxItemSchema>;
 export const notificationTargetSchema = z.object({
+  notification_type: z.string().optional(),
+  session_id: z.uuid().optional(),
   cancellation_id: z.uuid().nullable().optional(),
   announcement_id: z.uuid().nullable().optional(),
   id: z.uuid(),
@@ -96,6 +113,8 @@ export const notificationTargetSchema = z.object({
   mode: z.enum(["player", "organizer"])
 });
 export const pushSubscriptionSchema = z.object({
+  new_registrations: z.boolean().default(false),
+  player_cancellations: z.boolean().default(false),
   chat_messages: z.boolean(),
   review_reminders: z.boolean(),
   new_reviews: z.boolean(),
@@ -106,15 +125,25 @@ export const reviewPushSchema = z.object({
   type: z.enum([
     "review_notification",
     "announcement_notification",
-    "cancellation_notification"
+    "cancellation_notification",
+    "registration_notification"
   ]),
+  notification_type: z
+    .enum(["new_registrations", "player_cancellations"])
+    .optional(),
   notification_id: z.uuid(),
   recipient_id: z.uuid(),
   mode: z.enum(["player", "organizer"])
 });
 export function parseReviewPush(data: unknown) {
   const parsed = reviewPushSchema.safeParse(data);
-  return parsed.success ? parsed.data : null;
+  if (!parsed.success) return null;
+  if (
+    parsed.data.type === "registration_notification" &&
+    (!parsed.data.notification_type || parsed.data.mode !== "organizer")
+  )
+    return null;
+  return parsed.data;
 }
 
 export type PushSubscriptions = z.infer<typeof pushSubscriptionSchema>;

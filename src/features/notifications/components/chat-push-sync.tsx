@@ -69,13 +69,16 @@ export function ChatPushSync({ ready }: { ready: boolean }) {
                 : undefined;
             const review = parseReviewPush(notification.request.content.data);
             const reviewEnabled =
-              review?.type === "cancellation_notification"
-                ? current.preferences?.session_cancellations
-                : review?.type === "announcement_notification"
-                  ? current.preferences?.session_announcements
-                  : review?.mode === "player"
-                    ? current.preferences?.review_reminders
-                    : current.preferences?.new_reviews;
+              review?.type === "registration_notification" &&
+              review.notification_type
+                ? current.preferences?.[review.notification_type]
+                : review?.type === "cancellation_notification"
+                  ? current.preferences?.session_cancellations
+                  : review?.type === "announcement_notification"
+                    ? current.preferences?.session_announcements
+                    : review?.mode === "player"
+                      ? current.preferences?.review_reminders
+                      : current.preferences?.new_reviews;
             const show =
               alive && review && review.recipient_id === current.actor
                 ? reviewEnabled === true

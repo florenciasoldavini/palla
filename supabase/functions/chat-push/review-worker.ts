@@ -10,7 +10,9 @@ type Job = {
     | "review_reminders"
     | "new_reviews"
     | "session_announcements"
-    | "session_cancellations";
+    | "session_cancellations"
+    | "new_registrations"
+    | "player_cancellations";
   title: string;
   body: string;
 };
@@ -73,29 +75,33 @@ export async function runReviewPushWorker({
         "send",
         jobs.map((j) => ({
           to: j.token,
-          title: notificationText(j.title, 60, 256, "Session review"),
-          body: notificationText(
-            j.body,
-            180,
-            768,
-            "Open Palla to view your session review."
-          ),
+          title: notificationText(j.title, 60, 256, "Palla"),
+          body: notificationText(j.body, 180, 768, "Open Palla for details."),
           sound: "default",
           channelId:
-            j.kind === "session_cancellations"
-              ? "cancellations"
-              : j.kind === "session_announcements"
-                ? "announcements"
-                : "reviews",
+            j.kind === "new_registrations" || j.kind === "player_cancellations"
+              ? "registrations"
+              : j.kind === "session_cancellations"
+                ? "cancellations"
+                : j.kind === "session_announcements"
+                  ? "announcements"
+                  : "reviews",
           priority: "high",
           ttl: 3600,
           data: {
             type:
-              j.kind === "session_cancellations"
-                ? "cancellation_notification"
-                : j.kind === "session_announcements"
-                  ? "announcement_notification"
-                  : "review_notification",
+              j.kind === "new_registrations" ||
+              j.kind === "player_cancellations"
+                ? "registration_notification"
+                : j.kind === "session_cancellations"
+                  ? "cancellation_notification"
+                  : j.kind === "session_announcements"
+                    ? "announcement_notification"
+                    : "review_notification",
+            ...(j.kind === "new_registrations" ||
+            j.kind === "player_cancellations"
+              ? { notification_type: j.kind }
+              : {}),
             notification_id: j.notification_id,
             mode: j.mode,
             recipient_id: j.recipient_id

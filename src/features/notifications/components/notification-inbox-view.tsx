@@ -1,3 +1,4 @@
+import { NotificationIcon } from "./notification-icon";
 import { cancellationReasons } from "@/features/cancellations/domain";
 import {
   ActivityIndicator,
@@ -9,10 +10,8 @@ import {
 import {
   ArrowLeft,
   Bell,
-  CalendarX,
   Check,
   ChevronRight,
-  Megaphone,
   Star
 } from "lucide-react-native";
 import {
@@ -139,7 +138,7 @@ export function NotificationInboxView({
                     ? "You have no unread notifications."
                     : mode === "player"
                       ? "Session updates and review reminders will appear here."
-                      : "New reviews of your sessions will appear here."
+                      : "Player activity and reviews of your sessions will appear here."
                 }
               />
             }
@@ -155,6 +154,10 @@ export function NotificationInboxView({
               const showGroup =
                 index === 0 ||
                 today(items[index - 1].created_at) !== today(item.created_at);
+              const joined = item.notification_type === "new_registrations";
+              const playerCancelled =
+                item.notification_type === "player_cancellations";
+              const playerActivity = joined || playerCancelled;
               const cancellation =
                 item.notification_type === "session_cancellations";
               const announcement =
@@ -165,13 +168,15 @@ export function NotificationInboxView({
                 reminder &&
                 (item.review_status === "published" ||
                   item.review_status === "hidden");
-              const title = cancellation
-                ? "Session cancelled"
-                : announcement
-                  ? `Announcement from ${item.host_name || "your host"}`
-                  : reminder
-                    ? "How was your session?"
-                    : `${item.reviewer_name || "A player"} left a review`;
+              const title = playerActivity
+                ? `${item.actor_name || item.reviewer_name || "A player"} ${joined ? "joined your session" : "cancelled their registration"}`
+                : cancellation
+                  ? "Session cancelled"
+                  : announcement
+                    ? `Announcement from ${item.host_name || "your host"}`
+                    : reminder
+                      ? "How was your session?"
+                      : `${item.reviewer_name || "A player"} left a review`;
               return (
                 <View style={{ gap: 12 }}>
                   {showGroup && (
@@ -187,34 +192,26 @@ export function NotificationInboxView({
                     accessibilityRole="button"
                     accessibilityLabel={`${title}. ${item.session_title}.${item.read_at ? " Read." : " Unread."}${reviewed ? " Reviewed." : ""}`}
                     accessibilityHint={
-                      cancellation
-                        ? "Read the cancellation details."
-                        : announcement
-                          ? "Read the session announcement."
-                          : expired
-                            ? "Learn about the 14-day review period."
-                            : reminder
-                              ? "Open your session review."
-                              : "Open the received review."
+                      playerActivity
+                        ? "Open the organizer session details."
+                        : cancellation
+                          ? "Read the cancellation details."
+                          : announcement
+                            ? "Read the session announcement."
+                            : expired
+                              ? "Learn about the 14-day review period."
+                              : reminder
+                                ? "Open your session review."
+                                : "Open the received review."
                     }
                     style={styles.row}
                   >
-                    <View
-                      style={[
-                        styles.icon,
-                        (reminder || announcement || cancellation) &&
-                          styles.reviewIcon
-                      ]}
-                      accessibilityElementsHidden
-                      importantForAccessibility="no-hide-descendants"
-                    >
-                      {cancellation ? (
-                        <CalendarX size={25} color={c.textSubtle} />
-                      ) : announcement ? (
-                        <Megaphone size={25} color={c.textSubtle} />
-                      ) : reminder ? (
-                        <Star size={25} color={c.textSubtle} />
-                      ) : (
+                    {item.notification_type === "new_reviews" ? (
+                      <View
+                        style={styles.icon}
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
+                      >
                         <AppText variant="label">
                           {item.reviewer_name
                             .split(" ")
@@ -223,13 +220,13 @@ export function NotificationInboxView({
                             .map((part) => part[0])
                             .join("") || "P"}
                         </AppText>
-                      )}
-                      {!reminder && !announcement && !cancellation && (
                         <View style={styles.reviewBadge}>
                           <Star size={12} color={c.text} fill={c.text} />
                         </View>
-                      )}
-                    </View>
+                      </View>
+                    ) : (
+                      <NotificationIcon type={item.notification_type} />
+                    )}
                     <View style={{ flex: 1, gap: 5 }}>
                       <AppText variant="label">{title}</AppText>
                       <AppText variant="bodySm" tone="subtle">
@@ -322,7 +319,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
-  reviewIcon: { borderRadius: atomRadii.md },
   reviewBadge: {
     position: "absolute",
     right: -3,

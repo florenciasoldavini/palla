@@ -1,11 +1,6 @@
 import { ActivityIndicator, Switch, View } from "react-native";
-import {
-  ArrowLeft,
-  MessageSquare,
-  Star,
-  Megaphone,
-  CalendarX
-} from "lucide-react-native";
+import { ArrowLeft } from "lucide-react-native";
+import { NotificationIcon } from "./notification-icon";
 import {
   AppButton,
   AppCard,
@@ -81,15 +76,7 @@ export function NotificationSettingsView({
                       group
                   )
                   .map((row) => {
-                    const copy = notificationCopy[row.key as NotificationKind],
-                      Icon =
-                        row.key === "chat_messages"
-                          ? MessageSquare
-                          : row.key === "session_cancellations"
-                            ? CalendarX
-                            : row.key === "session_announcements"
-                              ? Megaphone
-                              : Star;
+                    const copy = notificationCopy[row.key as NotificationKind];
                     const pending = saving === row.key;
                     return (
                       <AppCard key={row.key} surface="panel">
@@ -100,20 +87,9 @@ export function NotificationSettingsView({
                             gap: 12
                           }}
                         >
-                          <View
-                            style={{
-                              width: 44,
-                              height: 44,
-                              borderRadius: 12,
-                              backgroundColor: c.surfaceRaised,
-                              alignItems: "center",
-                              justifyContent: "center"
-                            }}
-                            accessibilityElementsHidden
-                            importantForAccessibility="no-hide-descendants"
-                          >
-                            <Icon size={22} color={c.text} />
-                          </View>
+                          <NotificationIcon
+                            type={row.key as NotificationKind}
+                          />
                           <View style={{ flex: 1, gap: 4 }}>
                             <AppText variant="label">{copy.title}</AppText>
                             <AppText variant="bodySm" tone="subtle">

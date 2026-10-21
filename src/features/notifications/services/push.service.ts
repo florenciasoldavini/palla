@@ -54,6 +54,10 @@ export function registerCurrentPushDevice(
           importance: notifications.AndroidImportance.HIGH,
           sound: "default"
         });
+        await notifications.setNotificationChannelAsync("registrations", {
+          name: "Player registrations",
+          importance: notifications.AndroidImportance.HIGH
+        });
         await notifications.setNotificationChannelAsync("announcements", {
           name: "Session announcements",
           importance: notifications.AndroidImportance.HIGH,

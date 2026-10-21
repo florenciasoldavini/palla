@@ -73,6 +73,8 @@ The header includes a step count. The first step offers sign out; the name step 
 
 ### Icons on tinted backgrounds
 
+Use `AppIconTile` for decorative icons on a rounded square surface. Its lilac tone owns the `surfaceRaised` background and primary text icon color, with a 44px tile, 22px icon, 2px stroke and 12px corners. Do not override these colors or dimensions in individual screens. The neon tone has its own fixed brand background/foreground pair. Notification inbox and settings use `NotificationIcon`, which shares the notification-type-to-icon mapping and renders this atom. Reviewer avatars remain a separate treatment.
+
 Pair an icon with a lighter background from the same color family, using a darker tone for the icon. For brand icons use `volt[100]` behind `volt[800]`; never place green icons on lilac backgrounds. Blocking explanation rows use pale lilac circles with dark lilac icons (`#6b6385`), keeping this secondary information quiet. Align icon circles vertically with the complete adjacent text group, and keep separators outside that group so padding does not shift the alignment.
 
 ### List-filter chips
