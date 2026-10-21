@@ -1,5 +1,8 @@
 import type { PadelSession } from "./domain";
 export const sample: PadelSession = {
+  cover_image_path: null,
+  inherited_cover_image_path: null,
+  attributes: [],
   id: "11111111-1111-4111-8111-111111111111",
   completed_at: null,
   organizer_id: "11111111-1111-4111-8111-111111111112",

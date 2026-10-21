@@ -153,3 +153,53 @@ it("sends cancellation alerts through their own channel and typed inbox target",
     }
   );
 });
+
+it.each(["new_registrations", "player_cancellations"])(
+  "routes %s to the registrations channel and organizer payload",
+  async (kind) => {
+    const rpc = vi.fn(async (name: string) =>
+      name === "claim_review_notification_push_jobs"
+        ? [{ ...job, kind, mode: "organizer" }]
+        : []
+    );
+    const fetcher = vi.fn(
+      async (_url: string | URL | Request, _options?: RequestInit) =>
+        Response.json({ data: [{ status: "ok", id: "ticket" }] })
+    );
+    await runReviewPushWorker({ rpc, fetcher: fetcher as typeof fetch });
+    expect(
+      JSON.parse(fetcher.mock.calls[0][1]!.body as string)[0]
+    ).toMatchObject({
+      channelId: "registrations",
+      data: {
+        type: "registration_notification",
+        notification_type: kind,
+        mode: "organizer",
+        recipient_id: job.recipient_id
+      }
+    });
+  }
+);
+
+it.each(["waitlist_joins", "waitlist_departures", "waitlist_promotions"])(
+  "preserves the typed %s payload and audience",
+  async (kind) => {
+    const mode = kind === "waitlist_promotions" ? "player" : "organizer";
+    const rpc = vi.fn(async (name: string) =>
+      name === "claim_review_notification_push_jobs"
+        ? [{ ...job, kind, mode }]
+        : []
+    );
+    const fetcher = vi.fn(
+      async (_url: string | URL | Request, _options?: RequestInit) =>
+        Response.json({ data: [{ status: "ok", id: "ticket" }] })
+    );
+    await runReviewPushWorker({ rpc, fetcher: fetcher as typeof fetch });
+    expect(
+      JSON.parse(fetcher.mock.calls[0][1]!.body as string)[0]
+    ).toMatchObject({
+      channelId: "registrations",
+      data: { type: "registration_notification", notification_type: kind, mode }
+    });
+  }
+);

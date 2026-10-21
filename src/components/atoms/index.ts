@@ -31,3 +31,5 @@ export * from "./field-surface";
 export * from "./filter-chip";
 
 export * from "./avatar-group";
+
+export * from "./icon-tile";

@@ -19,6 +19,7 @@ export function useReview(registration: string | null) {
     staleTime: 0
   });
   const invalidate = () => {
+    void client.invalidateQueries({ queryKey: ["public-session-reviews"] });
     void client.invalidateQueries({
       queryKey: ["notification-inbox", user?.id]
     });

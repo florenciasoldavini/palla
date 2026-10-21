@@ -46,11 +46,31 @@ export default function NotificationsScreen() {
           router.setParams({ mode: target.mode });
           return;
         }
+        const playerActivity =
+          target.notification_type === "new_registrations" ||
+          target.notification_type === "player_cancellations" ||
+          target.notification_type === "waitlist_joins" ||
+          target.notification_type === "waitlist_departures";
+        const promotion = target.notification_type === "waitlist_promotions";
+        if (promotion)
+          void client.invalidateQueries({
+            queryKey: ["public-session", user.id, target.session_id]
+          });
+        if ((playerActivity || promotion) && target.session_id) {
+          router.setParams({ notificationId: "" });
+          router.push({
+            pathname: promotion ? "/session" : "/organizer-session/[id]",
+            params: { id: target.session_id }
+          });
+        }
         setExpiredInvitation(null);
         setCancellation(target.cancellation_id ?? null);
         setAnnouncement(target.announcement_id ?? null);
         setRegistration(
-          target.announcement_id || target.cancellation_id
+          promotion ||
+            playerActivity ||
+            target.announcement_id ||
+            target.cancellation_id
             ? null
             : target.registration_id
         );
@@ -110,7 +130,25 @@ export default function NotificationsScreen() {
           setAnnouncement(null);
           setRegistration(null);
           setExpiredInvitation(null);
-          if (item.cancellation_id) setCancellation(item.cancellation_id);
+          if (item.notification_type === "waitlist_promotions")
+            void client.invalidateQueries({
+              queryKey: ["public-session", user?.id, item.session_id]
+            });
+          if (
+            item.notification_type === "new_registrations" ||
+            item.notification_type === "player_cancellations" ||
+            item.notification_type === "waitlist_joins" ||
+            item.notification_type === "waitlist_departures" ||
+            item.notification_type === "waitlist_promotions"
+          )
+            router.push({
+              pathname:
+                item.notification_type === "waitlist_promotions"
+                  ? "/session"
+                  : "/organizer-session/[id]",
+              params: { id: item.session_id }
+            });
+          else if (item.cancellation_id) setCancellation(item.cancellation_id);
           else if (item.announcement_id) setAnnouncement(item.announcement_id);
           else if (isExpiredReviewInvitation(item)) setExpiredInvitation(item);
           else setRegistration(item.registration_id);

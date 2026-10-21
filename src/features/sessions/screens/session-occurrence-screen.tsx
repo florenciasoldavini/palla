@@ -1,3 +1,5 @@
+import { useAppToast } from "@/components/atoms/toast";
+import { useSessionShare } from "../public/hooks/use-session-share";
 import { SessionAnnouncements } from "@/features/announcements/components/session-announcements";
 import { useOrganizerRoster } from "@/features/registrations/hooks/use-organizer-attendance";
 import { OrganizerWaitlist } from "@/features/registrations/components/organizer-waitlist";
@@ -21,6 +23,12 @@ export default function SessionOccurrenceScreen() {
   const query = useOrganizerSessions();
   const roster = useOrganizerRoster(id ?? "");
   const session = query.data?.sessions.find((s) => s.id === id);
+  const toast = useAppToast();
+  const { share, sharing } = useSessionShare(
+    id ?? "",
+    session?.title ?? "Padel session",
+    session?.description
+  );
   const series = query.data?.series.find((s) => s.id === session?.series_id);
   const weekly = series?.draft_input.repeat === "weekly";
   const back = () =>
@@ -70,6 +78,19 @@ export default function SessionOccurrenceScreen() {
   return (
     <>
       <SessionOccurrenceDetail
+        sharing={sharing}
+        onShare={() =>
+          session.visibility === "public"
+            ? void share()
+            : toast.show({
+                title: "This session is private",
+                description: "Only public sessions have public links.",
+                tone: "info"
+              })
+        }
+        onPublicView={() =>
+          router.push({ pathname: "/session", params: { id: session.id } })
+        }
         announcements={
           <SessionAnnouncements
             sessionId={session.id}

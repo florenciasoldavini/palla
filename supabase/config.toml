@@ -13,3 +13,7 @@ verify_jwt = false
 [functions.session-announcements]
 # JWT gateway plus handler Auth.getUser; database enforces active host ownership and audience.
 verify_jwt = true
+
+[functions.session-cover]
+# Gateway JWT validation stays enabled; the handler additionally checks occurrence visibility.
+verify_jwt = true

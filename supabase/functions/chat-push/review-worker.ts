@@ -10,10 +10,24 @@ type Job = {
     | "review_reminders"
     | "new_reviews"
     | "session_announcements"
-    | "session_cancellations";
+    | "session_cancellations"
+    | "new_registrations"
+    | "player_cancellations"
+    | "waitlist_joins"
+    | "waitlist_departures"
+    | "waitlist_promotions";
   title: string;
   body: string;
 };
+function isRegistrationJob(job: Job) {
+  return (
+    job.kind === "new_registrations" ||
+    job.kind === "player_cancellations" ||
+    job.kind === "waitlist_joins" ||
+    job.kind === "waitlist_departures" ||
+    job.kind === "waitlist_promotions"
+  );
+}
 type Ticket = {
   status: "ok" | "error";
   id?: string;
@@ -73,16 +87,12 @@ export async function runReviewPushWorker({
         "send",
         jobs.map((j) => ({
           to: j.token,
-          title: notificationText(j.title, 60, 256, "Session review"),
-          body: notificationText(
-            j.body,
-            180,
-            768,
-            "Open Palla to view your session review."
-          ),
+          title: notificationText(j.title, 60, 256, "Palla"),
+          body: notificationText(j.body, 180, 768, "Open Palla for details."),
           sound: "default",
-          channelId:
-            j.kind === "session_cancellations"
+          channelId: isRegistrationJob(j)
+            ? "registrations"
+            : j.kind === "session_cancellations"
               ? "cancellations"
               : j.kind === "session_announcements"
                 ? "announcements"
@@ -90,12 +100,14 @@ export async function runReviewPushWorker({
           priority: "high",
           ttl: 3600,
           data: {
-            type:
-              j.kind === "session_cancellations"
+            type: isRegistrationJob(j)
+              ? "registration_notification"
+              : j.kind === "session_cancellations"
                 ? "cancellation_notification"
                 : j.kind === "session_announcements"
                   ? "announcement_notification"
                   : "review_notification",
+            ...(isRegistrationJob(j) ? { notification_type: j.kind } : {}),
             notification_id: j.notification_id,
             mode: j.mode,
             recipient_id: j.recipient_id

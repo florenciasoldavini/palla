@@ -90,6 +90,46 @@
       "section": "Push Notifications / Native Build",
       "comment": "Path to Firebase google-services.json for the Android native build. Use a file environment variable in EAS; do not commit the file. Not synchronized by the generic env-sync script.",
       "example": "/secure/path/google-services.json"
+    },
+    "EXPO_PUBLIC_SESSION_SHARE_URL": {
+      "section": "Session Sharing / Public",
+      "comment": "HTTPS origin for public session links and native app-link association. Separate from local auth redirects.",
+      "example": "https://palla-pink.vercel.app",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "SESSION_SHARE_SUPABASE_ANON_KEY": {
+      "section": "Session Sharing / Server",
+      "comment": "Legacy public anon JWT for invoking the existing JWT-verified session-cover function. Never use a service-role key.",
+      "example": "your_legacy_anon_jwt",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      }
+    },
+    "APPLE_TEAM_ID": {
+      "section": "Session Sharing / Signing",
+      "comment": "Apple Developer Team ID for associated domains and the public AASA response.",
+      "example": "YOURTEAMID1",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      },
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "plaintext"
+      }
+    },
+    "ANDROID_APP_LINK_FINGERPRINTS": {
+      "section": "Session Sharing / Signing",
+      "comment": "Comma-separated SHA-256 release/Play signing certificate fingerprints. Do not publish debug keys on the production domain.",
+      "example": "YOUR_RELEASE_SHA256_FINGERPRINTS",
+      "vercel": {
+        "environments": ["development", "preview", "production"]
+      }
     }
   }
 }

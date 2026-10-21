@@ -1,4 +1,5 @@
-import { ArrowLeft, Bell } from "lucide-react-native";
+import { NotificationIcon } from "./notification-icon";
+import { ArrowLeft } from "lucide-react-native";
 import { ActivityIndicator, StyleSheet, Switch, View } from "react-native";
 import {
   AppButton,
@@ -60,13 +61,7 @@ export function NotificationPreferencesView({
         ) : (
           <AppCard surface="panel">
             <View style={styles.row}>
-              <View
-                style={styles.icon}
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-              >
-                <Bell size={22} color={c.text} />
-              </View>
+              <NotificationIcon type="chat_messages" />
               <View style={styles.copy}>
                 <AppText variant="label">Chat messages</AppText>
                 <AppText variant="bodySm" tone="subtle">
@@ -102,13 +97,5 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", gap: 8 },
   row: { flexDirection: "row", alignItems: "center", gap: 12 },
   copy: { flex: 1, gap: 4 },
-  icon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: c.surfaceRaised,
-    alignItems: "center",
-    justifyContent: "center"
-  },
   saving: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12 }
 });

@@ -732,3 +732,171 @@ The corrected announcement preview was visually inspected on both native platfor
 Chat notification setting icon: replaced the bell with the same MessageSquare icon used by the Messages navigation tab. Visually verified the actual settings screen on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37; preferences were not toggled. Targeted ESLint, formatting and diff checks pass.
 
 Insufficient-player cancellation reason icon: changed Users to UserMinus. Visually checked the production reason component through the no-write form preview on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Targeted ESLint, formatting and diff checks pass.
+
+## Public session detail — October 20, 2026
+
+Devices: iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, using the native development clients and Metro. No browser screenshots were used for app acceptance.
+
+Both platforms exercised the approved detail composition, scrolling, safe areas, persistent Back/Share controls, joined-player details, host sheet, Join session explanation and dismissal, native share sheet opening without selecting a recipient, error retry and invalid-link unavailable state. The preview uses production components with illustrative data and performs no registration writes. Native accessibility trees were used to locate controls. This screen has no text-entry form or keyboard interaction.
+
+Live reads confirmed owner access to the existing private test occurrence on iOS and unavailable access from the other account on Android. Visibility and existing registrations were preserved. The public read migration and rollback-only SQL authorization tests passed; independent cleanup checks found no remaining temporary Auth/product fixtures.
+
+Android initially encountered system-server crashes and launcher ANRs. A cold restart using host graphics recovered the existing emulator without clearing its disk or account. Final Android header, scroll and retry evidence was captured after recovery. Runtime screenshots are ignored under `.impeccable/review/native/public-session/`.
+
+`npm run verify` passed 190 tests across 41 files, TypeScript, ESLint and formatting (existing unrelated lint warnings remain). The static export also passed. Final focused tests, lint, TypeScript and formatting passed after the header correction. The finish reviewer returned `ship` with no material visual fixes remaining.
+
+Limits: joining/saving remain deferred; no booking is simulated. HTTPS links need deployment of this branch before they render the new route. Native custom deep links are supported; Universal/App Link association and store fallback remain outside this first version. The sharing check opens the OS sheet but does not send a link to another person.
+
+Larger-text follow-up passed on both platforms: iOS accessibility-medium and Android 140%, with scroll gestures inside the content, persistent navigation, wrapping policies/host information, the stacked booking bar and reachable Join/Got it actions. Captures: `ios-large-verified-scroll.png`, `ios-large-verified-join.png`, `android-large-final-scroll.png` and `android-large-final-join.png`. Normal text settings were restored. Android font changes recreate the activity; the final successful pass waits for recreation before opening the preview.
+
+### Embedded session map — October 20, 2026
+
+Added the real Google address map in the production public detail, using the existing native WebView inside a rounded 220dp panel. iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37 both rendered actual map tiles, address and visible provider attribution. Native page scrolling, fixed header/footer and the directions action were checked. The no-write preview directions callback shows feedback rather than launching an external Maps app; this check does not assert an external navigation handoff. No account/session data was changed.
+
+The initial direct WebView request was rejected by Google because embeds require an iframe; the corrected adapter frames the map and reports frame-load status. Temporary diagnostic logging was removed. iOS testing also required restarting its development client and using the native gesture tool to position the map; earlier offscreen-control attempts are not counted as passed taps. Final XcodeBuildMCP taps and Android UI-tree taps produced the expected preview feedback.
+
+Enlarged-text checks passed with the map fully scrolled into view, readable address and reachable action: iOS accessibility-medium and Android 140%. Both text settings were restored. Screenshots are `ios-map-loaded.png`, `android-map-loaded.png`, `ios-map-large.png`, and `android-map-large.png` in the ignored public-session evidence folder. Loading skeleton, timeout, retry and missing-address fallbacks are implemented; failure injection was not exercised natively in this follow-up.
+
+Full `npm run verify` passed 195 tests across 42 files and the code-quality checks, with existing unrelated lint warnings. The bounded map finish review returned `ship` without material findings. No schema, secret key or new native dependency is needed for this update.
+
+Map presentation refinement: centered the directions button horizontally and vertically, using the existing solid button with a translucent dark surface, inverse text and the shared floating shadow. The real map is presented in muted monochrome. Inspected actual tiles and activated the directions preview action on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37; scrolling and persistent controls remain intact. Evidence: `ios-map-overlay.png` and `android-map-overlay.png`. Google’s embedded controls and attribution remain visible; this is a presentation treatment, not a custom map-data style. `npm run verify` passes 195 tests and existing quality checks.
+
+### Approved Frosted button map — October 20, 2026
+
+The approved light mockup is now implemented with actual OpenFreeMap vector streets, a custom lilac/white MapLibre style without labels or provider widgets, and a centered translucent white shared button with an olive map icon. Independent Photon address resolution goes through the feature's repository/service/query layers. Coordinates are validated, account-scoped and memory-cached; no Google coordinate data, account credentials or device location are used. Unresolved addresses never fall back to fabricated coordinates.
+
+Native verification passed on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37: actual vector tiles, centered action activation, page scrolling and persistent controls. Enlarged text passed at iOS accessibility-medium and Android 140%, with the map action reachable. Text sizes were restored to iOS large and Android 1.0. iOS uses native blur; Android uses a stable translucent fallback because experimental backdrop blur visibly softened the control's own text.
+
+Both platforms exercised an intentionally unresolved address: the error state retains directions, Retry map runs a new request with a busy state and remains recoverable when that address still cannot resolve. Both platforms also inspected the missing-address fallback. These are no-write previews; the directions callback shows a preview toast rather than launching an external Maps app. No accounts, venue records, registrations or stored settings were changed. There is no text-entry/keyboard surface in this component.
+
+Evidence: `ios-map-frosted.png`, `android-map-frosted.png`, `ios-frosted-large.png`, `android-frosted-large.png`, `ios-frosted-error.png`, and `android-frosted-error.png` in the ignored public-session folder. The Android enlarged-text capture contains an existing development-client multiple-linking warning; a fresh normal-text client session was used for final visual inspection. A transient hot-reload props mismatch and a native-incompatible AbortSignal helper were corrected before final checks. The adapter now uses the native-compatible AbortController contract, covered by cancellation tests. These checks are runtime/layout evidence, not a GPU performance benchmark.
+
+Full `npm run verify` passes 200 tests across 44 files plus TypeScript, lint and formatting (existing unrelated warnings remain). The independent finish reviewer returned `ship` with no material findings. No new native dependency, database migration, paid API key or deployment was introduced for this map refinement. Provider details and first-version limits are in `docs/public-session-details.md`.
+
+Map button refinement: replaced the frosted surface with solid white and the shared subtle raised shadow. Visually checked the updated button over real map tiles on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Evidence: `ios-map-white.png` and `android-map-white.png`. Targeted ESLint, formatting and TypeScript checks passed.
+
+### Clean stack public session header — October 20, 2026
+
+Applied the selected Clean stack mockup: an opaque safe-area navigation row, contained 182dp court image with status badge, title and venue beneath it, and one compact summary card for date/time/duration, category and price. The summary stacks at larger text sizes. Existing map and lower content remain in place.
+
+Checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37: normal layout, page scrolling, persistent header/footer, Back and the existing Join information sheet. Accessibility-medium iOS and Android 140% text checks confirmed readable wrapping, stacked summary and reachable controls. Normal font settings were restored. Android also activated the map's no-write preview toast; iOS opened and dismissed the native share sheet without sending. Android share was tapped, but the initial automation did not wait for the chooser and its subsequent Back returned to the previous screen; that sequence is not counted as share-sheet validation. No accounts or session records were changed. No keyboard/input surface was added.
+
+Evidence: `ios-clean-stack-top.png`, `android-clean-stack-top.png`, `ios-clean-stack-large-top.png`, `ios-clean-stack-large-summary.png`, `android-clean-stack-large-top.png`, and `android-clean-stack-large-summary.png` under the ignored public-session evidence directory. `npm run verify` passed 200 tests across 44 files, TypeScript, lint and formatting (existing unrelated warnings remain).
+
+Before you join refinement (October 20): grouped the existing registration deadline, cancellation cutoff, optional opening/arrival information and payment instructions into labelled icon rows, preserving timezone and fallback copy. Native normal and enlarged-text inspection passed on iPhone 17 Pro / iOS 26.5 (accessibility-medium) and Pixel 8 / Android 17 API 37 (140%). Both normal text settings were restored. Evidence: `ios-policies-normal.png`, `android-policies-normal.png`, `ios-policies-large.png`, `android-policies-large.png`. No persistent data changed. Full verify passed 200 tests and code-quality checks with existing warnings. Host chat and review-display additions remain mockup proposals.
+
+## Public session review cards — 20 October 2026
+
+Devices: iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, installed native Palla development clients on Metro 8081. No browser validation. Approved `review-overview-cards.html` extension: series-specific average/count/distribution, two white review cards and a dedicated paginated full-list page. Existing header and host block retained.
+
+Checked on both: review cards, source date and orange stars, full-list navigation, Load more, back navigation, empty/loading/error/retry, safe areas, scrolling and enlarged text (iOS Accessibility Medium; Android font scale 1.4). Review rows without comments use explicit neutral text. Star rows keep compact width when stacked. Original text settings restored. No keyboard input is introduced by this read-only surface. iOS also checked unavailable public review links. Android’s font-scale activity recreation needed reconnecting the development client to its existing local Metro server; no account reset or app-data clearing was used.
+
+Evidence: `.impeccable/review/native/public-session/` with `ios-review-cards.png`, `*-reviews-page.png`, `*-reviews-more.png`, `*-reviews-empty.png`, `*-reviews-loading.png`, `*-reviews-error.png`, `*-reviews-retry.png`, `*-reviews-large-overview.png`, `*-reviews-large-cards.png` and final handoff captures. Samples are labelled no-write previews; no sample reviews are inserted into real accounts. There are currently no published public occurrences for a populated live-account walkthrough. The real read RPC was tested using `supabase/tests/public-session-reviews.sql`, rolled back in full: public/owner access, excluded private/future/cancelled/hidden/removed/other-series sources, repeat-player counting, distribution/average, equal-timestamp keyset pages, malformed cursors/limits and no registration/contact/attendance leakage. A follow-up query confirmed zero remaining QA accounts.
+
+`npm run verify` passed: TypeScript, lint (14 existing warnings, no errors), 205 tests in 45 files, formatting. Finish reviewer disposition: **ship**, no material fixes, scoped to the review extension and supplied native captures; Android enlarged-text evidence was captured afterward and inspected separately. No new raster assets or shared theme tokens.
+
+## Session inclusions and venue amenities — 20 October 2026
+
+Devices: iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, installed native development clients on Metro 8081. Checked the actual form and public detail in explicitly labelled no-write previews: inclusion selection, New balls deduplication, venue sheet close/discard and Apply, schedule/back, local draft save/resume, exact selected public chips, safe areas, scrolling, and failed draft save/retry. Native checkbox states were inspected through accessibility trees; iOS compact snapshots omit checkbox controls, so the full AXe tree was used. Selected chips have a 48-unit minimum target. These checks do not establish live-account form persistence; authenticated database RPC behavior was checked separately below. Existing text inputs/keyboard behavior was not revalidated in this attribute-only pass.
+
+Evidence: `.impeccable/review/native/session-attributes/`, including `ios-session-selected.png`, `ios-venue-selected.png`, `ios-draft-resumed.png`, `ios-public-attributes.png`, matching Android selection/public captures, and both save-error/retry captures. Final selector captures were refreshed after increasing the touch targets. iOS Accessibility Medium inspection confirmed readable wrapping in the inclusion picker and public page, and normal text size was restored.
+
+Applied migration `20261020204621_session_attributes.sql` to the connected Palla backend. Rollback-only `supabase/tests/session-attributes.sql` passed for draft isolation, generated occurrence copying, one/future scope, idempotent retry, public projection, stale venue baseline rollback, legacy omitted fields, invalid codes/scope/duplicates, ownership isolation and anonymous table restrictions. Existing strict-category save and public-detail database regressions also passed. Follow-up checks confirmed no remaining test accounts. No sample attributes were inserted into user accounts. Security/performance advisors introduced no new actionable findings.
+
+Full `npm run verify` passed TypeScript, lint (14 existing warnings, zero errors), 210 tests across 46 files and formatting. Independent finish reviewer disposition: **ship**, covering the sole 48-unit target fix and the four refreshed native selector captures. Provisional styling and approximate racket icons remain explicitly deferred; no new theme tokens or raster assets.
+
+Android 140% text inspection also passed for the attribute picker: labels wrap without clipping and the existing fixed actions remain reachable. Changing font scale recreated the development-client activity and initially discarded the preview deep link; reconnecting to the existing Metro server, waiting for hydration, and reopening the route resolved this without clearing app data or signing out. Normal font scale 1.0 was restored. Evidence: `android-large-create.png`. Android enlarged public-detail rendering was not repeated in this pass; normal public attributes passed above.
+
+Padel icon refinement: replaced generic ball and spare-racket symbols with original Palla vectors through Lucide's native icon factory and the existing shared icon props. Both ball attributes use the ball; Spare rackets uses the simplified outline racket. Attribute icon strokes are consistently 1.8. On the same iPhone/Pixel devices, inspected unselected/selected rendering and confirmed both New balls and Spare rackets native checkbox states after tapping. Existing layout, 48-unit targets and selection rules are unchanged. Evidence: `ios-padel-icons-selected.png`, `android-padel-icons-selected.png`. No keyboard or data-writing behavior changed. Full verify passed 210 tests and existing quality checks; independent scoped finish verdict: ship.
+
+Racket silhouette refinement: replaced the ellipse with a rounded head tapering into the neck and shortened the handle. Kept the same 24-unit grid, 1.8 stroke and olive color. Inspected selected attribute rendering on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37 (`ios-racket-refined.png`, `android-racket-refined.png`); no layout or interaction changes. Ball geometry is unchanged.
+
+Reference-shaped racket and navigation (20 October): rebuilt the racket as a fuller loop with a continuous neck/handle, following the user's supplied reference. The shared Sessions/My games bottom tab now uses racket + ball, inheriting active/inactive colors and the existing 2-unit navigation stroke. Attribute icons retain 1.8. Captured native chips and active/inactive navigation on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, checking icon legibility, separation from the label and tab activation. Evidence: `*-racket-reference-chips.png`, `*-racket-navigation.png`, `*-racket-navigation-inactive.png` in the session-attributes evidence folder. No form, keyboard or backend behavior changed. Full verify passed 210 tests and existing quality checks.
+
+Compact racket follow-up: shortened the handle and reduced the head's long axis to address the user's elongated-proportion feedback. Native real Sessions captures on both devices are `ios-racket-compact-navigation.png` and `android-racket-compact-navigation.png`; icon remains separated from the label and unclipped. Shared icon color/stroke and ball geometry are unchanged.
+
+Round-head follow-up: widened the head across its short axis and shortened the handle again, retaining the smooth neck. Inspected the iOS creation chips and Android real Sessions navbar on the same native devices (`ios-racket-round-navigation.png`, `android-racket-round-navigation.png`; the iOS capture name retains the navigation test prefix). No clipping or label collision; ball and shared color/stroke remain unchanged.
+
+Symmetry correction: replaced freeform racket curves with mirrored head/neck curves around x=12 and a centered handle, rotating both paths together by 38 degrees. Inspected current iOS chips and Android Sessions navbar (`ios-racket-symmetric.png`, `android-racket-symmetric.png`). Existing size, color, stroke and ball remain unchanged. Full verify passed 210 tests and code-quality checks.
+
+Standalone racket optical sizing: enlarged only the standalone geometry by 25% around the 24-unit canvas center. Stroke width, SVG box, chip spacing and the combined navigation icon are preserved. Inspected iOS and Android attribute chips (`ios-racket-optical-size.png`, `android-racket-optical-size.png`) alongside ball, coaching and snack icons; no clipping. No interaction or backend changes.
+
+Combined icon spacing: moved only the ball center from (18.5,19) to (19.3,19.5), retaining its radius and racket geometry. Inspected the iOS navigation preview and Android real Sessions tab (`ios-racket-ball-gap.png`, `android-racket-ball-gap.png`); the gap is clearer and the ball remains within the icon canvas. TypeScript and targeted formatting checks passed.
+
+Combined racket sizing: enlarged the combined icon's racket by 25% to match the standalone geometry, preserving the ball at (19.3,19.5), radius 3.1, and shared stroke. Both variants now reuse the same symmetrical racket paths. Inspected iOS navigation preview and Android real Sessions tab (`ios-racket-ball-larger.png`, `android-racket-ball-larger.png`): clear racket/ball separation, no clipping. TypeScript and targeted formatting passed.
+
+Restored combined-icon clearance after enlargement: translated only the racket by (-0.8,-0.5) canvas units. Its size and the ball's geometry remain unchanged. Inspected `ios-racket-final-gap.png` and `android-racket-final-gap.png` on the same native devices; gap is visible and strokes remain inside the canvas. TypeScript passed.
+
+## Session cover images (20–21 October 2026)
+
+Devices: iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, native development clients on Metro 8081. Added the optional Cover photo field to Basic Info. Both platforms exercised native selection and local draft resume. Android also uploaded a real private JPEG, saved a temporary draft, reopened the signed cover, removed the cover and saved again. Follow-up database checks confirmed zero temporary draft rows and zero cover objects. No QA authentication accounts were retained.
+
+The iOS full-screen picker, cancellation preserving the prior selection, save/resume and corrected public photo preview were checked. Final public rendering evidence: `ios-cover-public-final.png` under `.impeccable/review/native/session-attributes/`. Android real save/reopen evidence is `android-cover-live-reopened.png`; after restarting on 21 October the account was signed out, so the final preview-binding correction requires a new signed-in Android check. Loading/unavailable states have native captures; real Google provider photo success remains unverified. No keyboard input was added; existing keyboard behavior was not repeated for this extension. iOS Accessibility Medium showed readable wrapping in the cover copy and image; the existing fixed bottom wizard action clips at that text size, so this is not a full enlarged-text acceptance pass. Normal text size was restored.
+
+Backend migration `20261020215957_session_cover_images.sql` and the JWT-verified `session-cover` function are deployed. Rollback-only cover/inheritance/ownership and existing attribute database regressions passed. Provider matching, ambiguous-venue handling, stale place ID fallback and photo URL validation are covered by pure tests. Full `npm run verify` passes 217 tests in 47 files, TypeScript, lint (14 pre-existing warnings) and formatting. Scoped finish review scored the expiring-URL refresh and iOS picker/error-presentation fixes resolved.
+
+## Public session registration (21 October 2026)
+
+Devices: iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, native development clients on Metro 8081. With the user’s approval, created a temporary public single-occurrence QA session using their two existing test accounts. Android joined as the non-host, showed the success toast and registered state, and the database held exactly one confirmed registration with no attendance mark. Recreated the same temporary QA series with the roles reversed, then iOS completed the same real join. The host’s disabled You’re hosting state and Android’s signed-out route to sign-in were also checked. All temporary registrations, occurrences, series and venue were deleted; no new persistent authentication accounts were created.
+
+Evidence: `.impeccable/review/native/session-attributes/android-join-confirmed.png`, `android-join-registered-persisted.png`, `ios-join-confirmed.png` and `ios-join-host-blocked.png`. Normal-size captures show the shared success toast, safe areas and registered action. iOS Accessibility Medium retains a readable registered action with the stacked footer (`ios-join-large-registered.png`); normal size was restored. The Android enlarged-text attempt recreated the activity and lost its deep link, so it does not establish enlarged-text acceptance. Android font scale was restored to 1.0. No new keyboard inputs were added.
+
+Applied migration `20261021151952_player_session_registration.sql`. The rollback-only registration suite passed against the deployed function: actor/host/profile authorization, strict and advisory categories, duplicate retries, full capacity with no implicit waitlist enrollment, opening/closing windows, private/completed/cancelled occurrences, one-occurrence scope, host removal, self-cancelled rejoin and denied direct writes. Security/performance advisors showed no new findings from this function. Full `npm run verify` passed 220 tests in 48 files, TypeScript, lint (14 pre-existing warnings) and formatting. Native joining and persistence are verified; My games, waitlist enrollment, cancellation UI and registration notifications remain separate features.
+
+## Cancelling a public-session registration (21 October 2026)
+
+The confirmed state now exposes an outlined danger Cancel registration action. iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37 native previews verified opening the confirmation sheet, Keep my place dismissal and returning to the same registered state. The no-write preview also demonstrates returning to Join session after confirmation, with an explicit Design preview message.
+
+Using the approved temporary-session test setup and the two existing accounts, iOS joined a real occurrence, dismissed the cancellation once, confirmed cancellation, and returned to Join session. The database retained a cancelled registration with the caller recorded as cancelling player and a cancellation timestamp. Android’s saved Google sign-in was used for its corresponding real test. Android likewise joined, kept its place once, then confirmed cancellation; the database recorded a self-cancellation and the screen returned to Join session. Background query refreshes no longer keep successful join/cancel actions pending. Evidence: `*-cancel-registration-sheet.png`, `*-cancel-registration-live-sheet.png` and `*-cancel-registration-live-result.png` in `.impeccable/review/native/session-attributes/`. No keyboard inputs were added. Existing iOS large-text public-footer checks are recorded above; this pass focuses on native confirmation and writes.
+
+Migration `20261021155411_player_registration_cancellation.sql` is deployed. Rollback tests cover caller isolation, deadline enforcement, no deadline before start, registration-closed cancellation, idempotent retry, self-cancelled rejoin, started-session rejection, automatic waitlist promotion and denied anonymous/direct writes. Security advisors introduced no new findings. Full verify passes 224 tests in 49 files and existing code-quality checks.
+
+Follow-up cleanup confirmed zero remaining temporary cancellation registrations, occurrences, series or venue. Both simulators were returned to the registered no-write preview with the active Cancel registration action. The Android real cancellation passed after changing successful mutations to finish independently of background cache refreshes; the final full verify still passes all 224 tests.
+
+### Host registration notifications — 2026-10-21
+
+Verified in the native Palla development app on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, using the two existing test accounts in both host/player directions. Joining and confirming player cancellation created the opposite host's inbox entry. Checked organizer-only switches, player-mode exclusion, switch persistence, mute retaining inbox delivery, unread/read styling, occurrence navigation and back behavior. Android's server-resolved notification deep link opened the correct occurrence and back did not reopen it. A different account's target was rejected on iOS. Large-text settings remained readable and scrollable (iOS XXXL, Android font scale 1.3); original text sizes restored. No keyboard input is introduced by this feature. Screenshots are in the ignored `.impeccable/review/native/registration-alerts/` directory.
+
+All temporary sessions, registrations, venues, notifications/outbox jobs and the test preference override were removed. SQL rollback tests and `npm run verify` passed (230 tests, 14 existing lint warnings). Backend migration and push worker deployed. The real iOS push job failed with Expo `InvalidCredentials`; Android had no registered push token. Actual foreground/background OS delivery and push receipts remain unverified pending the existing native push setup in [chat-push.md](chat-push.md). See [registration-notifications.md](registration-notifications.md) for behavior and database verification.
+
+### Shared notification icon tiles — 2026-10-21
+
+Checked the shared lilac icon tiles in the notification inbox preview and live organizer settings on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Both surfaces use the same background, dark icon color, 44px tile, 22px glyph and 12px radius through `AppIconTile` and `NotificationIcon`. Screenshots are in the ignored `.impeccable/review/native/notification-icons/` folder. No account data changed. `npm run verify` passed: 230 tests, no errors and 14 existing lint warnings.
+
+### Player waitlist flow — 2026-10-21
+
+Native Palla development app, iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Both existing test accounts joined a full session, saw Leave waitlist, confirmed departure, and rejoined. Host join/departure inbox entries appeared. Manually promoted the Android player through the iOS host UI; the player's promotion notification opened the confirmed session with Cancel registration. Reversed the accounts for automatic promotion, then verified the iOS notification opened the confirmed session. Checked disabled Waitlist full on both platforms and player-only promotion versus organizer-only queue activity settings. The confirmation sheet, scrolling, safe areas, accessible action labels and inbox navigation were checked; no keyboard input is introduced. Native evidence is in ignored `.impeccable/review/native/player-waitlist/`.
+
+Temporary occupancy rows used only the two existing test accounts, and releasing those fixtures opened places for promotion. All temporary sessions, series, registrations, venues, inbox entries and outbox jobs were removed. New rollback SQL plus player registration/cancellation, host notification and organizer queue regressions passed. The older organizer regression is now scoped to its fixture series rather than all live sessions. `npm run verify` passed (238 tests, 14 existing warnings, no errors). Actual OS push delivery remains unverified pending existing native push credentials/setup; typed payload/transport and outbox rules are verified. See [player-waitlists.md](player-waitlists.md).
+
+### Session sharing — 21 October 2026
+
+Local metadata validation uses the actual Web Request handlers through
+`scripts/session-sharing-local.mjs`, not a browser UI substitute. An authorized
+temporary occurrence was used with the existing two test accounts. Its cover was
+uploaded through the iOS session editor. HTTP checks confirmed occurrence-specific
+Open Graph/Twitter title, description and stable image URL; the uploaded image and
+brand fallback both returned 1200×630 JPEG. Changing the occurrence to private
+returned 404 from both metadata and image endpoints. Invalid/missing IDs returned
+404, and absent signing identities returned 503 from association endpoints.
+
+- Android Pixel 8 emulator, Android 17/API 37: custom-scheme session navigation,
+  actual public-detail share button, local share harness, native title/description/
+  correct HTTPS occurrence URL and dismiss/back checked. No message sent.
+- iPhone 17 Pro simulator, iOS 26.5: custom-scheme navigation, actual public-detail share button, native local share
+  sheet and Copy checked; the production sheet shows the correct public host. UIKit shows a URL-based sheet; local cover preview in
+  the system sheet is not verified. Metadata/image HTTP checks are independent.
+- `npm run verify`: 249 tests passed; 14 existing lint warnings, no errors.
+
+Public HTTPS automatic opening and previews in external messaging services are
+**unverified**. The public deployment was not changed; Apple Team ID and Android
+release signing fingerprints are still needed. The iOS native rebuild exceeded
+the MCP timeout; local native build attempts were stopped and installed native
+clients were used for JS share tests. These checks do not establish native
+association configuration in a rebuilt binary.
+
+Cleanup confirmed: temporary sharing occurrence, series and venue counts are
+zero. The cover was reset through the native editor and its Storage object count
+is zero. Both apps were returned to the dashboard. The final static export and
+HTTP metadata check passed (one title and one `og:title`). No public deployment
+was changed.

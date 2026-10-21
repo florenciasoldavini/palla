@@ -5,6 +5,7 @@ import {
   timestampSchema,
   timezoneSchema
 } from "@/types/domain-schema";
+import { sessionAttributesSchema } from "@/features/attributes/domain";
 import { z } from "zod";
 import { sessionDraftSchema } from "@/features/sessions/validation/session-form";
 
@@ -76,6 +77,9 @@ export const sessionInputSchema = z
 export const sessionSchema = z
   .strictObject({
     ...sessionInputShape,
+    cover_image_path: z.string().nullable().default(null),
+    inherited_cover_image_path: z.string().nullable().default(null),
+    attributes: sessionAttributesSchema.default([]),
     id: entityIdSchema,
     organizer_id: entityIdSchema,
     series_id: entityIdSchema.nullable(),
@@ -140,6 +144,9 @@ export const sessionSeriesInputSchema = z
 // Drafts retain partial input; published series have a normalized template.
 export const sessionSeriesSchema = z
   .object({
+    cover_image_path: z.string().nullable().default(null),
+    inherited_cover_image_path: z.string().nullable().default(null),
+    attributes: sessionAttributesSchema.default([]),
     id: entityIdSchema,
     organizer_id: entityIdSchema,
     draft_input: sessionDraftSchema,

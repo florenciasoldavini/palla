@@ -87,6 +87,8 @@ function RootLayout() {
 function RootNavigator() {
   const { isLoading, session, user } = useContext(AuthContext);
   const segments = useSegments();
+  const publicSession =
+    segments[0] === "session" || segments[0] === "session-reviews";
   const authHandoff = segments.some(
     (segment) => segment === "callback" || segment === "reset-password"
   );
@@ -105,8 +107,8 @@ function RootNavigator() {
   return (
     <>
       <ChatPushSync ready={ready && !isLoading && splashDone} />
-      {!isLoading || authHandoff ? (
-        session && !user && !authHandoff ? (
+      {!isLoading || authHandoff || publicSession ? (
+        session && !user && !authHandoff && !publicSession ? (
           <ProfileLoadError />
         ) : (
           <Stack
@@ -116,6 +118,8 @@ function RootNavigator() {
             }}
           >
             <Stack.Screen name="index" />
+            <Stack.Screen name="session" />
+            <Stack.Screen name="session-reviews" />
             {/* Auth callbacks must survive changes to the signed-out guard. */}
             <Stack.Screen name="callback" />
             <Stack.Screen name="reset-password" />
@@ -146,7 +150,7 @@ function RootNavigator() {
           </Stack>
         )
       ) : null}
-      {isLoading && splashDone && !authHandoff ? (
+      {isLoading && splashDone && !authHandoff && !publicSession ? (
         <Screen centered>
           <ActivityIndicator color={atomPalette.accent} />
           <AppText style={{ textAlign: "center" }}>

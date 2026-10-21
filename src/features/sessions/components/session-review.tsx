@@ -1,5 +1,6 @@
 import { AppButton, AppHeading, AppText } from "@/components/atoms";
 import { View, Pressable } from "react-native";
+import { AttributeChips } from "@/features/attributes/components/attribute-chips";
 import { Check } from "lucide-react-native";
 import { atomPalette as c } from "@/components/atoms/theme";
 import {
@@ -73,6 +74,18 @@ export function SessionReview({
         </AppText>
         <AppText tone="subtle">{values.venueAddress}</AppText>
         {values.description && <AppText>{values.description}</AppText>}
+        {!!values.sessionAttributes?.length && (
+          <>
+            <AppText variant="formLabel">What’s included</AppText>
+            <AttributeChips codes={values.sessionAttributes} compact />
+          </>
+        )}
+        {!!values.venueAttributes?.length && (
+          <>
+            <AppText variant="formLabel">At the venue</AppText>
+            <AttributeChips codes={values.venueAttributes} compact />
+          </>
+        )}
       </WizardCard>
       <WizardCard>
         {title("Schedule", 1)}

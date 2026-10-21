@@ -186,6 +186,7 @@ export function CancellationPreview() {
           cancellation_reason: sent ? context.message : null
         }}
         venue={{
+          attributes: [],
           id: sample.venue_id,
           name: current.venue_name,
           address: "Buenos Aires",

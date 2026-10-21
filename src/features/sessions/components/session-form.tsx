@@ -56,6 +56,8 @@ import {
 } from "./session-wizard-controls";
 import { SessionScheduleStep } from "./session-schedule-step";
 import { SessionTimingRules } from "./session-timing-rules";
+import { SessionAttributeFields } from "@/features/attributes/components/session-attribute-fields";
+import { SessionCoverField } from "@/features/session-covers/components/cover-field";
 import { SessionReview } from "./session-review";
 const steps = ["Basic Info", "Schedule", "Players", "Waitlist", "Policies"];
 const titles = [
@@ -94,6 +96,8 @@ export function SessionForm({
   initialValues,
   venues,
   editing = false,
+  inheritedCoverPath = null,
+  coverScope = "one",
   onSave,
   onDirtyChange,
   onStepChange,
@@ -104,6 +108,8 @@ export function SessionForm({
   initialValues: SessionFormValues;
   venues: Venue[];
   editing?: boolean;
+  inheritedCoverPath?: string | null;
+  coverScope?: "one" | "future";
   onSave: (input: SessionFormValues, publish: boolean) => Promise<void>;
   onDirtyChange?: (dirty: boolean) => void;
   onStepChange?: (step: number) => void;
@@ -116,7 +122,9 @@ export function SessionForm({
   const [step, setStep] = useState(0);
   const [reviewing, setReviewing] = useState(false);
   const [editingFromReview, setEditingFromReview] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [savingBusy, setBusy] = useState(false);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const busy = savingBusy || coverBusy;
   const [error, setError] = useState<string | null>(null);
   const [locationEditing, setLocationEditing] = useState(
     !initialValues.venueName
@@ -136,13 +144,19 @@ export function SessionForm({
     name: K,
     value: SessionFormValues[K]
   ) {
-    if (saving.current) return;
+    if (saving.current || coverBusy) return;
     form.setValue(name, value as PathValue<SessionFormValues, K>, {
       shouldDirty: true
     });
     form.clearErrors();
     setError(null);
     onDirtyChange?.(true);
+  }
+  function resetVenueAttributes(id: string) {
+    const codes = venues.find((v) => v.id === id)?.attributes ?? [];
+    change("venueAttributes", codes);
+    change("venueAttributesBaseline", codes);
+    change("venueAttributesEdited", false);
   }
   function setting<K extends keyof SessionCreationSettings>(
     key: K,
@@ -151,7 +165,7 @@ export function SessionForm({
     change("settings", { ...settings, [key]: value });
   }
   function move(next: number) {
-    if (saving.current) return;
+    if (saving.current || coverBusy) return;
     Keyboard.dismiss();
     setError(null);
     setReviewing(false);
@@ -227,7 +241,7 @@ export function SessionForm({
     return true;
   }
   async function save(publish: boolean) {
-    if (saving.current) return;
+    if (saving.current || coverBusy) return;
     Keyboard.dismiss();
     setError(null);
     if (publish && !validate(true)) return;
@@ -285,7 +299,10 @@ export function SessionForm({
           onBlur={field.onBlur}
           onChangeText={(v) => {
             change(name, v);
-            if (name === "venueName") change("venueId", "");
+            if (name === "venueName") {
+              change("venueId", "");
+              resetVenueAttributes("");
+            }
           }}
           maxLength={name === "title" ? 120 : 160}
           errorText={fieldState.error?.message}
@@ -459,6 +476,7 @@ export function SessionForm({
                         onChange={(id) => {
                           const v = venues.find((v) => v.id === id);
                           change("venueId", id);
+                          resetVenueAttributes(id);
                           change("venueName", v?.name ?? "");
                           change("venueAddress", v?.address ?? "");
                         }}
@@ -470,6 +488,7 @@ export function SessionForm({
                       onChange={(v) => {
                         change("venueAddress", v);
                         change("venueId", "");
+                        resetVenueAttributes("");
                       }}
                       errorText={form.formState.errors.venueAddress?.message}
                     />
@@ -477,6 +496,41 @@ export function SessionForm({
                 )}
               </WizardCard>
             </WizardSection>
+            <WizardCard>
+              <SessionCoverField
+                path={values.coverImagePath ?? null}
+                localUri={values.coverLocalUri}
+                inheritedPath={
+                  coverScope === "future" &&
+                  values.coverEdited &&
+                  !values.coverImagePath
+                    ? null
+                    : inheritedCoverPath
+                }
+                onBusyChange={setCoverBusy}
+                clearToVenue={coverScope === "future"}
+                editing={editing}
+                disabled={busy}
+                onChange={(path, uri) => {
+                  change("coverEdited", true);
+                  change("coverImagePath", path);
+                  change("coverLocalUri", uri);
+                }}
+              />
+            </WizardCard>
+            <WizardCard>
+              <SessionAttributeFields
+                sessionCodes={values.sessionAttributes ?? []}
+                venueCodes={values.venueAttributes ?? []}
+                venueName={values.venueName}
+                disabled={busy}
+                onSessionChange={(codes) => change("sessionAttributes", codes)}
+                onVenueChange={(codes) => {
+                  change("venueAttributes", codes);
+                  change("venueAttributesEdited", true);
+                }}
+              />
+            </WizardCard>
           </>
         )}
         {!reviewing && step === 1 && (

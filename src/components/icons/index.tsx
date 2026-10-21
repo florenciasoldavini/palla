@@ -26,6 +26,7 @@ import {
   Trash2,
   UserRound,
   UsersRound,
+  createLucideIcon,
   type LucideIcon,
   type LucideProps
 } from "lucide-react-native";
@@ -87,3 +88,49 @@ export const SparklesIcon = createIcon(Sparkles);
 export const UserIcon = createIcon(UserRound);
 export const UsersIcon = createIcon(UsersRound);
 export const PhoneIcon = createIcon(Phone);
+
+// Original Palla vectors, using the same rendering and props as Lucide icons.
+export const PadelBallIcon = createIcon(
+  createLucideIcon("PadelBall", [
+    ["circle", { cx: "12", cy: "12", r: "9", key: "outline" }],
+    [
+      "path",
+      {
+        d: "M5.6 5.6a9 9 0 0 1 0 12.8M18.4 5.6a9 9 0 0 0 0 12.8",
+        key: "seams"
+      }
+    ]
+  ])
+);
+
+const racketOutline = [
+  [
+    "path",
+    {
+      d: "M10.25 14.5C7.125 13.25 5.5 10.875 5.5 7.75c0-3.75 2.875-6.75 6.5-6.75s6.5 3 6.5 6.75c0 3.125-1.625 5.5-4.75 6.75L12 16Z",
+      transform: "rotate(38 12 12)",
+      key: "head"
+    }
+  ],
+  ["path", { d: "M12 16v5.75", transform: "rotate(38 12 12)", key: "handle" }]
+] satisfies Parameters<typeof createLucideIcon>[1];
+
+export const PadelRacketIcon = createIcon(
+  createLucideIcon("PadelRacket", racketOutline)
+);
+
+export const PadelRacketBallIcon = createIcon(
+  createLucideIcon("PadelRacketBall", [
+    ...racketOutline.map(
+      ([element, attributes]) =>
+        [
+          element,
+          {
+            ...attributes,
+            transform: "translate(-0.8 -0.5) rotate(38 12 12)"
+          }
+        ] satisfies (typeof racketOutline)[number]
+    ),
+    ["circle", { cx: "19.3", cy: "19.5", r: "3.1", key: "ball" }]
+  ])
+);
