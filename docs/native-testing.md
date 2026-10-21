@@ -868,3 +868,35 @@ Checked the shared lilac icon tiles in the notification inbox preview and live o
 Native Palla development app, iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Both existing test accounts joined a full session, saw Leave waitlist, confirmed departure, and rejoined. Host join/departure inbox entries appeared. Manually promoted the Android player through the iOS host UI; the player's promotion notification opened the confirmed session with Cancel registration. Reversed the accounts for automatic promotion, then verified the iOS notification opened the confirmed session. Checked disabled Waitlist full on both platforms and player-only promotion versus organizer-only queue activity settings. The confirmation sheet, scrolling, safe areas, accessible action labels and inbox navigation were checked; no keyboard input is introduced. Native evidence is in ignored `.impeccable/review/native/player-waitlist/`.
 
 Temporary occupancy rows used only the two existing test accounts, and releasing those fixtures opened places for promotion. All temporary sessions, series, registrations, venues, inbox entries and outbox jobs were removed. New rollback SQL plus player registration/cancellation, host notification and organizer queue regressions passed. The older organizer regression is now scoped to its fixture series rather than all live sessions. `npm run verify` passed (238 tests, 14 existing warnings, no errors). Actual OS push delivery remains unverified pending existing native push credentials/setup; typed payload/transport and outbox rules are verified. See [player-waitlists.md](player-waitlists.md).
+
+### Session sharing — 21 October 2026
+
+Local metadata validation uses the actual Web Request handlers through
+`scripts/session-sharing-local.mjs`, not a browser UI substitute. An authorized
+temporary occurrence was used with the existing two test accounts. Its cover was
+uploaded through the iOS session editor. HTTP checks confirmed occurrence-specific
+Open Graph/Twitter title, description and stable image URL; the uploaded image and
+brand fallback both returned 1200×630 JPEG. Changing the occurrence to private
+returned 404 from both metadata and image endpoints. Invalid/missing IDs returned
+404, and absent signing identities returned 503 from association endpoints.
+
+- Android Pixel 8 emulator, Android 17/API 37: custom-scheme session navigation,
+  actual public-detail share button, local share harness, native title/description/
+  correct HTTPS occurrence URL and dismiss/back checked. No message sent.
+- iPhone 17 Pro simulator, iOS 26.5: custom-scheme navigation, actual public-detail share button, native local share
+  sheet and Copy checked; the production sheet shows the correct public host. UIKit shows a URL-based sheet; local cover preview in
+  the system sheet is not verified. Metadata/image HTTP checks are independent.
+- `npm run verify`: 249 tests passed; 14 existing lint warnings, no errors.
+
+Public HTTPS automatic opening and previews in external messaging services are
+**unverified**. The public deployment was not changed; Apple Team ID and Android
+release signing fingerprints are still needed. The iOS native rebuild exceeded
+the MCP timeout; local native build attempts were stopped and installed native
+clients were used for JS share tests. These checks do not establish native
+association configuration in a rebuilt binary.
+
+Cleanup confirmed: temporary sharing occurrence, series and venue counts are
+zero. The cover was reset through the native editor and its Storage object count
+is zero. Both apps were returned to the dashboard. The final static export and
+HTTP metadata check passed (one title and one `og:title`). No public deployment
+was changed.

@@ -26,7 +26,8 @@ export default function SessionOccurrenceScreen() {
   const toast = useAppToast();
   const { share, sharing } = useSessionShare(
     id ?? "",
-    session?.title ?? "Padel session"
+    session?.title ?? "Padel session",
+    session?.description
   );
   const series = query.data?.series.find((s) => s.id === session?.series_id);
   const weekly = series?.draft_input.repeat === "weekly";

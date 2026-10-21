@@ -12,13 +12,13 @@ vi.mock("../repositories/public-session.repository", () => ({
 const id = "11111111-1111-4111-8111-111111111111";
 describe("public session links", () => {
   it("shares exactly one occurrence on the configured origin", () => {
-    expect(publicSessionLink(id, "https://palla.vercel.app/nested/")).toBe(
-      `https://palla.vercel.app/session?id=${id}`
+    expect(publicSessionLink(id, "https://palla-pink.vercel.app/nested/")).toBe(
+      `https://palla-pink.vercel.app/session?id=${id}`
     );
   });
   it("never shares a development localhost address", () => {
     expect(publicSessionLink(id, "http://localhost:8081")).toBe(
-      `https://palla.vercel.app/session?id=${id}`
+      `https://palla-pink.vercel.app/session?id=${id}`
     );
   });
   it("rejects unsafe base protocols and invalid IDs", () => {

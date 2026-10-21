@@ -1,3 +1,4 @@
+import { sessionOrigin } from "@/config/session-links";
 import { z } from "zod";
 import { publicSessionSchema } from "../domain";
 import { fetchPublicSession } from "../repositories/public-session.repository";
@@ -11,17 +12,10 @@ export async function loadPublicSession(id: string, signal?: AbortSignal) {
 
 export function publicSessionLink(
   id: string,
-  base = process.env.EXPO_PUBLIC_SITE_URL
+  base = process.env.EXPO_PUBLIC_SESSION_SHARE_URL
 ) {
   z.uuid().parse(id);
-  const url = new URL(base?.trim() || "https://palla.vercel.app");
-  if (!["https:", "http:"].includes(url.protocol))
-    throw new Error("Public sharing is unavailable.");
-  const local = ["localhost", "127.0.0.1", "[::1]", "0.0.0.0"].includes(
-    url.hostname
-  );
-  const origin = local ? "https://palla.vercel.app" : url.origin;
-  return `${origin}/session?id=${encodeURIComponent(id)}`;
+  return `${sessionOrigin(base)}/session?id=${encodeURIComponent(id)}`;
 }
 export function venueDirectionsUrl(venue: {
   name: string | null;

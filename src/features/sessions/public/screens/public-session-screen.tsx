@@ -33,7 +33,8 @@ export default function PublicSessionScreen() {
   const toast = useAppToast();
   const { share, sharing } = useSessionShare(
     id,
-    query.data?.title ?? "Padel session"
+    query.data?.title ?? "Padel session",
+    query.data?.description
   );
   const back = () =>
     router.canGoBack()

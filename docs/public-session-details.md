@@ -4,7 +4,7 @@ The first version follows the approved Stitch Session Details composition: a con
 
 ## Links and access
 
-The organizer occurrence header shares the **specific occurrence** through the native share sheet. View public session opens the same read-only detail in the app. The HTTPS link is `${EXPO_PUBLIC_SITE_URL}/session?id=<UUID>` (local development hosts fall back to `https://palla.vercel.app`); the query route works with Expo static hosting for occurrences created after a build. `palla://session?id=<UUID>` opens it in the installed native app. HTTPS links render the read-only page when the branch is deployed. Universal/App Link association and store fallback are not configured by this feature.
+The organizer occurrence header shares the **specific occurrence** through the native share sheet. View public session opens the same detail in the app. Sharing now uses the dedicated `EXPO_PUBLIC_SESSION_SHARE_URL` origin (default `https://palla-pink.vercel.app`) with per-session metadata and stable cover-image endpoints. See [session sharing](session-sharing.md) for native association setup, local tests and deployment requirements.
 
 Only public, non-draft occurrences are available anonymously. Private occurrences remain owner-only and do not have a shareable public link; this first version does not introduce invitation tokens or change saved visibility. Missing, malformed, private, inactive-host/venue and removed occurrences share the same unavailable state. Cancelled/completed public links remain readable with registration blocked.
 

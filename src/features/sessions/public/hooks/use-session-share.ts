@@ -2,9 +2,14 @@ import { useState } from "react";
 import { Platform, Share } from "react-native";
 import { useAppToast } from "@/components/atoms/toast";
 import { copyText } from "@/infrastructure/clipboard/copy-text";
+import { sessionShareContent } from "../services/session-share-content";
 import { publicSessionLink } from "../services/public-session.service";
 
-export function useSessionShare(id: string, title: string) {
+export function useSessionShare(
+  id: string,
+  title: string,
+  description?: string | null
+) {
   const toast = useAppToast();
   const [sharing, setSharing] = useState(false);
   async function share() {
@@ -17,9 +22,7 @@ export function useSessionShare(id: string, title: string) {
         toast.show({ title: "Session link copied", tone: "success" });
       } else {
         await Share.share(
-          Platform.OS === "ios"
-            ? { title, message: title, url }
-            : { title, message: `${title}\n${url}` }
+          sessionShareContent(Platform.OS, { title, description, url })
         );
       }
     } catch {
