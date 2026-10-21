@@ -15,14 +15,20 @@ import { PublicSessionView } from "../components/public-session-view";
 import { usePublicReviews } from "../hooks/use-public-reviews";
 import { usePublicSession } from "../hooks/use-public-session";
 import { useSessionShare } from "../hooks/use-session-share";
+import { useCancelRegistration } from "@/features/registrations/hooks/use-cancel-registration";
+import { cancelRegistrationError } from "@/features/registrations/services/cancel-registration.service";
+import { useJoinSession } from "@/features/registrations/hooks/use-join-session";
+import { joinErrorMessage } from "@/features/registrations/services/join.service";
 import { venueDirectionsUrl } from "../services/public-session.service";
 
 export default function PublicSessionScreen() {
   const { id: rawId } = useLocalSearchParams<{ id?: string | string[] }>();
   const id = typeof rawId === "string" ? rawId : "";
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, session, isLoading } = useContext(AuthContext);
   const query = usePublicSession(id);
+  const join = useJoinSession(id);
+  const cancel = useCancelRegistration(id);
   const reviews = usePublicReviews(query.data ? id : "");
   const toast = useAppToast();
   const { share, sharing } = useSessionShare(
@@ -94,6 +100,57 @@ export default function PublicSessionScreen() {
   return (
     <PublicSessionView
       session={s}
+      joining={join.isPending || isLoading}
+      cancelling={cancel.isPending}
+      cancellationError={
+        cancel.isError ? cancelRegistrationError(cancel.error) : null
+      }
+      onCancelReset={cancel.reset}
+      onCancel={async () => {
+        if (cancel.isPending) return false;
+        try {
+          await cancel.mutateAsync();
+          toast.show({
+            title: "Registration cancelled",
+            description: "Your place has been released.",
+            tone: "success"
+          });
+          return true;
+        } catch {
+          return false;
+        }
+      }}
+      onJoin={() => {
+        if (join.isPending || isLoading) return;
+        if (!session) {
+          router.push("/sign-in");
+          return;
+        }
+        if (!user?.onboarding_completed_at) {
+          router.push("/onboarding");
+          return;
+        }
+        join.mutate(undefined, {
+          onSuccess: (result) =>
+            toast.show({
+              title:
+                result.status === "confirmed"
+                  ? "You’re registered"
+                  : "You’re on the waitlist",
+              description:
+                result.status === "confirmed"
+                  ? "Your place in this session is confirmed."
+                  : "You already have a place on this session’s waitlist.",
+              tone: "success"
+            }),
+          onError: (error) =>
+            toast.show({
+              title: "Couldn’t join this session",
+              description: joinErrorMessage(error),
+              tone: "error"
+            })
+        });
+      }}
       reviews={{
         data: reviews.data,
         loading: reviews.isPending,

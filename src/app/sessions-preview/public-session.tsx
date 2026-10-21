@@ -28,6 +28,8 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
     "Design preview · Friday Social Padel"
   );
   const [reviewsError, setReviewsError] = useState(state === "reviews-error");
+  const [previewCancelled, setPreviewCancelled] = useState(false);
+  const registeredPreview = state === "registered" && !previewCancelled;
   const [error, setError] = useState(state === "error");
   const back = () =>
     router.canGoBack()
@@ -59,7 +61,8 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
     );
   const s = {
     ...publicSessionPreview,
-    ...(state === "full"
+    ...(registeredPreview ? { viewer_registration: "confirmed" as const } : {}),
+    ...(state === "full" || registeredPreview
       ? {
           confirmed_count: 4,
           players: [
@@ -107,6 +110,16 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
   return (
     <PublicSessionView
       preview
+      onCancel={async () => {
+        setPreviewCancelled(true);
+        toast.show({
+          title: "Design preview",
+          description:
+            "No account changes. This shows the cancelled registration state.",
+          tone: "info"
+        });
+        return true;
+      }}
       reviews={{
         data:
           state === "reviews-empty" ? emptyPublicReviews : publicReviewsPreview,

@@ -1,7 +1,8 @@
 import { AppButton, AppCard, AppHeading, AppText } from "@/components/atoms";
 import { AppBottomSheet } from "@/components/atoms/bottom-sheet";
 import { atomPalette as c } from "@/components/atoms/theme";
-import { ArrowRight } from "lucide-react-native";
+import { CancelRegistrationSheet } from "@/features/registrations/components/cancel-registration-sheet";
+import { ArrowRight, CircleX } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   Platform,
@@ -13,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   categoriesLabel,
+  canCancelRegistration,
   publicSessionState,
   type PublicSession
 } from "../domain";
@@ -39,6 +41,12 @@ export function PublicSessionView({
   refreshing = false,
   preview = false,
   previewCoverUri,
+  onJoin,
+  joining = false,
+  onCancel,
+  cancelling = false,
+  cancellationError,
+  onCancelReset,
   reviews
 }: {
   session: PublicSession;
@@ -51,12 +59,19 @@ export function PublicSessionView({
   refreshing?: boolean;
   preview?: boolean;
   previewCoverUri?: string;
+  onJoin?: () => void;
+  joining?: boolean;
+  onCancel?: () => Promise<boolean>;
+  cancelling?: boolean;
+  cancellationError?: string | null;
+  onCancelReset?: () => void;
   reviews: PublicReviewsState;
 }) {
   const { fontScale, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [now, setNow] = useState(Date.now());
-  const [joining, setJoining] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(timer);
@@ -93,12 +108,21 @@ export function PublicSessionView({
     });
   const timeRange = `${time(s.starts_at)}–${time(s.ends_at)}`;
   const stacked = fontScale > 1.2 || width < 350;
+  const registered = s.viewer_registration === "confirmed";
+  const cancelAllowed = canCancelRegistration(s, now);
   const blocked =
-    state !== "available" || s.viewer_is_host || Boolean(s.viewer_registration);
+    s.viewer_is_host ||
+    (registered
+      ? !cancelAllowed
+      : state !== "available" || Boolean(s.viewer_registration));
   const action = s.viewer_is_host
     ? "You’re hosting"
     : s.viewer_registration === "confirmed"
-      ? "You’re registered"
+      ? cancelAllowed
+        ? "Cancel registration"
+        : ["started", "completed", "cancelled"].includes(state)
+          ? status
+          : "Cancellation closed"
       : s.viewer_registration === "waitlisted"
         ? "On the waitlist"
         : state === "available"
@@ -243,31 +267,61 @@ export function PublicSessionView({
           <AppButton
             style={{ flex: stacked ? undefined : 1 }}
             fullWidth={stacked}
-            color="essential"
-            icon={ArrowRight}
+            color={registered && Platform.OS !== "web" ? "danger" : "essential"}
+            variant={registered && Platform.OS !== "web" ? "bordered" : "solid"}
+            icon={registered && Platform.OS !== "web" ? CircleX : ArrowRight}
+            loading={joining || cancelling}
             isDisabled={blocked && Platform.OS !== "web"}
             onPress={() =>
-              Platform.OS === "web" ? onOpenApp?.() : setJoining(true)
+              Platform.OS === "web"
+                ? onOpenApp?.()
+                : registered
+                  ? (onCancelReset?.(), setConfirmCancel(true))
+                  : onJoin
+                    ? onJoin()
+                    : setShowPreview(true)
             }
           >
             {Platform.OS === "web" ? "Open in Palla" : action}
           </AppButton>
         </View>
       </View>
-      {joining ? (
+      {confirmCancel ? (
+        <CancelRegistrationSheet
+          title={s.title}
+          deadline={
+            s.cancellation_deadline_at
+              ? `${date(s.cancellation_deadline_at)} · ${time(s.cancellation_deadline_at)}`
+              : "Before the session starts"
+          }
+          busy={cancelling}
+          error={cancellationError}
+          onClose={() => {
+            if (!cancelling) setConfirmCancel(false);
+          }}
+          onConfirm={() => {
+            if (cancelling) return;
+            if (onCancel)
+              void onCancel().then((success) => {
+                if (success) setConfirmCancel(false);
+              });
+          }}
+        />
+      ) : null}
+      {showPreview ? (
         <AppBottomSheet
           busy={false}
           title="Join this session"
-          onClose={() => setJoining(false)}
+          onClose={() => setShowPreview(false)}
           footer={
-            <AppButton color="essential" onPress={() => setJoining(false)}>
+            <AppButton color="essential" onPress={() => setShowPreview(false)}>
               Got it
             </AppButton>
           }
         >
           <AppText>
-            Joining sessions in Palla is coming soon. No place has been
-            reserved.
+            This is a design preview. Open a published session to join. No place
+            has been reserved.
           </AppText>
         </AppBottomSheet>
       ) : null}

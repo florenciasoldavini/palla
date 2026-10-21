@@ -71,3 +71,14 @@ export function categoriesLabel(categories: number[] | null) {
     ? `${categoryLabel(sorted[0])}–${categoryLabel(sorted[sorted.length - 1])}`
     : sorted.map(categoryLabel).join(", ");
 }
+
+export function canCancelRegistration(s: PublicSession, now = Date.now()) {
+  return (
+    s.viewer_registration === "confirmed" &&
+    !s.viewer_is_host &&
+    s.status === "published" &&
+    Date.parse(s.starts_at) > now &&
+    (s.cancellation_deadline_at === null ||
+      Date.parse(s.cancellation_deadline_at) > now)
+  );
+}
