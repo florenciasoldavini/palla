@@ -66,7 +66,7 @@ begin
  perform set_config('request.jwt.claim.sub',host::text,true);
  update public.registrations set status='cancelled',cancelled_by=host,cancelled_at=clock_timestamp() where id=r;
  assert (select count(*) from private.app_notifications where registration_id=r)=3,'Host removal excluded';
- assert (select count(*) from private.app_notifications n join public.registrations rr on rr.id=n.registration_id where rr.player_id='bf300000-0000-4000-8000-000000000004')=0,'Promotion excluded';
+ assert (select count(*) from private.app_notifications n join public.registrations rr on rr.id=n.registration_id where rr.player_id='bf300000-0000-4000-8000-000000000004' and n.recipient_id=host)=0,'Promotion excludes host join notification';
  assert jsonb_array_length(public.get_notification_inbox('organizer'))=3;
  assert not has_function_privilege('authenticated','private.notify_registration_host(uuid,text)','execute');
  assert not has_table_privilege('authenticated','private.app_notifications','insert');

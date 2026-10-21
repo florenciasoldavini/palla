@@ -8,13 +8,31 @@ export const notificationKinds = [
   "session_announcements",
   "session_cancellations",
   "new_registrations",
-  "player_cancellations"
+  "player_cancellations",
+  "waitlist_joins",
+  "waitlist_departures",
+  "waitlist_promotions"
 ] as const;
 export type NotificationKind = (typeof notificationKinds)[number];
 export const notificationCopy: Record<
   NotificationKind,
   { title: string; description: string; group: string }
 > = {
+  waitlist_joins: {
+    title: "Waitlist joins",
+    description: "When a player joins your session’s waitlist.",
+    group: "Sessions"
+  },
+  waitlist_departures: {
+    title: "Waitlist departures",
+    description: "When a player leaves your session’s waitlist.",
+    group: "Sessions"
+  },
+  waitlist_promotions: {
+    title: "Waitlist promotions",
+    description: "When your place is confirmed from a waitlist.",
+    group: "Sessions"
+  },
   new_registrations: {
     title: "New registrations",
     description: "When a player joins a session you host.",
@@ -66,7 +84,10 @@ export const inboxItemSchema = z.object({
     "session_announcements",
     "session_cancellations",
     "new_registrations",
-    "player_cancellations"
+    "player_cancellations",
+    "waitlist_joins",
+    "waitlist_departures",
+    "waitlist_promotions"
   ]),
   registration_id: z.uuid(),
   actor_name: z.string().nullable().optional(),
@@ -113,6 +134,9 @@ export const notificationTargetSchema = z.object({
   mode: z.enum(["player", "organizer"])
 });
 export const pushSubscriptionSchema = z.object({
+  waitlist_joins: z.boolean().default(false),
+  waitlist_departures: z.boolean().default(false),
+  waitlist_promotions: z.boolean().default(false),
   new_registrations: z.boolean().default(false),
   player_cancellations: z.boolean().default(false),
   chat_messages: z.boolean(),
@@ -129,7 +153,13 @@ export const reviewPushSchema = z.object({
     "registration_notification"
   ]),
   notification_type: z
-    .enum(["new_registrations", "player_cancellations"])
+    .enum([
+      "new_registrations",
+      "player_cancellations",
+      "waitlist_joins",
+      "waitlist_departures",
+      "waitlist_promotions"
+    ])
     .optional(),
   notification_id: z.uuid(),
   recipient_id: z.uuid(),
@@ -140,7 +170,11 @@ export function parseReviewPush(data: unknown) {
   if (!parsed.success) return null;
   if (
     parsed.data.type === "registration_notification" &&
-    (!parsed.data.notification_type || parsed.data.mode !== "organizer")
+    (!parsed.data.notification_type ||
+      parsed.data.mode !==
+        (parsed.data.notification_type === "waitlist_promotions"
+          ? "player"
+          : "organizer"))
   )
     return null;
   return parsed.data;

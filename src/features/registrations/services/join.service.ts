@@ -4,6 +4,7 @@ import { joinSessionRecord } from "../repositories/join.repository";
 const resultSchema = z.object({
   registration_id: z.uuid(),
   status: z.enum(["confirmed", "waitlisted"]),
+  waitlisted_count: z.number().int().nonnegative().optional(),
   confirmed_count: z.number().int().nonnegative()
 });
 export async function joinSession(sessionId: string) {
@@ -26,6 +27,8 @@ export function joinErrorMessage(error: unknown) {
     JOIN_NOT_OPEN: "Registration for this session hasn’t opened yet.",
     JOIN_CATEGORY:
       "Your playing category doesn’t match this session’s required categories. Check your profile and the session’s player level.",
+    JOIN_WAITLIST_FULL:
+      "The waitlist is now full. Refresh the session to check availability.",
     JOIN_FULL: "The last place was just taken. This session is now full."
   };
   return (

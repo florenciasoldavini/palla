@@ -111,8 +111,14 @@ export default function PublicSessionScreen() {
         try {
           await cancel.mutateAsync();
           toast.show({
-            title: "Registration cancelled",
-            description: "Your place has been released.",
+            title:
+              s.viewer_registration === "waitlisted"
+                ? "You left the waitlist"
+                : "Registration cancelled",
+            description:
+              s.viewer_registration === "waitlisted"
+                ? "You’re no longer in this session’s queue."
+                : "Your place has been released.",
             tone: "success"
           });
           return true;
@@ -140,7 +146,7 @@ export default function PublicSessionScreen() {
               description:
                 result.status === "confirmed"
                   ? "Your place in this session is confirmed."
-                  : "You already have a place on this session’s waitlist.",
+                  : "We’ll notify you when your place is confirmed.",
               tone: "success"
             }),
           onError: (error) =>

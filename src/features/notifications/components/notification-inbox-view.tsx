@@ -158,6 +158,12 @@ export function NotificationInboxView({
               const playerCancelled =
                 item.notification_type === "player_cancellations";
               const playerActivity = joined || playerCancelled;
+              const waitlistJoin = item.notification_type === "waitlist_joins";
+              const waitlistLeave =
+                item.notification_type === "waitlist_departures";
+              const promotion =
+                item.notification_type === "waitlist_promotions";
+              const waitlistHost = waitlistJoin || waitlistLeave;
               const cancellation =
                 item.notification_type === "session_cancellations";
               const announcement =
@@ -168,15 +174,19 @@ export function NotificationInboxView({
                 reminder &&
                 (item.review_status === "published" ||
                   item.review_status === "hidden");
-              const title = playerActivity
-                ? `${item.actor_name || item.reviewer_name || "A player"} ${joined ? "joined your session" : "cancelled their registration"}`
-                : cancellation
-                  ? "Session cancelled"
-                  : announcement
-                    ? `Announcement from ${item.host_name || "your host"}`
-                    : reminder
-                      ? "How was your session?"
-                      : `${item.reviewer_name || "A player"} left a review`;
+              const title = promotion
+                ? "You’re in! Your place is confirmed"
+                : waitlistHost
+                  ? `${item.actor_name || item.reviewer_name || "A player"} ${waitlistJoin ? "joined" : "left"} your waitlist`
+                  : playerActivity
+                    ? `${item.actor_name || item.reviewer_name || "A player"} ${joined ? "joined your session" : "cancelled their registration"}`
+                    : cancellation
+                      ? "Session cancelled"
+                      : announcement
+                        ? `Announcement from ${item.host_name || "your host"}`
+                        : reminder
+                          ? "How was your session?"
+                          : `${item.reviewer_name || "A player"} left a review`;
               return (
                 <View style={{ gap: 12 }}>
                   {showGroup && (
@@ -192,17 +202,19 @@ export function NotificationInboxView({
                     accessibilityRole="button"
                     accessibilityLabel={`${title}. ${item.session_title}.${item.read_at ? " Read." : " Unread."}${reviewed ? " Reviewed." : ""}`}
                     accessibilityHint={
-                      playerActivity
-                        ? "Open the organizer session details."
-                        : cancellation
-                          ? "Read the cancellation details."
-                          : announcement
-                            ? "Read the session announcement."
-                            : expired
-                              ? "Learn about the 14-day review period."
-                              : reminder
-                                ? "Open your session review."
-                                : "Open the received review."
+                      promotion
+                        ? "Open your confirmed session."
+                        : playerActivity || waitlistHost
+                          ? "Open the organizer session details."
+                          : cancellation
+                            ? "Read the cancellation details."
+                            : announcement
+                              ? "Read the session announcement."
+                              : expired
+                                ? "Learn about the 14-day review period."
+                                : reminder
+                                  ? "Open your session review."
+                                  : "Open the received review."
                     }
                     style={styles.row}
                   >

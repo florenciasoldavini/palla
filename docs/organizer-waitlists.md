@@ -1,6 +1,6 @@
 # Organizer waitlists
 
-Scope: organizer-only management in the existing occurrence-detail Waitlist Queue card. Player registration screens and joining/cancellation APIs remain deferred. No reliability scores, queue removal controls, QR scanning, payments or notifications are added to this UI.
+Scope: organizer-only management in the existing occurrence-detail Waitlist Queue card. Player queue entry/exit and promotion notifications are now implemented; see [player waitlists](player-waitlists.md). No reliability scores, queue removal controls, QR scanning, payments or notifications are added to this UI.
 
 ## Structure and behavior
 

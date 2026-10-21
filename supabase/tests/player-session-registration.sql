@@ -44,8 +44,9 @@ begin
  assert (select checked_in_at is null and checked_in_by is null from public.registrations where session_id=s),'Join is not attendance';
  assert public.get_public_session_detail(s)->>'viewer_registration'='confirmed';
  perform set_config('request.jwt.claim.sub','bf300000-0000-4000-8000-000000000004',true);
+ update public.sessions set waitlist_enabled=false where id=s;
  perform pg_temp.join_rejected(format('select public.join_session(%L)',s),'JOIN_FULL');
- assert not exists(select 1 from public.registrations where session_id=s and status='waitlisted'),'No implicit queue enrollment';
+ assert not exists(select 1 from public.registrations where session_id=s and status='waitlisted'),'Disabled waitlist prevents queue enrollment';
  update public.sessions set registration_opens_at=clock_timestamp()+interval '1 day' where id=other;
  perform pg_temp.join_rejected(format('select public.join_session(%L)',other),'JOIN_NOT_OPEN');
  update public.sessions set registration_opens_at=null,registration_closes_at=clock_timestamp()-interval '1 minute' where id=other;

@@ -17,6 +17,8 @@ export function useCancelRegistration(sessionId: string) {
             ? {
                 ...current,
                 viewer_registration: null,
+                waitlisted_count:
+                  result.waitlisted_count ?? current.waitlisted_count,
                 confirmed_count: result.confirmed_count
               }
             : current

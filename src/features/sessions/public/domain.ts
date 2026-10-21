@@ -24,6 +24,9 @@ export const publicSessionSchema = z.object({
   status: z.enum(["published", "cancelled", "completed"]),
   visibility: z.enum(["public", "private"]),
   capacity: z.number().int().positive(),
+  waitlist_enabled: z.boolean().default(false),
+  waitlist_capacity: z.number().int().nonnegative().nullable().default(null),
+  waitlisted_count: z.number().int().nonnegative().default(0),
   confirmed_count: z.number().int().nonnegative(),
   allowed_categories: allowedCategoriesSchema,
   participant_gender_policy: z.enum(["all", "men_only", "women_only"]),
@@ -80,5 +83,21 @@ export function canCancelRegistration(s: PublicSession, now = Date.now()) {
     Date.parse(s.starts_at) > now &&
     (s.cancellation_deadline_at === null ||
       Date.parse(s.cancellation_deadline_at) > now)
+  );
+}
+
+export function canJoinWaitlist(s: PublicSession, now = Date.now()) {
+  return (
+    publicSessionState(s, now) === "full" &&
+    s.waitlist_enabled &&
+    (s.waitlist_capacity === null || s.waitlisted_count < s.waitlist_capacity)
+  );
+}
+export function canLeaveWaitlist(s: PublicSession, now = Date.now()) {
+  return (
+    s.viewer_registration === "waitlisted" &&
+    !s.viewer_is_host &&
+    s.status === "published" &&
+    Date.parse(s.starts_at) > now
   );
 }

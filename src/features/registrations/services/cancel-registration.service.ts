@@ -3,6 +3,7 @@ import { cancelRegistrationInputSchema } from "../domain";
 import { cancelRegistrationRecord } from "../repositories/cancel-registration.repository";
 const resultSchema = z.object({
   status: z.literal("cancelled"),
+  waitlisted_count: z.number().int().nonnegative().optional(),
   confirmed_count: z.number().int().nonnegative()
 });
 export async function cancelRegistration(sessionId: string) {
@@ -22,7 +23,7 @@ export function cancelRegistrationError(error: unknown) {
   if (message.includes("CANCEL_UNAVAILABLE"))
     return "Registration can only be cancelled before the session starts.";
   if (message.includes("CANCEL_NOT_REGISTERED"))
-    return "There is no confirmed registration to cancel. Refresh the session and try again.";
+    return "There is no active registration or waitlist entry to cancel. Refresh the session and try again.";
   if (message.includes("CANCEL_SIGN_IN_REQUIRED"))
     return "Sign in again to cancel your registration.";
   return "We couldn’t confirm the cancellation. Check your connection and try again.";

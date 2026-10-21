@@ -1,6 +1,6 @@
 # Joining a session
 
-The public detail’s native Join session action reserves one confirmed place in the selected occurrence. It uses the existing registrations table; no payment, attendance mark, new notification type or waitlist enrollment is introduced.
+The public detail’s native Join session action reserves one confirmed place in the selected occurrence. It uses the existing registrations table; payments and attendance remain separate. Full sessions can now use player waitlists and notifications; see [player-waitlists.md](player-waitlists.md) and [registration-notifications.md](registration-notifications.md).
 
 Signed-out viewers go to sign-in and incomplete profiles go to onboarding. Joining requires a completed profile, a published public future occurrence, an active host and venue, an open registration window, capacity, and a matching known category when strict category enforcement is enabled. Organizer mode does not prevent a person joining another host’s session. Hosts cannot register in their own session. Gender policy remains displayed guidance: profiles do not currently store gender, so there is no automatic gender verification.
 

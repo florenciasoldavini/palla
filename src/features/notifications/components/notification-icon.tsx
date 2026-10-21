@@ -1,5 +1,8 @@
 import {
   CalendarX,
+  ListPlus,
+  ListMinus,
+  BadgeCheck,
   Megaphone,
   MessageSquare,
   Star,
@@ -11,6 +14,9 @@ import type { AppIconComponent } from "@/components/icons";
 import type { NotificationKind } from "../inbox-domain";
 
 const icons = {
+  waitlist_joins: ListPlus,
+  waitlist_departures: ListMinus,
+  waitlist_promotions: BadgeCheck,
   chat_messages: MessageSquare,
   review_reminders: Star,
   new_reviews: Star,

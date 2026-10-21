@@ -2,7 +2,7 @@ import { AppButton, AppCard, AppHeading, AppText } from "@/components/atoms";
 import { AppBottomSheet } from "@/components/atoms/bottom-sheet";
 import { atomPalette as c } from "@/components/atoms/theme";
 import { CancelRegistrationSheet } from "@/features/registrations/components/cancel-registration-sheet";
-import { ArrowRight, CircleX } from "lucide-react-native";
+import { ArrowRight, CircleX, Hourglass } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   Platform,
@@ -15,6 +15,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   categoriesLabel,
   canCancelRegistration,
+  canJoinWaitlist,
+  canLeaveWaitlist,
   publicSessionState,
   type PublicSession
 } from "../domain";
@@ -108,13 +110,18 @@ export function PublicSessionView({
     });
   const timeRange = `${time(s.starts_at)}–${time(s.ends_at)}`;
   const stacked = fontScale > 1.2 || width < 350;
-  const registered = s.viewer_registration === "confirmed";
-  const cancelAllowed = canCancelRegistration(s, now);
+  const waitlisted = s.viewer_registration === "waitlisted";
+  const registered = s.viewer_registration === "confirmed" || waitlisted;
+  const waitlistAvailable = canJoinWaitlist(s, now);
+  const cancelAllowed = waitlisted
+    ? canLeaveWaitlist(s, now)
+    : canCancelRegistration(s, now);
   const blocked =
     s.viewer_is_host ||
     (registered
       ? !cancelAllowed
-      : state !== "available" || Boolean(s.viewer_registration));
+      : (state !== "available" && !waitlistAvailable) ||
+        Boolean(s.viewer_registration));
   const action = s.viewer_is_host
     ? "You’re hosting"
     : s.viewer_registration === "confirmed"
@@ -124,10 +131,16 @@ export function PublicSessionView({
           ? status
           : "Cancellation closed"
       : s.viewer_registration === "waitlisted"
-        ? "On the waitlist"
-        : state === "available"
-          ? "Join session"
-          : status;
+        ? cancelAllowed
+          ? "Leave waitlist"
+          : status
+        : waitlistAvailable
+          ? "Join waitlist"
+          : state === "full" && s.waitlist_enabled
+            ? "Waitlist full"
+            : state === "available"
+              ? "Join session"
+              : status;
   return (
     <View style={{ flex: 1, backgroundColor: c.background }}>
       <PublicSessionHeader
@@ -269,7 +282,16 @@ export function PublicSessionView({
             fullWidth={stacked}
             color={registered && Platform.OS !== "web" ? "danger" : "essential"}
             variant={registered && Platform.OS !== "web" ? "bordered" : "solid"}
-            icon={registered && Platform.OS !== "web" ? CircleX : ArrowRight}
+            icon={
+              Platform.OS !== "web" && registered
+                ? CircleX
+                : Platform.OS !== "web" && waitlistAvailable
+                  ? Hourglass
+                  : ArrowRight
+            }
+            accessibilityLabel={
+              Platform.OS === "web" ? "Open in Palla" : action
+            }
             loading={joining || cancelling}
             isDisabled={blocked && Platform.OS !== "web"}
             onPress={() =>
@@ -289,6 +311,7 @@ export function PublicSessionView({
       {confirmCancel ? (
         <CancelRegistrationSheet
           title={s.title}
+          waitlisted={waitlisted}
           deadline={
             s.cancellation_deadline_at
               ? `${date(s.cancellation_deadline_at)} · ${time(s.cancellation_deadline_at)}`

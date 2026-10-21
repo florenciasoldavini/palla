@@ -3,6 +3,7 @@ import { AppButton, AppText } from "@/components/atoms";
 import { AppBottomSheet } from "@/components/atoms/bottom-sheet";
 export function CancelRegistrationSheet({
   title,
+  waitlisted = false,
   deadline,
   busy,
   error,
@@ -10,6 +11,7 @@ export function CancelRegistrationSheet({
   onClose
 }: {
   title: string;
+  waitlisted?: boolean;
   deadline: string;
   busy: boolean;
   error?: string | null;
@@ -18,16 +20,16 @@ export function CancelRegistrationSheet({
 }) {
   return (
     <AppBottomSheet
-      title="Cancel your registration?"
+      title={waitlisted ? "Leave the waitlist?" : "Cancel your registration?"}
       busy={busy}
       onClose={onClose}
       footer={
         <View style={{ gap: 8 }}>
           <AppButton color="danger" loading={busy} onPress={onConfirm}>
-            Cancel registration
+            {waitlisted ? "Leave waitlist" : "Cancel registration"}
           </AppButton>
           <AppButton variant="ghost" isDisabled={busy} onPress={onClose}>
-            Keep my place
+            {waitlisted ? "Stay on waitlist" : "Keep my place"}
           </AppButton>
         </View>
       }
@@ -35,11 +37,14 @@ export function CancelRegistrationSheet({
       <View style={{ gap: 12 }}>
         <AppText variant="label">{title}</AppText>
         <AppText tone="muted">
-          Your place will be released. You can join again while registration is
-          open and a place is available.
+          {waitlisted
+            ? "You’ll leave the queue. If you join again, you’ll be added at the end of the waitlist."
+            : "Your place will be released. You can join again while registration is open and a place is available."}
         </AppText>
         <AppText variant="bodySm" tone="subtle">
-          Cancellation deadline: {deadline}
+          {waitlisted
+            ? "You can leave the waitlist before the session starts."
+            : `Cancellation deadline: ${deadline}`}
         </AppText>
         {error ? (
           <AppText variant="bodySm" tone="danger" accessibilityRole="alert">

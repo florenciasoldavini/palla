@@ -7,14 +7,16 @@ const payload = {
   mode: "organizer"
 };
 describe("registration push validation", () => {
-  it.each(["new_registrations", "player_cancellations"])(
-    "accepts %s with its own preference",
-    (notification_type) => {
-      expect(
-        parseReviewPush({ ...payload, notification_type })?.notification_type
-      ).toBe(notification_type);
-    }
-  );
+  it.each([
+    "new_registrations",
+    "player_cancellations",
+    "waitlist_joins",
+    "waitlist_departures"
+  ])("accepts %s with its own preference", (notification_type) => {
+    expect(
+      parseReviewPush({ ...payload, notification_type })?.notification_type
+    ).toBe(notification_type);
+  });
   it("rejects incomplete, unknown, or player-mode activity payloads", () => {
     expect(parseReviewPush(payload)).toBeNull();
     expect(
@@ -38,4 +40,17 @@ describe("registration push validation", () => {
     expect(state.new_registrations).toBe(false);
     expect(state.player_cancellations).toBe(false);
   });
+});
+
+it("requires player mode for waitlist promotion pushes", () => {
+  expect(
+    parseReviewPush({ ...payload, notification_type: "waitlist_promotions" })
+  ).toBeNull();
+  expect(
+    parseReviewPush({
+      ...payload,
+      notification_type: "waitlist_promotions",
+      mode: "player"
+    })
+  ).not.toBeNull();
 });

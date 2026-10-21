@@ -29,6 +29,10 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
   );
   const [reviewsError, setReviewsError] = useState(state === "reviews-error");
   const [previewCancelled, setPreviewCancelled] = useState(false);
+  const waitlistedPreview = state === "waitlisted" && !previewCancelled;
+  const queuePreview = ["waitlist", "waitlist-full", "waitlisted"].includes(
+    state ?? ""
+  );
   const registeredPreview = state === "registered" && !previewCancelled;
   const [error, setError] = useState(state === "error");
   const back = () =>
@@ -61,8 +65,18 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
     );
   const s = {
     ...publicSessionPreview,
+    ...(waitlistedPreview
+      ? { viewer_registration: "waitlisted" as const }
+      : {}),
+    ...(queuePreview
+      ? {
+          waitlist_enabled: true,
+          waitlist_capacity: 2,
+          waitlisted_count: state === "waitlist-full" ? 2 : 1
+        }
+      : {}),
     ...(registeredPreview ? { viewer_registration: "confirmed" as const } : {}),
-    ...(state === "full" || registeredPreview
+    ...(state === "full" || registeredPreview || queuePreview
       ? {
           confirmed_count: 4,
           players: [

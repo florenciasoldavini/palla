@@ -12,10 +12,22 @@ type Job = {
     | "session_announcements"
     | "session_cancellations"
     | "new_registrations"
-    | "player_cancellations";
+    | "player_cancellations"
+    | "waitlist_joins"
+    | "waitlist_departures"
+    | "waitlist_promotions";
   title: string;
   body: string;
 };
+function isRegistrationJob(job: Job) {
+  return (
+    job.kind === "new_registrations" ||
+    job.kind === "player_cancellations" ||
+    job.kind === "waitlist_joins" ||
+    job.kind === "waitlist_departures" ||
+    job.kind === "waitlist_promotions"
+  );
+}
 type Ticket = {
   status: "ok" | "error";
   id?: string;
@@ -78,30 +90,24 @@ export async function runReviewPushWorker({
           title: notificationText(j.title, 60, 256, "Palla"),
           body: notificationText(j.body, 180, 768, "Open Palla for details."),
           sound: "default",
-          channelId:
-            j.kind === "new_registrations" || j.kind === "player_cancellations"
-              ? "registrations"
-              : j.kind === "session_cancellations"
-                ? "cancellations"
-                : j.kind === "session_announcements"
-                  ? "announcements"
-                  : "reviews",
+          channelId: isRegistrationJob(j)
+            ? "registrations"
+            : j.kind === "session_cancellations"
+              ? "cancellations"
+              : j.kind === "session_announcements"
+                ? "announcements"
+                : "reviews",
           priority: "high",
           ttl: 3600,
           data: {
-            type:
-              j.kind === "new_registrations" ||
-              j.kind === "player_cancellations"
-                ? "registration_notification"
-                : j.kind === "session_cancellations"
-                  ? "cancellation_notification"
-                  : j.kind === "session_announcements"
-                    ? "announcement_notification"
-                    : "review_notification",
-            ...(j.kind === "new_registrations" ||
-            j.kind === "player_cancellations"
-              ? { notification_type: j.kind }
-              : {}),
+            type: isRegistrationJob(j)
+              ? "registration_notification"
+              : j.kind === "session_cancellations"
+                ? "cancellation_notification"
+                : j.kind === "session_announcements"
+                  ? "announcement_notification"
+                  : "review_notification",
+            ...(isRegistrationJob(j) ? { notification_type: j.kind } : {}),
             notification_id: j.notification_id,
             mode: j.mode,
             recipient_id: j.recipient_id

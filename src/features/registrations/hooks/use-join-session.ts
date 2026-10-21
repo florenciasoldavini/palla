@@ -17,6 +17,8 @@ export function useJoinSession(sessionId: string) {
             ? {
                 ...current,
                 viewer_registration: result.status,
+                waitlisted_count:
+                  result.waitlisted_count ?? current.waitlisted_count,
                 confirmed_count: result.confirmed_count
               }
             : current
@@ -26,6 +28,7 @@ export function useJoinSession(sessionId: string) {
       void Promise.all([
         client.invalidateQueries({ queryKey: ["public-session"] }),
         client.invalidateQueries({ queryKey: ["organizer-roster"] }),
+        client.invalidateQueries({ queryKey: ["organizer-waitlist"] }),
         client.invalidateQueries({ queryKey: ["organizer-sessions"] }),
         client.invalidateQueries({ queryKey: ["organizer-dashboard"] })
       ]);

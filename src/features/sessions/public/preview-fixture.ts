@@ -1,5 +1,8 @@
 import type { PublicSession } from "./domain";
 export const publicSessionPreview: PublicSession = {
+  waitlist_enabled: false,
+  waitlist_capacity: null,
+  waitlisted_count: 0,
   has_cover_image: false,
   attributes: ["new_balls", "spare_rackets", "snacks"],
   id: "11111111-1111-4111-8111-111111111111",
