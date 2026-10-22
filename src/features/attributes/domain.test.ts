@@ -16,6 +16,9 @@ import {
 import { formFromSession } from "@/features/sessions/services/organizer-sessions.service";
 import { sample } from "@/features/sessions/occurrence-preview-fixture";
 
+vi.mock("@/features/venues/services/venue-location.service", () => ({
+  coordinatesForPublication: vi.fn()
+}));
 vi.mock("@/features/session-covers/repositories/cover.repository", () => ({
   uploadCover: vi.fn(),
   removeUnusedCover: vi.fn()

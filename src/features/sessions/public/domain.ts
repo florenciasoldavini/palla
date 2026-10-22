@@ -1,3 +1,4 @@
+import { venueCoordinatesShape } from "@/features/venues/coordinates";
 import {
   sessionAttributesSchema,
   venueAttributesSchema
@@ -38,6 +39,7 @@ export const publicSessionSchema = z.object({
   payment_instructions: z.string().nullable(),
   weekly: z.boolean(),
   venue: z.object({
+    ...venueCoordinatesShape,
     attributes: venueAttributesSchema.default([]),
     name: z.string().nullable(),
     address: z.string().nullable(),

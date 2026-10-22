@@ -5,7 +5,7 @@ import { Map } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import type { PublicSession } from "../domain";
-import { useVenueMap } from "../hooks/use-venue-map";
+import { storedVenueCoordinates } from "@/features/venues/coordinates";
 
 export function PublicSessionMap({
   venue,
@@ -16,11 +16,15 @@ export function PublicSessionMap({
   court: string | null;
   onDirections?: () => void;
 }) {
-  const address = venue.address?.trim();
+  const center = storedVenueCoordinates(venue);
   return (
     <View style={{ gap: 10 }}>
-      {address && address.length >= 3 ? (
-        <VenueMap key={address} address={address} onDirections={onDirections} />
+      {center && Math.abs(center.latitude) <= 85 ? (
+        <VenueMap
+          key={`${center.latitude}:${center.longitude}`}
+          center={center}
+          onDirections={onDirections}
+        />
       ) : onDirections ? (
         <AppButton
           variant="bordered"
@@ -41,27 +45,25 @@ export function PublicSessionMap({
 }
 
 function VenueMap({
-  address,
+  center,
   onDirections
 }: {
-  address: string;
+  center: { latitude: number; longitude: number };
   onDirections?: () => void;
 }) {
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading"
   );
-  const location = useVenueMap(address);
   const [attempt, setAttempt] = useState(0);
-  const error =
-    location.isError || location.data === null || status === "error";
-  const loading = location.isPending || status === "loading";
+  const error = status === "error";
+  const loading = status === "loading";
   const loaded = useCallback(() => setStatus("ready"), []);
   const failed = useCallback(() => setStatus("error"), []);
   useEffect(() => {
-    if (status !== "loading" || !location.data) return;
+    if (status !== "loading") return;
     const timer = setTimeout(failed, 20_000);
     return () => clearTimeout(timer);
-  }, [status, failed, location.data]);
+  }, [status, failed]);
   return (
     <View
       style={{
@@ -74,11 +76,11 @@ function VenueMap({
         borderWidth: 1
       }}
     >
-      {!error && location.data ? (
+      {!error ? (
         <View style={StyleSheet.absoluteFill}>
           <MapPreview
             key={attempt}
-            center={location.data}
+            center={center}
             onLoad={loaded}
             onError={failed}
           />
@@ -106,11 +108,9 @@ function VenueMap({
             size="sm"
             variant="ghost"
             fullWidth={false}
-            loading={location.isFetching}
             onPress={() => {
               setStatus("loading");
               setAttempt((value) => value + 1);
-              if (!location.data) void location.refetch();
             }}
           >
             Retry map

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, BackHandler, ScrollView, View } from "react-native";
-import { AppButton, AppText, EmptyState, ErrorState } from "@/components/atoms";
+import { AppButton, AppText, EmptyState } from "@/components/atoms";
 import { atomPalette as c } from "@/components/atoms/theme";
 import { DiscoveryMap } from "@/infrastructure/maps/discovery-map";
 import type { Bounds, DiscoverySession } from "../domain";
@@ -21,7 +21,7 @@ export function DiscoveryMapPanel({
   onOpen: (id: string) => void;
   preview?: boolean;
 }) {
-  const venues = useDiscoveryVenues(sessions, true);
+  const venues = useDiscoveryVenues(sessions);
   const [loaded, setLoaded] = useState(false),
     [failed, setFailed] = useState(false),
     [retry, setRetry] = useState(0);
@@ -84,23 +84,7 @@ export function DiscoveryMapPanel({
         backgroundColor: c.surfaceLow
       }}
     >
-      {venues.isPending ? (
-        <MapStatus topInset={topInset}>
-          <View style={{ gap: 16, alignItems: "center" }}>
-            <ActivityIndicator color={c.accent} />
-            <AppText>Finding venues on the map…</AppText>
-          </View>
-        </MapStatus>
-      ) : venues.isError ? (
-        <MapStatus topInset={topInset}>
-          <ErrorState
-            title="Couldn’t locate venues"
-            onRetry={() => {
-              void venues.refetch();
-            }}
-          />
-        </MapStatus>
-      ) : sessions.length === 0 ? (
+      {sessions.length === 0 ? (
         <MapStatus topInset={topInset}>
           <EmptyState
             title="No sessions in this area"
@@ -111,7 +95,7 @@ export function DiscoveryMapPanel({
         <MapStatus topInset={topInset}>
           <EmptyState
             title="No venues on the map"
-            description="These addresses couldn’t be located. You can still browse every session in the list."
+            description="Venue map locations haven’t been added yet. You can still browse every session in the list."
           />
         </MapStatus>
       ) : (

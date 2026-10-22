@@ -2,6 +2,7 @@ import { entityIdSchema, recordTimestamps } from "@/types/domain-schema";
 import { venueAttributesSchema } from "@/features/attributes/domain";
 import { z } from "zod";
 
+import { venueCoordinatesShape } from "./coordinates";
 // Google-derived place details are fetched through an adapter, not copied here.
 const venueShape = {
   google_place_id: z.string().trim().min(1).max(512).nullable(),
@@ -30,6 +31,9 @@ export const venueInputSchema = z.strictObject(venueShape).refine(hasLocation, {
 export const venueSchema = z
   .strictObject({
     ...venueShape,
+    ...venueCoordinatesShape,
+    geocoded_address: z.string().nullable().optional(),
+    geocoded_at: z.string().nullable().optional(),
     id: entityIdSchema,
     created_by: entityIdSchema,
     is_active: z.boolean(),

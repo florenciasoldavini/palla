@@ -1,3 +1,4 @@
+import { venueCoordinatesShape } from "@/features/venues/coordinates";
 import { z } from "zod";
 export const discoverySessionSchema = z.object({
   id: z.uuid(),
@@ -18,6 +19,7 @@ export const discoverySessionSchema = z.object({
   viewer_registration: z.enum(["confirmed", "waitlisted"]).nullable(),
   viewer_is_host: z.boolean(),
   venue: z.object({
+    ...venueCoordinatesShape,
     id: z.uuid(),
     name: z.string(),
     address: z.string().nullable()

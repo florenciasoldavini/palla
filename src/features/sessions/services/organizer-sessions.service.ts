@@ -19,6 +19,7 @@ import {
   removeUnusedCover
 } from "@/features/session-covers/repositories/cover.repository";
 import type { Venue } from "@/features/venues/domain";
+import { coordinatesForPublication } from "@/features/venues/services/venue-location.service";
 export { fetchOrganizerInventory as loadOrganizerSessions };
 export async function saveOrganizerSession(request: SaveSessionRequest) {
   const input = (
@@ -39,11 +40,15 @@ export async function saveOrganizerSession(request: SaveSessionRequest) {
     : null;
   if (coverLocalUri && input.coverImagePath)
     await uploadCover(input.coverImagePath, coverLocalUri);
+  const venueCoordinates = request.publish
+    ? await coordinatesForPublication(input.venueId, input.venueAddress)
+    : null;
   try {
     const id = await saveSessionRecord({
       ...request,
       input: {
         ...persisted,
+        ...(venueCoordinates ? { venueCoordinates } : {}),
         ...(request.publish ? { settings: settingsFromForm(input) } : {})
       }
     });

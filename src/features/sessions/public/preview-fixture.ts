@@ -27,6 +27,8 @@ export const publicSessionPreview: PublicSession = {
   payment_instructions: null,
   weekly: true,
   venue: {
+    latitude: -34.583,
+    longitude: -58.421,
     attributes: ["free_parking", "showers", "racket_rental"],
     name: "Club Padel Palermo",
     address: "Palermo, Buenos Aires",
