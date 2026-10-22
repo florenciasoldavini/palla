@@ -18,7 +18,7 @@ Discover replaces the shared header wordmark with the current location selector;
 
 ## Map
 
-The Map button switches the same search into a native WebView containing the existing minimal MapLibre/OpenFreeMap street style. The list stays mounted so its scroll position survives switching views. Markers group matching occurrences by venue; tapping opens a bottom sheet. The circular List toggle returns to the accessible session list. Details navigation remains the existing public session route.
+The Map button switches the same search into a native WebView containing the existing minimal MapLibre/OpenFreeMap street style. The list stays mounted so its scroll position survives switching views. Markers group matching occurrences by venue; tapping selects that venue’s first matching occurrence in a compact, swipeable card carousel. Cards show a side image, availability over the photo, title, venue and schedule with icons, a text-only category chip, and price. Swiping updates the highlighted marker and camera; tapping a card opens public details. The List toggle and camera padding move above the measured carousel height. Android Back dismisses the selected cards. The circular List toggle returns to the accessible session list. Details navigation remains the existing public session route.
 
 Saved venue addresses are resolved through the existing Photon adapter only when map view opens, with two concurrent lookups and a shared per-address query cache. Address geocoding is approximate. Unresolved addresses remain available in the list. Provider failures have a retry state; a slow map times out after 25 seconds. No fake pins or location permission requests.
 
@@ -29,5 +29,5 @@ Panning exposes Search this area. Applying it filters the shared result set to r
 - `supabase/tests/discover-sessions.sql`: rollback-only fixtures using the two existing QA accounts; public/private, started/cancelled/completed, open/closed registration, full/waitlist capacity, category/search/availability, own registration, host visibility, chronology and no roster leakage.
 - `src/features/discovery/domain.test.ts`: exact deadline boundaries, disjoint local-date grouping, registration/waitlist status and antimeridian bounds.
 - Native development states: `palla://sessions-preview/discovery?state=loading`, `state=error`, `state=empty`. Fixtures use the real presentation components and make no account writes. Preview navigation into fake occurrence IDs is disabled.
-- `palla://navigation-preview/player/home` shows read-only sample discovery results with the real location header and bottom navigation, including map view.
+- `palla://navigation-preview/player/home` shows read-only sample discovery results with the real location header and bottom navigation, including map view. These UI fixtures use fixed sample coordinates and a bundled court image; live cards retain the existing cover/Google venue-photo fallback and credits.
 - Live native runs and device details are recorded in `docs/native-testing.md`.

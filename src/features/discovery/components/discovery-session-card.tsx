@@ -1,25 +1,32 @@
 import { useState } from "react";
 import { Pressable, View, Linking, StyleSheet } from "react-native";
 import { Image } from "expo-image";
-import { ImageOff } from "lucide-react-native";
+import {
+  CalendarDays,
+  ChevronRight,
+  ImageOff,
+  MapPin
+} from "lucide-react-native";
 import {
   AppBadge,
   AppHeading,
   AppText,
   SkeletonBlock
 } from "@/components/atoms";
-import { atomPalette as c } from "@/components/atoms/theme";
+import { atomPalette as c, atomShadows } from "@/components/atoms/theme";
 import { useSessionCover } from "@/features/session-covers/hooks/use-cover";
 import { categoriesLabel } from "@/features/sessions/public/domain";
 import { sessionStatus, type DiscoverySession } from "../domain";
 export function DiscoverySessionCard({
   session,
   featured = false,
+  mapCard = false,
   onPress,
   preview = false
 }: {
   session: DiscoverySession;
   featured?: boolean;
+  mapCard?: boolean;
   onPress: () => void;
   preview?: boolean;
 }) {
@@ -44,75 +51,186 @@ export function DiscoverySessionCard({
     currency: session.currency,
     maximumFractionDigits: session.price_minor % 100 ? 2 : 0
   }).format(session.price_minor / 100);
+  const end = new Intl.DateTimeFormat("en-GB", {
+    timeZone: session.timezone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23"
+  }).format(new Date(session.ends_at));
+  const spots = Math.max(0, session.capacity - session.confirmed_count);
+  const status =
+    session.viewer_is_host || session.viewer_registration || !spots
+      ? sessionStatus(session)
+      : `${spots} ${spots === 1 ? "spot" : "spots"} left`;
   return (
-    <View style={[styles.card, featured ? { width: 278 } : null]}>
+    <View
+      style={[
+        styles.card,
+        featured ? { width: 278 } : null,
+        mapCard && { boxShadow: atomShadows.floating }
+      ]}
+    >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${session.title}, ${session.venue.name}, ${categoriesLabel(session.allowed_categories)}, ${day}, ${time}, ${sessionStatus(session)}, ${price}`}
+        accessibilityLabel={`${session.title}, ${session.venue.name}, ${categoriesLabel(session.allowed_categories)}, ${day}, ${time}, ${mapCard ? status : sessionStatus(session)}, ${price}`}
         onPress={onPress}
-        style={({ pressed }) => [
-          { opacity: pressed ? 0.75 : 1 },
-          featured ? null : styles.row
-        ]}
+        style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
       >
-        <View
-          style={[
-            styles.photo,
-            featured
-              ? { height: 152, width: "100%" }
-              : { width: 82, height: 88 }
-          ]}
-        >
-          {cover.isFetching ? (
-            <SkeletonBlock height={featured ? 152 : 88} />
-          ) : show ? (
-            <Image
-              source={{ uri: url }}
-              cachePolicy="none"
-              contentFit="cover"
-              style={{ width: "100%", height: "100%" }}
-              onError={() => setFailed(url)}
-              accessibilityLabel="Session venue photo"
-            />
-          ) : (
-            <ImageOff size={24} color={c.textMuted} />
-          )}
-        </View>
-        <View
-          style={{
-            padding: featured ? 16 : 0,
-            gap: 7,
-            flex: featured ? undefined : 1
-          }}
-        >
-          <AppText variant="caption" tone="muted" numberOfLines={1}>
-            {session.venue.name}
-          </AppText>
-          <AppHeading variant="card" numberOfLines={2}>
-            {session.title}
-          </AppHeading>
-          <AppText variant="bodySm" tone="muted">
-            {day} · {time}
-          </AppText>
+        <View style={featured ? undefined : styles.row}>
+          <View
+            style={[
+              styles.photo,
+              featured
+                ? { height: 152, width: "100%" }
+                : mapCard
+                  ? { width: 100, minHeight: 124, alignSelf: "stretch" }
+                  : { width: 82, height: 88 }
+            ]}
+          >
+            {cover.isFetching ? (
+              <SkeletonBlock height={featured ? 152 : 88} />
+            ) : preview && mapCard ? (
+              <Image
+                source={require("../../../../assets/images/sessions/court-artwork.jpg")}
+                contentFit="cover"
+                style={{ width: "100%", height: "100%", position: "absolute" }}
+                accessibilityLabel="Sample padel court photo"
+              />
+            ) : show ? (
+              <Image
+                source={{ uri: url }}
+                cachePolicy="none"
+                contentFit="cover"
+                style={{ width: "100%", height: "100%" }}
+                onError={() => setFailed(url)}
+                accessibilityLabel="Session venue photo"
+              />
+            ) : (
+              <ImageOff size={24} color={c.textMuted} />
+            )}
+            {mapCard && (
+              <View
+                style={{
+                  position: "absolute",
+                  top: 6,
+                  left: 6,
+                  alignItems: "flex-start"
+                }}
+              >
+                <AppText
+                  variant="caption"
+                  style={{
+                    fontSize: 11,
+                    lineHeight: 14,
+                    fontWeight: "600",
+                    backgroundColor: c.brand,
+                    color: c.brandText,
+                    paddingHorizontal: 6,
+                    paddingVertical: 4,
+                    borderRadius: 12,
+                    maxWidth: 88
+                  }}
+                >
+                  {status}
+                </AppText>
+              </View>
+            )}
+          </View>
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              gap: 8,
-              flexWrap: "wrap"
+              padding: featured ? 16 : 0,
+              gap: 7,
+              flex: featured ? undefined : 1
             }}
           >
-            <AppText variant="caption" tone="accent">
-              {categoriesLabel(session.allowed_categories)}
-            </AppText>
-            <AppText variant="label">{price}</AppText>
-          </View>
-          <View style={{ alignSelf: "flex-start" }}>
-            <AppBadge
-              tone={session.viewer_registration ? "essential" : "default"}
-            >
-              {sessionStatus(session)}
-            </AppBadge>
+            {mapCard ? (
+              <>
+                <AppHeading variant="card" numberOfLines={2}>
+                  {session.title}
+                </AppHeading>
+                <View
+                  style={{ flexDirection: "row", gap: 6, alignItems: "center" }}
+                >
+                  <MapPin size={16} color={c.accent} />
+                  <AppText
+                    variant="bodySm"
+                    tone="muted"
+                    numberOfLines={1}
+                    style={{ flex: 1 }}
+                  >
+                    {session.venue.name}
+                  </AppText>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 6,
+                    alignItems: "flex-start"
+                  }}
+                >
+                  <CalendarDays size={16} color={c.accent} />
+                  <AppText variant="caption" tone="muted" style={{ flex: 1 }}>
+                    {day} · {time}–{end}
+                  </AppText>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 8,
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    marginTop: 4
+                  }}
+                >
+                  <AppBadge>
+                    {categoriesLabel(session.allowed_categories)}
+                  </AppBadge>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 4
+                    }}
+                  >
+                    <AppText variant="label">{price}</AppText>
+                    <ChevronRight size={18} color={c.textMuted} />
+                  </View>
+                </View>
+              </>
+            ) : (
+              <>
+                <AppText variant="caption" tone="muted" numberOfLines={1}>
+                  {session.venue.name}
+                </AppText>
+                <AppHeading variant="card" numberOfLines={2}>
+                  {session.title}
+                </AppHeading>
+                <AppText variant="bodySm" tone="muted">
+                  {day} · {time}
+                </AppText>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    gap: 8,
+                    flexWrap: "wrap"
+                  }}
+                >
+                  <AppText variant="caption" tone="accent">
+                    {categoriesLabel(session.allowed_categories)}
+                  </AppText>
+                  <AppText variant="label">{price}</AppText>
+                </View>
+                <View style={{ alignSelf: "flex-start" }}>
+                  <AppBadge
+                    tone={session.viewer_registration ? "essential" : "default"}
+                  >
+                    {sessionStatus(session)}
+                  </AppBadge>
+                </View>
+              </>
+            )}
           </View>
         </View>
       </Pressable>

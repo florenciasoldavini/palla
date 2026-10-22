@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { View } from "react-native";
 import { WebView } from "react-native-webview";
 import { z } from "zod";
@@ -14,11 +14,18 @@ const bounds = z.object({
 export function DiscoveryMap({
   points,
   topInset = 0,
+  bottomInset = 104,
+  selectedId,
   onLoad,
   onError,
   onSelect,
   onMove
 }: DiscoveryMapProps) {
+  const web = useRef<WebView>(null);
+  const selectionScript = `window.selectPoint && window.selectPoint(${JSON.stringify(selectedId ?? null)}, ${Math.max(104, bottomInset)}); true;`;
+  useEffect(() => {
+    web.current?.injectJavaScript(selectionScript);
+  }, [selectionScript]);
   const source = useMemo(
     () => ({
       html: discoveryMapHtml(points, topInset),
@@ -29,6 +36,7 @@ export function DiscoveryMap({
   return (
     <View style={{ flex: 1 }}>
       <WebView
+        ref={web}
         source={source}
         originWhitelist={["*"]}
         style={{ flex: 1, backgroundColor: "#f0eef8" }}
@@ -38,7 +46,10 @@ export function DiscoveryMap({
               type?: string;
               data?: unknown;
             };
-            if (m.type === "loaded") onLoad();
+            if (m.type === "loaded") {
+              web.current?.injectJavaScript(selectionScript);
+              onLoad();
+            }
             if (m.type === "error") onError();
             if (
               m.type === "select" &&

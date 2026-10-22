@@ -14,6 +14,8 @@ export type MapBounds = {
 export type DiscoveryMapProps = {
   points: DiscoveryMapPoint[];
   topInset?: number;
+  bottomInset?: number;
+  selectedId?: string;
   onLoad: () => void;
   onError: () => void;
   onSelect: (id: string) => void;

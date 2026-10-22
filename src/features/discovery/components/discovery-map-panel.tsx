@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import { ActivityIndicator, BackHandler, ScrollView, View } from "react-native";
 import { AppButton, AppText, EmptyState, ErrorState } from "@/components/atoms";
-import { AppBottomSheet } from "@/components/atoms/bottom-sheet";
 import { atomPalette as c } from "@/components/atoms/theme";
 import { DiscoveryMap } from "@/infrastructure/maps/discovery-map";
 import type { Bounds, DiscoverySession } from "../domain";
 import { useDiscoveryVenues } from "../hooks/use-discovery-venues";
-import { DiscoverySessionCard } from "./discovery-session-card";
+import { DiscoveryMapCarousel } from "./discovery-map-carousel";
 export function DiscoveryMapPanel({
   sessions,
   onArea,
   onOpen,
   preview = false,
-  topInset = 16
+  topInset = 16,
+  onCardHeight
 }: {
   topInset?: number;
+  onCardHeight: (height: number) => void;
   sessions: DiscoverySession[];
   onArea: (b: Bounds | null, ids: string[]) => void;
   onOpen: (id: string) => void;
@@ -51,7 +52,29 @@ export function DiscoveryMapPanel({
     const timer = setTimeout(() => setFailed(true), 25000);
     return () => clearTimeout(timer);
   }, [loaded, pointKey, retry]);
-  const visibleVenues = venues.points.filter((p) => p.id === selected);
+  const cards = useMemo(
+    () => venues.points.flatMap((p) => p.sessions),
+    [venues.points]
+  );
+  const active = cards.find((s) => s.id === selected);
+  const [cardHeight, setCardHeight] = useState(0);
+  useEffect(() => {
+    onCardHeight(active && loaded && !failed ? cardHeight : 0);
+  }, [active, cardHeight, onCardHeight, loaded, failed]);
+  useEffect(() => {
+    if (selected && !cards.some((s) => s.id === selected)) setSelected(null);
+  }, [cards, selected]);
+  useEffect(() => {
+    if (!active) return;
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        setSelected(null);
+        return true;
+      }
+    );
+    return () => subscription.remove();
+  }, [active]);
   return (
     <View
       style={{
@@ -97,10 +120,15 @@ export function DiscoveryMapPanel({
             key={retry}
             points={points}
             topInset={topInset}
+            bottomInset={active ? cardHeight + 24 : 104}
+            selectedId={active?.venue.id}
             onLoad={() => setLoaded(true)}
             onError={() => setFailed(true)}
             onMove={setPending}
-            onSelect={setSelected}
+            onSelect={(id) => {
+              const first = cards.find((s) => s.venue.id === id);
+              if (first) setSelected(first.id);
+            }}
           />
           {!loaded && !failed && (
             <View
@@ -175,32 +203,15 @@ export function DiscoveryMapPanel({
           )}
         </>
       )}
-      {selected && (
-        <AppBottomSheet
-          title={visibleVenues[0]?.name ?? "Venue sessions"}
-          busy={false}
-          onClose={() => {
-            setSelected(null);
-          }}
-        >
-          <View style={{ gap: 16 }}>
-            {visibleVenues.map((v) => (
-              <View key={v.id} style={{ gap: 12 }}>
-                {v.sessions.map((s) => (
-                  <DiscoverySessionCard
-                    key={s.id}
-                    session={s}
-                    preview={preview}
-                    onPress={() => {
-                      setSelected(null);
-                      onOpen(s.id);
-                    }}
-                  />
-                ))}
-              </View>
-            ))}
-          </View>
-        </AppBottomSheet>
+      {active && loaded && !failed && (
+        <DiscoveryMapCarousel
+          sessions={cards}
+          selected={active.id}
+          onSelect={setSelected}
+          onOpen={onOpen}
+          onHeight={setCardHeight}
+          preview={preview}
+        />
       )}
     </View>
   );

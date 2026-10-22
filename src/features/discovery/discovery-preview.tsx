@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Redirect, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { DiscoveryContent } from "@/features/discovery/discovery-screen";
@@ -7,6 +8,7 @@ import {
 } from "@/features/discovery/domain";
 // Development-only states exercise the same presentation without account writes.
 export default function DiscoveryPreview() {
+  const client = useQueryClient();
   const { state } = useLocalSearchParams<{ state?: string }>();
   const [filters, setFilters] = useState(defaultFilters),
     [recovered, setRecovered] = useState(false);
@@ -19,7 +21,7 @@ export default function DiscoveryPreview() {
       ends_at: new Date(Date.now() + (n + 2) * 3600000).toISOString(),
       timezone: "America/Argentina/Buenos_Aires",
       capacity: 4,
-      confirmed_count: 2,
+      confirmed_count: n === 1 ? 3 : 2,
       waitlist_enabled: true,
       waitlist_capacity: null,
       waitlisted_count: 0,
@@ -31,12 +33,41 @@ export default function DiscoveryPreview() {
       viewer_registration: null,
       viewer_is_host: false,
       venue: {
-        id: "df190000-0000-4000-8000-000000000001",
-        name: "QA · Palermo",
-        address: "Av. Santa Fe 4000, Buenos Aires"
+        id:
+          n === 3
+            ? "df190000-0000-4000-8000-000000000002"
+            : "df190000-0000-4000-8000-000000000001",
+        name: n === 3 ? "QA · Belgrano" : "QA · Palermo",
+        address:
+          n === 3
+            ? "Av. del Libertador 4101, Buenos Aires"
+            : "Av. Santa Fe 4000, Buenos Aires"
       }
     }))
   );
+  useEffect(() => {
+    if (!__DEV__) return;
+    const venues = [
+      ...new Map(sessions.map((s) => [s.venue.id, s.venue])).values()
+    ];
+    // Fixed sample coordinates keep this read-only UI fixture independent of geocoding.
+    client.setQueryData(
+      [
+        "discovery-venue-locations",
+        venues.map((v) => [v.id, v.address]).sort()
+      ],
+      {
+        "df190000-0000-4000-8000-000000000001": {
+          longitude: -58.421,
+          latitude: -34.583
+        },
+        "df190000-0000-4000-8000-000000000002": {
+          longitude: -58.433,
+          latitude: -34.566
+        }
+      }
+    );
+  }, [client, sessions]);
   if (!__DEV__) return <Redirect href="/sign-in" />;
   return (
     <DiscoveryContent

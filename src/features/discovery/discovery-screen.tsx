@@ -92,6 +92,7 @@ export function DiscoveryContent({
   const router = useRouter();
   const hasNavigationChrome = useContext(NavigationChromeContext);
   const [pullRefreshing, setPullRefreshing] = useState(false);
+  const [mapCardHeight, setMapCardHeight] = useState(0);
   const [mapControlsHeight, setMapControlsHeight] = useState(132);
   async function pullRefresh() {
     setPullRefreshing(true);
@@ -395,6 +396,7 @@ export function DiscoveryContent({
               <DiscoveryMapPanel
                 sessions={shown}
                 topInset={mapControlsHeight + 24}
+                onCardHeight={setMapCardHeight}
                 onArea={(_, ids) => setArea(ids)}
                 onOpen={open}
                 preview={preview}
@@ -438,7 +440,11 @@ export function DiscoveryContent({
           </View>
         )}
         <View
-          style={{ position: "absolute", bottom: map ? 32 : 16, right: 20 }}
+          style={{
+            position: "absolute",
+            bottom: map ? mapCardHeight + 32 : 16,
+            right: 20
+          }}
         >
           <AppButton
             fullWidth={false}
@@ -471,7 +477,7 @@ export function DiscoveryContent({
             tone="muted"
             style={{
               position: "absolute",
-              bottom: map ? 104 : 0,
+              bottom: map ? mapCardHeight + 104 : 0,
               left: 20,
               backgroundColor: c.surface,
               paddingHorizontal: 6,
