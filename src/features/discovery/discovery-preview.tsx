@@ -1,3 +1,4 @@
+import { advancedRpcFilters } from "./advanced-filters";
 import { Redirect, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { DiscoveryContent } from "@/features/discovery/discovery-screen";
@@ -11,7 +12,13 @@ export default function DiscoveryPreview() {
   const [filters, setFilters] = useState(defaultFilters),
     [recovered, setRecovered] = useState(false);
   useEffect(() => setRecovered(false), [state]);
-  const [sessions] = useState<DiscoverySession[]>(() =>
+  const [sessions] = useState<
+    (DiscoverySession & {
+      gender: string;
+      sessionAttributes: string[];
+      venueAttributes: string[];
+    })[]
+  >(() =>
     [1, 2, 3].map((n) => ({
       id: `df390000-0000-4000-8000-${String(n).padStart(12, "0")}`,
       title: n === 1 ? "Friday social padel" : "Evening doubles",
@@ -24,7 +31,12 @@ export default function DiscoveryPreview() {
       waitlist_capacity: null,
       waitlisted_count: 0,
       allowed_categories: [6, 7],
-      price_minor: 1200000,
+      court_coverage: n === 1 ? "covered" : n === 2 ? "uncovered" : null,
+      gender: n === 1 ? "all" : n === 2 ? "women_only" : "men_only",
+      sessionAttributes:
+        n === 1 ? ["new_balls", "coaching"] : ["balls_provided"],
+      venueAttributes: n === 3 ? ["paid_parking"] : ["showers", "free_parking"],
+      price_minor: n === 3 ? 0 : n === 2 ? 1500000 : 1200000,
       currency: "ARS",
       registration_opens_at: null,
       registration_closes_at: null,
@@ -45,6 +57,24 @@ export default function DiscoveryPreview() {
       }
     }))
   );
+  // Only fixture presentation is filtered locally. Production filtering happens in the RPC before LIMIT.
+  const advanced = advancedRpcFilters(filters);
+  const matching = sessions.filter(
+    (s) =>
+      (advanced.p_min_price === null ||
+        s.price_minor >= advanced.p_min_price) &&
+      (advanced.p_max_price === null ||
+        s.price_minor <= advanced.p_max_price) &&
+      (filters.coverage === "any" || s.court_coverage === filters.coverage) &&
+      (filters.gender === "any" || s.gender === filters.gender) &&
+      filters.sessionAttributes.every(
+        (code) =>
+          s.sessionAttributes.includes(code) ||
+          (code === "balls_provided" &&
+            s.sessionAttributes.includes("new_balls"))
+      ) &&
+      filters.venueAttributes.every((code) => s.venueAttributes.includes(code))
+  );
   if (!__DEV__) return <Redirect href="/sign-in" />;
   return (
     <DiscoveryContent
@@ -55,11 +85,11 @@ export default function DiscoveryPreview() {
         state === "empty"
           ? []
           : state === "unlocated"
-            ? sessions.map((s) => ({
+            ? matching.map((s) => ({
                 ...s,
                 venue: { ...s.venue, latitude: null, longitude: null }
               }))
-            : sessions
+            : matching
       }
       loading={state === "loading" && !recovered}
       error={state === "error" && !recovered}

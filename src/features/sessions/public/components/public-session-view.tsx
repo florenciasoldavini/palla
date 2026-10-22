@@ -193,6 +193,7 @@ export function PublicSessionView({
             <PublicSessionMap
               venue={s.venue}
               court={s.court_label}
+              coverage={s.court_coverage}
               onDirections={onDirections}
             />
             {s.status !== "cancelled" ? (

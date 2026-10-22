@@ -1,10 +1,12 @@
 import { requireSupabase } from "@/infrastructure/supabase/repository-helpers";
+import { advancedRpcFilters } from "../advanced-filters";
 import type { DiscoveryFilters } from "../domain";
 export async function fetchDiscovery(
   f: DiscoveryFilters,
   signal?: AbortSignal
 ) {
-  const request = requireSupabase().rpc("discover_sessions", {
+  const request = requireSupabase().rpc("discover_sessions_filtered", {
+    ...advancedRpcFilters(f),
     p_location: f.location,
     p_search: f.search,
     p_from: f.from || null,

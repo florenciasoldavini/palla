@@ -1,3 +1,7 @@
+import {
+  coverageLabel,
+  type CourtCoverage
+} from "@/features/venues/court-coverage";
 import { AppButton, AppText, SkeletonBlock } from "@/components/atoms";
 import { atomPalette as c, atomShadows } from "@/components/atoms/theme";
 import { MapPreview } from "@/infrastructure/maps/map-preview";
@@ -10,10 +14,12 @@ import { storedVenueCoordinates } from "@/features/venues/coordinates";
 export function PublicSessionMap({
   venue,
   court,
+  coverage,
   onDirections
 }: {
   venue: PublicSession["venue"];
   court: string | null;
+  coverage?: CourtCoverage | null;
   onDirections?: () => void;
 }) {
   const center = storedVenueCoordinates(venue);
@@ -39,6 +45,9 @@ export function PublicSessionMap({
       <AppText variant="bodySm" tone="muted">
         {venue.address ?? venue.name ?? "Venue details pending"}
         {court ? ` · ${court}` : ""}
+        {coverage
+          ? ` · ${coverageLabel(coverage)} court`
+          : " · Coverage not specified"}
       </AppText>
     </View>
   );

@@ -1,3 +1,4 @@
+import { venueCourtCoverageSchema } from "./court-coverage";
 import { entityIdSchema, recordTimestamps } from "@/types/domain-schema";
 import { venueAttributesSchema } from "@/features/attributes/domain";
 import { z } from "zod";
@@ -31,6 +32,7 @@ export const venueInputSchema = z.strictObject(venueShape).refine(hasLocation, {
 export const venueSchema = z
   .strictObject({
     ...venueShape,
+    court_coverage: venueCourtCoverageSchema.optional(),
     ...venueCoordinatesShape,
     geocoded_address: z.string().nullable().optional(),
     geocoded_at: z.string().nullable().optional(),

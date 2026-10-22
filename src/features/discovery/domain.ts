@@ -1,6 +1,16 @@
+import {
+  advancedFilterCount,
+  defaultAdvancedFilters,
+  type AdvancedFilters
+} from "./advanced-filters";
+import {
+  courtCoverageSchema,
+  venueCourtCoverageSchema
+} from "@/features/venues/court-coverage";
 import { venueCoordinatesShape } from "@/features/venues/coordinates";
 import { z } from "zod";
 export const discoverySessionSchema = z.object({
+  court_coverage: courtCoverageSchema.nullable().optional(),
   id: z.uuid(),
   title: z.string(),
   starts_at: z.string().datetime({ offset: true }),
@@ -20,13 +30,14 @@ export const discoverySessionSchema = z.object({
   viewer_is_host: z.boolean(),
   venue: z.object({
     ...venueCoordinatesShape,
+    court_coverage: venueCourtCoverageSchema.optional(),
     id: z.uuid(),
     name: z.string(),
     address: z.string().nullable()
   })
 });
 export type DiscoverySession = z.infer<typeof discoverySessionSchema>;
-export type DiscoveryFilters = {
+export type DiscoveryFilters = AdvancedFilters & {
   location: string;
   search: string;
   from: string;
@@ -36,6 +47,7 @@ export type DiscoveryFilters = {
   availability: string;
 };
 export const defaultFilters: DiscoveryFilters = {
+  ...defaultAdvancedFilters,
   location: "Buenos Aires",
   search: "",
   from: "",
@@ -136,6 +148,7 @@ export function inBounds(
 }
 export function hasFilters(f: DiscoveryFilters) {
   return Boolean(
+    advancedFilterCount(f) ||
     f.search ||
     f.from ||
     f.to ||

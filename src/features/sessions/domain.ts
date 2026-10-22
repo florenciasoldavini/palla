@@ -1,3 +1,4 @@
+import { courtCoverageSchema } from "@/features/venues/court-coverage";
 import {
   entityIdSchema,
   moneyShape,
@@ -77,6 +78,7 @@ export const sessionInputSchema = z
 export const sessionSchema = z
   .strictObject({
     ...sessionInputShape,
+    court_coverage: courtCoverageSchema.nullable().optional(),
     cover_image_path: z.string().nullable().default(null),
     inherited_cover_image_path: z.string().nullable().default(null),
     attributes: sessionAttributesSchema.default([]),
@@ -144,6 +146,7 @@ export const sessionSeriesInputSchema = z
 // Drafts retain partial input; published series have a normalized template.
 export const sessionSeriesSchema = z
   .object({
+    court_coverage: courtCoverageSchema.nullable().optional(),
     cover_image_path: z.string().nullable().default(null),
     inherited_cover_image_path: z.string().nullable().default(null),
     attributes: sessionAttributesSchema.default([]),

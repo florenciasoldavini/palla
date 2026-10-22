@@ -35,3 +35,17 @@ Panning exposes Search this area. Applying it filters the shared result set to v
 ## Coordinate verification
 
 `supabase/tests/venue-coordinates.sql` rolls back all writes and verifies publishing, public coordinate projections, range/pair constraints, address-change invalidation, creator-only enrichment and non-overwrite behavior. The only existing connected-project venue is a QA address; Photon returned no results, so it was left unresolved. The new columns and private publishing helper are deployed. Geocoding remains address-derived rather than a host-confirmed court entrance; manual pin editing is a separate future feature.
+
+Court roof coverage is stored separately from amenities. Discovery returns the occurrence’s `court_coverage` (`covered`, `uncovered` or NULL) and the venue’s available choices. See [court coverage](court-coverage.md) for publishing and snapshot behavior; an empty venue choice list means unspecified.
+
+### Advanced filters
+
+The shared **More filters** sheet supports an inclusive min/max price per player (ARS), Covered/Uncovered, gender policy, session inclusions and venue facilities. Blank bounds mean any price; maximum `0` finds free sessions. Decimal commas and dots are accepted; negative/reversed/overflowing bounds are rejected before applying. Larger text stacks price inputs vertically. A fixed Apply/Reset footer remains usable with the keyboard; validation errors are repeated there if the price fields have scrolled away.
+
+Changes stay local until Apply. Closing/back discards the draft. Reset clears only the advanced draft, while the page's Clear filters clears every filter except location. List and map use the same applied state and query; changing filters clears the previous map area/selection.
+
+`discover_sessions_filtered` applies all predicates **before** the 500-result limit. The original seven-argument RPC delegates to the same private core, preserving installed-client behavior. The public wrapper intentionally uses a restricted security-definer projection for unauthenticated discovery, with an empty search path; the private core and base tables stay inaccessible. Its security-advisor public-execution warning is expected for this public API.
+
+Coverage uses the actual occurrence's `court_coverage`; unknown values do not match an explicit roof filter, even when the venue offers both. “Any gender” does not filter; “All genders” matches that policy exactly. All selected attributes must match; `new_balls` also satisfies `balls_provided`. Venue facilities are correlated to **both the session's organizer and venue**, so another host's claims cannot satisfy a filter. Price bounds also require matching currency. These filters do not override registration eligibility.
+
+Regression: `supabase/tests/discovery-advanced-filters.sql` rolls back all fixtures and tests price boundaries, currencies, coverage, gender, all-of attributes, host-specific amenities, invalid input, combined filters, private-core grants, pagination-before-filter regressions and legacy RPC compatibility. `advanced-filters.test.ts` verifies price parsing and active-filter state.

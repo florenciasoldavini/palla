@@ -1,3 +1,6 @@
+import { AuthContext } from "@/features/auth/auth-provider";
+import { CourtCoverageFields } from "@/features/venues/components/court-coverage-fields";
+import { effectiveCourtCoverage } from "@/features/venues/court-coverage";
 import {
   AppButton,
   AppHeading,
@@ -30,7 +33,7 @@ import { settingsFromForm } from "../services/session-settings.adapter";
 import { sessionErrorMessage } from "../services/organizer-sessions.service";
 import { AddressField } from "@/features/venues/components/address-field";
 import type { Venue } from "@/features/venues/domain";
-import { useRef, useState, type ReactNode } from "react";
+import { useContext, useRef, useState, type ReactNode } from "react";
 import {
   Keyboard,
   Pressable,
@@ -76,7 +79,10 @@ const helpers = [
 ];
 const categoryLabel = (n: number) =>
   `${n}${["ra", "da", "ra", "ta", "ta", "ta", "ma", "va"][n - 1]}`;
-function normalize(input: SessionFormValues): SessionFormValues {
+function normalize(
+  input: SessionFormValues,
+  venues: Venue[]
+): SessionFormValues {
   let settings = { ...defaultSessionSettings(), ...input.settings };
   if (!input.settings && input.title) {
     try {
@@ -85,8 +91,18 @@ function normalize(input: SessionFormValues): SessionFormValues {
       settings = { ...defaultSessionSettings(), visibility: "private" };
     }
   }
+  const savedVenue = venues.find((v) => v.id === input.venueId);
+  const coverage = input.venueCourtCoverageEdited
+    ? (input.venueCourtCoverage ?? [])
+    : (savedVenue?.court_coverage ?? input.venueCourtCoverage ?? []);
   return {
     ...input,
+    venueCourtCoverage: coverage,
+    venueCourtCoverageBaseline: input.venueCourtCoverageEdited
+      ? (input.venueCourtCoverageBaseline ?? [])
+      : (savedVenue?.court_coverage ?? []),
+    courtCoverage:
+      coverage.length === 1 ? coverage[0] : (input.courtCoverage ?? null),
     settings,
     legacySettingsBaseline: undefined,
     categoryMode: "all"
@@ -117,6 +133,7 @@ export function SessionForm({
   onExit?: () => void;
   managementActions?: ReactNode;
 }) {
+  const { user } = useContext(AuthContext);
   const { fontScale } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [step, setStep] = useState(0);
@@ -132,7 +149,7 @@ export function SessionForm({
   const scroll = useRef<ScrollView>(null);
   const saving = useRef(false);
   const form = useForm<SessionFormValues>({
-    defaultValues: normalize(initialValues),
+    defaultValues: normalize(initialValues, venues),
     resolver: zodResolver(sessionDraftSchema)
   });
   const values = form.watch();
@@ -157,6 +174,11 @@ export function SessionForm({
     change("venueAttributes", codes);
     change("venueAttributesBaseline", codes);
     change("venueAttributesEdited", false);
+    const coverage = venues.find((v) => v.id === id)?.court_coverage ?? [];
+    change("venueCourtCoverage", coverage);
+    change("venueCourtCoverageBaseline", coverage);
+    change("venueCourtCoverageEdited", false);
+    change("courtCoverage", effectiveCourtCoverage(coverage));
   }
   function setting<K extends keyof SessionCreationSettings>(
     key: K,
@@ -202,6 +224,8 @@ export function SessionForm({
         "venueName",
         "venueAddress",
         "courtLabel",
+        "courtCoverage",
+        "venueCourtCoverage",
         "description"
       ].includes(field)
     )
@@ -496,6 +520,25 @@ export function SessionForm({
                 )}
               </WizardCard>
             </WizardSection>
+            <WizardCard>
+              <CourtCoverageFields
+                venueCoverage={values.venueCourtCoverage ?? []}
+                coverage={values.courtCoverage ?? null}
+                disabled={busy}
+                canEditVenue={
+                  !values.venueId ||
+                  venues.find((v) => v.id === values.venueId)?.created_by ===
+                    user?.id
+                }
+                onVenueChange={(value) => {
+                  change("venueCourtCoverage", value);
+                  change("venueCourtCoverageEdited", true);
+                  change("courtCoverage", effectiveCourtCoverage(value));
+                }}
+                onChange={(v) => change("courtCoverage", v)}
+                error={form.formState.errors.courtCoverage?.message}
+              />
+            </WizardCard>
             <WizardCard>
               <SessionCoverField
                 path={values.coverImagePath ?? null}

@@ -68,6 +68,10 @@ export function sessionErrorMessage(error: unknown) {
     typeof error === "object" && error && "message" in error
       ? String(error.message)
       : "";
+  if (message.includes("Venue court coverage changed"))
+    return "Venue court coverage changed since you opened this form. Reload before saving.";
+  if (message.includes("court coverage"))
+    return "Check the venue coverage and choose the court for this session.";
   if (message.includes("Venue amenities changed"))
     return "Venue amenities changed since you opened this form. Go back and reload before saving.";
   if (message.includes("Session changed"))
@@ -89,6 +93,10 @@ export function formFromSession(
     new Date(Date.parse(value) - 10800000).toISOString();
   const form: SessionFormValues = {
     ...original,
+    venueCourtCoverage: venue?.court_coverage ?? [],
+    venueCourtCoverageBaseline: venue?.court_coverage ?? [],
+    venueCourtCoverageEdited: false,
+    courtCoverage: session.court_coverage ?? null,
     coverImagePath: session.cover_image_path,
     coverLocalUri: undefined,
     coverEdited: false,

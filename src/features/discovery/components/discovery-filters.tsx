@@ -1,3 +1,5 @@
+import { DiscoveryAdvancedFilters } from "./discovery-advanced-filters";
+import { advancedFilterCount } from "../advanced-filters";
 import { useState } from "react";
 import { View, Keyboard } from "react-native";
 import {
@@ -68,6 +70,8 @@ export function DiscoveryFiltersBar({
   onChange: (f: DiscoveryFilters) => void;
 }) {
   const [range, setRange] = useState(false);
+  const [advanced, setAdvanced] = useState(false);
+  const count = advancedFilterCount(filters);
   const [from, setFrom] = useState(dateKey(Date.now()));
   const [to, setTo] = useState(dateKey(Date.now()));
   const [error, setError] = useState("");
@@ -84,6 +88,12 @@ export function DiscoveryFiltersBar({
   return (
     <>
       <FilterChipGroup>
+        <FilterChip
+          label={count ? `More filters · ${count}` : "More filters"}
+          accessibilityLabel="More filters"
+          selected={count > 0}
+          onPress={() => setAdvanced(true)}
+        />
         <ChipSelect
           value={dateValue}
           label="Filter by date"
@@ -135,6 +145,13 @@ export function DiscoveryFiltersBar({
           onChange={(availability) => onChange({ ...filters, availability })}
         />
       </FilterChipGroup>
+      {advanced && (
+        <DiscoveryAdvancedFilters
+          value={filters}
+          onClose={() => setAdvanced(false)}
+          onApply={(value) => onChange({ ...filters, ...value })}
+        />
+      )}
       {range && (
         <AppBottomSheet
           title="Choose dates"

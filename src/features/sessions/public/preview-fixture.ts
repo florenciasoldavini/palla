@@ -10,6 +10,7 @@ export const publicSessionPreview: PublicSession = {
   description:
     "Join our weekly social session for 6ta and 7ma players. Enjoy friendly matches, competitive rallies and plenty of time on court.\n\nBring your racket and arrive 10 minutes early so we can start on time.",
   court_label: "Court 3",
+  court_coverage: "covered",
   starts_at: "2026-10-23T19:00:00-03:00",
   ends_at: "2026-10-23T20:30:00-03:00",
   timezone: "America/Argentina/Buenos_Aires",
@@ -27,6 +28,7 @@ export const publicSessionPreview: PublicSession = {
   payment_instructions: null,
   weekly: true,
   venue: {
+    court_coverage: ["covered", "uncovered"],
     latitude: -34.583,
     longitude: -58.421,
     attributes: ["free_parking", "showers", "racket_rental"],
