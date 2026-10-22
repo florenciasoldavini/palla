@@ -20,6 +20,7 @@ export function useCancellation(id: string, single = false) {
     mutationFn: cancelOccurrence,
     networkMode: "always",
     onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ["discover-sessions"] });
       await Promise.all(
         [
           "cancellations",

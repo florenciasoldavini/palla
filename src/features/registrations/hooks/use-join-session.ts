@@ -27,6 +27,7 @@ export function useJoinSession(sessionId: string) {
     onSettled: () => {
       void Promise.all([
         client.invalidateQueries({ queryKey: ["public-session"] }),
+        client.invalidateQueries({ queryKey: ["discover-sessions"] }),
         client.invalidateQueries({ queryKey: ["organizer-roster"] }),
         client.invalidateQueries({ queryKey: ["organizer-waitlist"] }),
         client.invalidateQueries({ queryKey: ["organizer-sessions"] }),

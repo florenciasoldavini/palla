@@ -900,3 +900,80 @@ zero. The cover was reset through the native editor and its Storage object count
 is zero. Both apps were returned to the dashboard. The final static export and
 HTTP metadata check passed (one title and one `og:title`). No public deployment
 was changed.
+
+### Public sharing after PR #14 merge — 21 October 2026
+
+GitHub confirms merge commit `4b04f4506bcb4a045558ab7cca75e60c48fe7a6e` and
+its Vercel status is successful. Unauthenticated HTTPS requests to
+`palla-pink.vercel.app` still return platform `NOT_FOUND` 404 responses for
+`/session`, `/api/session-image`, and both well-known association files. These
+are hosting 404s rather than the sharing handler's unavailable-session response.
+The development branch preview redirects to Vercel login. Both the scoped Vercel
+connector and existing CLI login deny access to the owning team; deployment/domain
+mapping cannot be inspected with current access.
+
+On iPhone 17 Pro / iOS 26.5 the HTTPS link opens Safari. On Pixel 8 / Android
+17 API 37 the implicit VIEW intent opens Chrome, rather than Palla. No new native
+build was installed. This does not validate the new native association declarations.
+Actual WhatsApp rendering and end-to-end live sharing remain unverified until the
+public routes and signing associations are available. No account/test data was
+created or changed during this check.
+
+### Development preview sharing check — 21 October 2026
+
+Targeted only the Preview deployment for merge commit `4b04f45`:
+`palla-lke9yax3q-florencias-projects-aebbb448.vercel.app` (Vercel deployment
+`QUANF7s7zQGQkqEZ4u5w61qVN9NR`). The authenticated Chrome session can access it.
+Vercel Resources confirms all three sharing functions deployed. Direct
+`/api/session?id=invalid` returns the intended unavailable-session page; a
+well-formed absent UUID returns the handler's temporary-unavailable response.
+The project's environment-variable list explicitly shows no variables configured,
+so the preview cannot connect to the backend and has no preview share origin.
+`/api/app-links?platform=ios` reports the signing team is not configured.
+
+The `/session` route serves the exported static app instead of the sharing
+handler. Its inspected DOM still contains generic Palla Open Graph title,
+description and the old global image origin, not occurrence metadata. This
+confirms a deployed routing problem independent of production domain mapping.
+Unauthenticated sharing-crawler requests to the preview are blocked by Vercel
+Authentication. Actual WhatsApp preview rendering remains unverified/blocked.
+No environment values, deployment-protection settings, or production resources
+were changed during this preview-only check; no account fixtures were created.
+
+## Discover sessions — 2026-10-22
+
+- iOS: iPhone 17 Pro, iOS 26.5, simulator `BB29D950-04DB-4EF5-B328-30948C3DB802`.
+- Android: Pixel 8, Android 17 / API 37, `emulator-5554`.
+- Existing native development builds with Metro; no browser app validation.
+- Live backend inventory: three explicitly labeled temporary public occurrences at two temporary venues, using the two existing QA accounts. No new authentication accounts. These fixtures were removed after verification.
+- Both: live Starting soon / Available today / Upcoming grouping, floating date/category menus, tomorrow empty results, category filter, native date-range sheet, keyboard search and clear, map/list switching, real minimal map tiles and provider credits, venue counts grouped as 2 + 1, marker -> venue sheet, venue sheet -> real public occurrence detail, Back, explicit Search this area and clear-area behavior.
+- List remains mounted at the same layout size under the map overlay; native card coordinates were compared before/after switching at a settled scroll offset. Automatic polling does not activate pull-to-refresh or move the list; that indicator is reserved for the user gesture. UI automation used actual accessibility bounds (and inspected screenshot coordinates for map markers).
+- Large text: iOS extra-extra-extra-large and Android font scale 1.3; restored iOS large / Android 1.0 after checking. Horizontal chips remain scrollable; cards wrap their titles, and the page scrolls.
+- Loading, error/retry recovery and empty states also exercised with the development-only Discover preview. Fixture states do not prove backend behavior; the live checks above and rollback SQL assertions cover that separately.
+- Shared search now exposes input and Search button as separate native accessibility targets. Map's native venue-list button exposes the same sessions without relying on marker accessibility.
+- Map locations are approximate address geocodes. Unresolved venues remain in the list; precise stored venue coordinates and server-side geographic pagination are future work.
+- `npm run verify`: typecheck, lint, 255 tests and formatting passed. Rollback-only `supabase/tests/discover-sessions.sql` passed authenticated/anonymous visibility, capacity/waitlist, own status, date/category/search filters and private-field checks. Intentional public discovery-definer advisory is documented in `docs/discover-sessions.md`.
+
+### Discover header refinement — 2026-10-22
+
+Verified the location selector replacing the wordmark on Discover, opening/closing its sheet, the circular icon-only Map/List control, and returning between Discover and Profile on iOS 26.5 and Android 17. Other tabs retain the wordmark. `npm run verify` passed (255 tests). No QA database fixtures or account changes were needed.
+
+### Discover map button removal — 2026-10-22
+
+Removed the aggregate View sessions control and its unused all-venues sheet state. Checked the native map surface on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 using the development-only map fixture: no View sessions control remains; provider credits, location notice and circular List toggle remain. Venue marker selection still uses the existing single-venue sheet. `npm run verify` passed (255 tests); no backend or account changes.
+
+### Discover map header removal — 2026-10-22
+
+Removed the Sessions on the map heading and Edit filters action above the map. Native map surfaces checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17; the circular List toggle remains available. `npm run verify` passed (255 tests). No backend or account changes.
+
+### Discover controls in map view — 2026-10-22
+
+Added the shared search/filter controls above the map, aligned with the list controls. Checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17: anchored date menu in map view, Tomorrow selection retained in list view, native keyboard search and shared search value, clearing filters and returning to map. `npm run verify` passed (255 tests). Used the actual Discover screen without database fixtures or account changes.
+
+### Discover map/list toggle color — 2026-10-22
+
+Changed both circular toggle states to the existing essential button variant (neon background, dark olive icon). Checked both toggle states on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17. `npm run verify` passed (255 tests). No backend or account changes.
+
+### Discover action hierarchy — 2026-10-22
+
+Updated Search to the essential neon variant and the circular Map/List toggle to the neutral charcoal variant with a white icon. Checked both view states on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17. `npm run verify` passed (255 tests). No backend or account changes.
