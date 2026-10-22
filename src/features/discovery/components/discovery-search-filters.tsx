@@ -7,16 +7,19 @@ export function DiscoverySearchFilters({
   filters,
   draft,
   onDraftChange,
-  onChange
+  onChange,
+  floating = false
 }: {
+  floating?: boolean;
   filters: DiscoveryFilters;
   draft: string;
   onDraftChange: (value: string) => void;
   onChange: (filters: DiscoveryFilters) => void;
 }) {
   return (
-    <View style={{ gap: 18 }}>
+    <View pointerEvents="box-none" style={{ gap: 18 }}>
       <SearchField
+        floating={floating}
         value={draft}
         onChangeText={onDraftChange}
         placeholder="Search clubs or sessions"

@@ -13,6 +13,7 @@ const bounds = z.object({
 });
 export function DiscoveryMap({
   points,
+  topInset = 0,
   onLoad,
   onError,
   onSelect,
@@ -20,10 +21,10 @@ export function DiscoveryMap({
 }: DiscoveryMapProps) {
   const source = useMemo(
     () => ({
-      html: discoveryMapHtml(points),
+      html: discoveryMapHtml(points, topInset),
       baseUrl: "https://palla.vercel.app"
     }),
-    [points]
+    [points, topInset]
   );
   return (
     <View style={{ flex: 1 }}>

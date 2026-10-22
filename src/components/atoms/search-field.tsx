@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TextInput, View } from "react-native";
 import { Search } from "lucide-react-native";
 import { AppButton } from "./button";
-import { atomPalette as c, atomControlRadius } from "./theme";
+import { atomPalette as c, atomControlRadius, atomShadows } from "./theme";
 import { getSansFontStyle } from "@/theme/fonts";
 /** Search action stays a separate native accessibility target from the input. */
 export function SearchField({
@@ -10,8 +10,10 @@ export function SearchField({
   onChangeText,
   onSearch,
   placeholder = "Search",
-  accessibilityLabel = placeholder
+  accessibilityLabel = placeholder,
+  floating = false
 }: {
+  floating?: boolean;
   value: string;
   onChangeText: (s: string) => void;
   onSearch: () => void;
@@ -26,6 +28,7 @@ export function SearchField({
         alignItems: "center",
         gap: 8,
         backgroundColor: c.surface,
+        boxShadow: floating ? atomShadows.floating : undefined,
         borderWidth: 1,
         borderColor: focused ? c.accent : c.borderSubtle,
         borderRadius: atomControlRadius,

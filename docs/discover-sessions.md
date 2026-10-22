@@ -14,19 +14,20 @@ Cards use existing session covers and venue Google Maps photo fallback with requ
 
 ## Header and map control
 
-Discover replaces the shared header wordmark with the current location selector; it opens the existing location sheet. Other tabs retain the Palla wordmark and notification button. The map/list switch is a 56-point circular icon-only button with explicit accessible labels. List and map show the same reusable search bar and filter chips, backed by the same search draft and applied filters. Map view omits the extra section heading and Edit filters action.
+Discover replaces the shared header wordmark with the current location selector; it opens the existing location sheet. Other tabs retain the Palla wordmark and notification button. The map/list switch is a 56-point circular icon-only button with explicit accessible labels. List and map show the same reusable search bar and filter chips, backed by the same search draft and applied filters. Map view fills the full width and height between the navigation header and bottom tabs. The search bar and horizontally scrolling filter chips float over the map at the top; the circular Map/List button floats at the bottom right above the map credits. Camera padding follows the measured controls so markers stay clear of them. Map view omits the extra section heading and Edit filters action.
 
 ## Map
 
 The Map button switches the same search into a native WebView containing the existing minimal MapLibre/OpenFreeMap street style. The list stays mounted so its scroll position survives switching views. Markers group matching occurrences by venue; tapping opens a bottom sheet. The circular List toggle returns to the accessible session list. Details navigation remains the existing public session route.
 
-Saved venue addresses are resolved through the existing Photon adapter only when map view opens, with two concurrent lookups and a shared per-address query cache. These are approximate locations, explicitly labeled. Unresolved addresses remain in the list and are counted in a map notice. Provider failures have a retry state; a slow map times out after 25 seconds. No fake pins or location permission requests.
+Saved venue addresses are resolved through the existing Photon adapter only when map view opens, with two concurrent lookups and a shared per-address query cache. Address geocoding is approximate. Unresolved addresses remain available in the list. Provider failures have a retry state; a slow map times out after 25 seconds. No fake pins or location permission requests.
 
-Panning exposes Search this area. Applying it filters the shared result set to resolved venues within those bounds; Clear map area restores the broader results. Filter changes clear the map area. This initial implementation searches the already fetched, bounded results, with the same result-limit notice; it is not a server-side geospatial index.
+Panning exposes Search this area. Applying it filters the shared result set to resolved venues within those bounds; Changing filters, or using Clear filters in list view, clears the map area. This initial implementation searches the already fetched, bounded results, with the same result-limit notice; it is not a server-side geospatial index.
 
 ## Verification
 
 - `supabase/tests/discover-sessions.sql`: rollback-only fixtures using the two existing QA accounts; public/private, started/cancelled/completed, open/closed registration, full/waitlist capacity, category/search/availability, own registration, host visibility, chronology and no roster leakage.
 - `src/features/discovery/domain.test.ts`: exact deadline boundaries, disjoint local-date grouping, registration/waitlist status and antimeridian bounds.
 - Native development states: `palla://sessions-preview/discovery?state=loading`, `state=error`, `state=empty`. Fixtures use the real presentation components and make no account writes. Preview navigation into fake occurrence IDs is disabled.
+- `palla://navigation-preview/player/home` shows read-only sample discovery results with the real location header and bottom navigation, including map view.
 - Live native runs and device details are recorded in `docs/native-testing.md`.

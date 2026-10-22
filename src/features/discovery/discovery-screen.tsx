@@ -21,6 +21,7 @@ import {
   Screen
 } from "@/components/atoms";
 import { atomPalette as c } from "@/components/atoms/theme";
+import { NavigationChromeContext } from "@/components/navigation/chrome-context";
 import { AuthContext } from "@/features/auth/auth-provider";
 import {
   defaultFilters,
@@ -89,7 +90,9 @@ export function DiscoveryContent({
   preview?: boolean;
 }) {
   const router = useRouter();
+  const hasNavigationChrome = useContext(NavigationChromeContext);
   const [pullRefreshing, setPullRefreshing] = useState(false);
+  const [mapControlsHeight, setMapControlsHeight] = useState(132);
   async function pullRefresh() {
     setPullRefreshing(true);
     try {
@@ -167,7 +170,7 @@ export function DiscoveryContent({
   );
   const header = (
     <View style={{ gap: 18 }}>
-      {preview && (
+      {preview && !hasNavigationChrome && (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Change location, ${filters.location}`}
@@ -314,7 +317,9 @@ export function DiscoveryContent({
       contentContainerStyle={{ paddingTop: 0, paddingBottom: 0 }}
       contentStyle={{ paddingHorizontal: 0, flex: 1 }}
     >
-      {!preview && <Tabs.Screen options={navigationOptions} />}
+      {(!preview || hasNavigationChrome) && (
+        <Tabs.Screen options={navigationOptions} />
+      )}
       <View style={{ flex: 1 }}>
         <View
           style={{ flex: 1, opacity: map ? 0 : 1 }}
@@ -358,51 +363,83 @@ export function DiscoveryContent({
         </View>
         {map && (
           <View
-            style={{
-              ...StyleSheet.absoluteFillObject,
-              backgroundColor: c.background,
-              padding: 20,
-              paddingTop: 4,
-              paddingBottom: 80,
-              gap: 12
-            }}
+            style={[
+              StyleSheet.absoluteFillObject,
+              { backgroundColor: c.surfaceLow }
+            ]}
           >
-            <DiscoverySearchFilters
-              filters={filters}
-              draft={draft}
-              onDraftChange={setDraft}
-              onChange={changeFilters}
-            />
-            {hasMore && (
-              <AppText variant="caption" tone="muted">
-                Showing the first 500 sessions. Narrow your filters to see more
-                relevant results.
-              </AppText>
-            )}
-            {!!area && (
-              <AppButton
-                size="sm"
-                variant="ghost"
-                onPress={() => setArea(null)}
-              >
-                Clear map area
-              </AppButton>
-            )}
             {loading ? (
-              <ActivityIndicator color={c.accent} />
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <ActivityIndicator
+                  color={c.accent}
+                  accessibilityLabel="Finding sessions on the map"
+                />
+              </View>
             ) : error ? (
-              <ErrorState title="Couldn’t load sessions" onRetry={refresh} />
+              <ScrollView
+                contentContainerStyle={{
+                  paddingTop: mapControlsHeight + 36,
+                  paddingHorizontal: 20,
+                  paddingBottom: 96
+                }}
+              >
+                <ErrorState title="Couldn’t load sessions" onRetry={refresh} />
+              </ScrollView>
             ) : (
               <DiscoveryMapPanel
                 sessions={shown}
+                topInset={mapControlsHeight + 24}
                 onArea={(_, ids) => setArea(ids)}
                 onOpen={open}
                 preview={preview}
               />
             )}
+            <View
+              pointerEvents="box-none"
+              onLayout={({ nativeEvent }) =>
+                setMapControlsHeight(Math.ceil(nativeEvent.layout.height))
+              }
+              style={{
+                position: "absolute",
+                top: 12,
+                left: 20,
+                right: 20,
+                gap: 12
+              }}
+            >
+              <DiscoverySearchFilters
+                floating
+                filters={filters}
+                draft={draft}
+                onDraftChange={setDraft}
+                onChange={changeFilters}
+              />
+              {hasMore && (
+                <AppText
+                  variant="caption"
+                  tone="muted"
+                  style={{
+                    backgroundColor: c.surface,
+                    padding: 8,
+                    borderRadius: 12
+                  }}
+                >
+                  Showing the first 500 sessions. Narrow your filters to see
+                  more relevant results.
+                </AppText>
+              )}
+            </View>
           </View>
         )}
-        <View style={{ position: "absolute", bottom: 16, right: 20 }}>
+        <View
+          style={{ position: "absolute", bottom: map ? 32 : 16, right: 20 }}
+        >
           <AppButton
             fullWidth={false}
             icon={map ? List : Map}
@@ -432,7 +469,14 @@ export function DiscoveryContent({
           <AppText
             variant="caption"
             tone="muted"
-            style={{ position: "absolute", bottom: 0, left: 20 }}
+            style={{
+              position: "absolute",
+              bottom: map ? 104 : 0,
+              left: 20,
+              backgroundColor: c.surface,
+              paddingHorizontal: 6,
+              borderRadius: 6
+            }}
           >
             Design preview · {user ? "Signed in" : "No account changes"}
           </AppText>

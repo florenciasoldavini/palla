@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, ScrollView, View } from "react-native";
 import { AppButton, AppText, EmptyState, ErrorState } from "@/components/atoms";
 import { AppBottomSheet } from "@/components/atoms/bottom-sheet";
 import { atomPalette as c } from "@/components/atoms/theme";
@@ -11,8 +11,10 @@ export function DiscoveryMapPanel({
   sessions,
   onArea,
   onOpen,
-  preview = false
+  preview = false,
+  topInset = 16
 }: {
+  topInset?: number;
   sessions: DiscoverySession[];
   onArea: (b: Bounds | null, ids: string[]) => void;
   onOpen: (id: string) => void;
@@ -35,7 +37,7 @@ export function DiscoveryMapPanel({
       })),
     [venues.points]
   );
-  const pointKey = JSON.stringify(points);
+  const pointKey = JSON.stringify(points) + ":" + topInset;
   useEffect(() => {
     setLoaded(false);
     setFailed(false);
@@ -54,39 +56,47 @@ export function DiscoveryMapPanel({
     <View
       style={{
         flex: 1,
-        minHeight: 300,
-        borderRadius: 20,
+        minHeight: 0,
         overflow: "hidden",
         backgroundColor: c.surfaceLow
       }}
     >
       {venues.isPending ? (
-        <View style={{ padding: 32, gap: 16, alignItems: "center" }}>
-          <ActivityIndicator color={c.accent} />
-          <AppText>Finding venues on the map…</AppText>
-        </View>
+        <MapStatus topInset={topInset}>
+          <View style={{ gap: 16, alignItems: "center" }}>
+            <ActivityIndicator color={c.accent} />
+            <AppText>Finding venues on the map…</AppText>
+          </View>
+        </MapStatus>
       ) : venues.isError ? (
-        <ErrorState
-          title="Couldn’t locate venues"
-          onRetry={() => {
-            void venues.refetch();
-          }}
-        />
+        <MapStatus topInset={topInset}>
+          <ErrorState
+            title="Couldn’t locate venues"
+            onRetry={() => {
+              void venues.refetch();
+            }}
+          />
+        </MapStatus>
       ) : sessions.length === 0 ? (
-        <EmptyState
-          title="No sessions in this area"
-          description="Try changing your location or filters to find another session."
-        />
+        <MapStatus topInset={topInset}>
+          <EmptyState
+            title="No sessions in this area"
+            description="Try changing your location or filters to find another session."
+          />
+        </MapStatus>
       ) : points.length === 0 ? (
-        <EmptyState
-          title="No venues on the map"
-          description="These addresses couldn’t be located. You can still browse every session in the list."
-        />
+        <MapStatus topInset={topInset}>
+          <EmptyState
+            title="No venues on the map"
+            description="These addresses couldn’t be located. You can still browse every session in the list."
+          />
+        </MapStatus>
       ) : (
         <>
           <DiscoveryMap
             key={retry}
             points={points}
+            topInset={topInset}
             onLoad={() => setLoaded(true)}
             onError={() => setFailed(true)}
             onMove={setPending}
@@ -96,7 +106,7 @@ export function DiscoveryMapPanel({
             <View
               style={{
                 position: "absolute",
-                top: 16,
+                top: topInset + 8,
                 left: 16,
                 right: 16,
                 padding: 16,
@@ -114,7 +124,7 @@ export function DiscoveryMapPanel({
             <View
               style={{
                 position: "absolute",
-                top: 16,
+                top: topInset + 8,
                 left: 16,
                 right: 16,
                 backgroundColor: c.surface,
@@ -131,7 +141,11 @@ export function DiscoveryMapPanel({
           )}
           {pending && loaded && !failed && (
             <View
-              style={{ position: "absolute", top: 16, alignSelf: "center" }}
+              style={{
+                position: "absolute",
+                top: topInset + 8,
+                alignSelf: "center"
+              }}
             >
               <AppButton
                 size="sm"
@@ -159,29 +173,6 @@ export function DiscoveryMapPanel({
               </AppButton>
             </View>
           )}
-          <View
-            style={{
-              position: "absolute",
-              bottom: 30,
-              left: 12,
-              right: 12,
-              gap: 6
-            }}
-          >
-            <AppText
-              variant="caption"
-              style={{
-                backgroundColor: c.surface,
-                padding: 6,
-                borderRadius: 6
-              }}
-            >
-              Approximate locations ·{" "}
-              {venues.unresolved
-                ? `${venues.unresolved} ${venues.unresolved === 1 ? "venue is" : "venues are"} available in list only`
-                : "Based on venue addresses"}
-            </AppText>
-          </View>
         </>
       )}
       {selected && (
@@ -212,5 +203,28 @@ export function DiscoveryMapPanel({
         </AppBottomSheet>
       )}
     </View>
+  );
+}
+
+function MapStatus({
+  topInset,
+  children
+}: {
+  topInset: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{
+        flexGrow: 1,
+        justifyContent: "center",
+        paddingTop: topInset + 16,
+        paddingHorizontal: 20,
+        paddingBottom: 96
+      }}
+    >
+      {children}
+    </ScrollView>
   );
 }

@@ -977,3 +977,13 @@ Changed both circular toggle states to the existing essential button variant (ne
 ### Discover action hierarchy — 2026-10-22
 
 Updated Search to the essential neon variant and the circular Map/List toggle to the neutral charcoal variant with a white icon. Checked both view states on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17. `npm run verify` passed (255 tests). No backend or account changes.
+
+### Discover location banner removal — 2026-10-22
+
+Removed the Approximate locations / Based on venue addresses / unresolved-address count banner from the map. Checked its absence on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17; the List toggle and map provider attribution remain. No backend or account changes.
+
+Also removed the Clear map area action. On both devices, panned the map and applied Search this area, then verified the clear-area button stays absent and the List toggle remains accessible. `npm run verify` passed (255 tests).
+
+### Discover full-screen map and floating controls — 2026-10-22
+
+Checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 (API 37). The map fills the body between the shared header and bottom tabs, reaching both screen edges. Search, filter chips and the circular List button float above it; map attribution remains visible. Verified anchored date menus, shared filter selection, panning and Search this area below the controls, native keyboard search, clearing filters and returning to map. Checked iOS extra-extra-extra-large text and Android font scale 1.3, then restored large / 1.0. Used read-only sample results through `navigation-preview/player/home`; no backend or account writes. Screenshots are under `.impeccable/review/native/discovery/`. `npm run verify` passed (255 tests).

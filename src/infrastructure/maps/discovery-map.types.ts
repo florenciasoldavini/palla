@@ -13,6 +13,7 @@ export type MapBounds = {
 };
 export type DiscoveryMapProps = {
   points: DiscoveryMapPoint[];
+  topInset?: number;
   onLoad: () => void;
   onError: () => void;
   onSelect: (id: string) => void;
