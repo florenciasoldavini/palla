@@ -1,3 +1,8 @@
+import { ActivityIndicator } from "react-native";
+import { AppText } from "@/components/atoms";
+import { atomPalette } from "@/components/atoms/theme";
+import type { useDiscoverySort } from "../hooks/use-discovery-sort";
+import { DiscoverySortControl } from "./discovery-sort";
 import { View } from "react-native";
 import { SearchField } from "@/components/atoms/search-field";
 import type { DiscoveryFilters } from "../domain";
@@ -8,8 +13,10 @@ export function DiscoverySearchFilters({
   draft,
   onDraftChange,
   onChange,
+  sorting,
   floating = false
 }: {
+  sorting: ReturnType<typeof useDiscoverySort>;
   floating?: boolean;
   filters: DiscoveryFilters;
   draft: string;
@@ -25,7 +32,30 @@ export function DiscoverySearchFilters({
         placeholder="Search clubs or sessions"
         onSearch={() => onChange({ ...filters, search: draft.trim() })}
       />
-      <DiscoveryFiltersBar filters={filters} onChange={onChange} />
+      <DiscoveryFiltersBar
+        filters={filters}
+        onChange={onChange}
+        sortControl={
+          <DiscoverySortControl filters={filters} sorting={sorting} />
+        }
+      />
+      {sorting.locating && (
+        <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+          <ActivityIndicator color={atomPalette.accent} />
+          <AppText variant="bodySm" accessibilityLiveRegion="polite">
+            Finding your location…
+          </AppText>
+        </View>
+      )}
+      {!!sorting.error && (
+        <AppText
+          variant="bodySm"
+          tone="danger"
+          accessibilityLiveRegion="polite"
+        >
+          {sorting.error}
+        </AppText>
+      )}
     </View>
   );
 }

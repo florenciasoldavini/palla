@@ -1,3 +1,4 @@
+import { rankPreviewSessions } from "./preview-sorting";
 import { advancedRpcFilters } from "./advanced-filters";
 import { Redirect, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -59,21 +60,27 @@ export default function DiscoveryPreview() {
   );
   // Only fixture presentation is filtered locally. Production filtering happens in the RPC before LIMIT.
   const advanced = advancedRpcFilters(filters);
-  const matching = sessions.filter(
-    (s) =>
-      (advanced.p_min_price === null ||
-        s.price_minor >= advanced.p_min_price) &&
-      (advanced.p_max_price === null ||
-        s.price_minor <= advanced.p_max_price) &&
-      (filters.coverage === "any" || s.court_coverage === filters.coverage) &&
-      (filters.gender === "any" || s.gender === filters.gender) &&
-      filters.sessionAttributes.every(
-        (code) =>
-          s.sessionAttributes.includes(code) ||
-          (code === "balls_provided" &&
-            s.sessionAttributes.includes("new_balls"))
-      ) &&
-      filters.venueAttributes.every((code) => s.venueAttributes.includes(code))
+  const matching = rankPreviewSessions(
+    sessions.filter(
+      (s) =>
+        (advanced.p_min_price === null ||
+          s.price_minor >= advanced.p_min_price) &&
+        (advanced.p_max_price === null ||
+          s.price_minor <= advanced.p_max_price) &&
+        (filters.coverage === "any" || s.court_coverage === filters.coverage) &&
+        (filters.gender === "any" || s.gender === filters.gender) &&
+        filters.sessionAttributes.every(
+          (code) =>
+            s.sessionAttributes.includes(code) ||
+            (code === "balls_provided" &&
+              s.sessionAttributes.includes("new_balls"))
+        ) &&
+        filters.venueAttributes.every((code) =>
+          s.venueAttributes.includes(code)
+        )
+    ),
+    filters.sort,
+    filters.origin
   );
   if (!__DEV__) return <Redirect href="/sign-in" />;
   return (

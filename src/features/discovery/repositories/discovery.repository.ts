@@ -5,8 +5,11 @@ export async function fetchDiscovery(
   f: DiscoveryFilters,
   signal?: AbortSignal
 ) {
-  const request = requireSupabase().rpc("discover_sessions_filtered", {
+  const request = requireSupabase().rpc("discover_sessions_ranked", {
     ...advancedRpcFilters(f),
+    p_sort: f.sort,
+    p_latitude: f.origin?.latitude ?? null,
+    p_longitude: f.origin?.longitude ?? null,
     p_location: f.location,
     p_search: f.search,
     p_from: f.from || null,

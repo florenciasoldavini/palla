@@ -1,3 +1,4 @@
+import type { DiscoverySort, DiscoveryOrigin } from "./sorting";
 import {
   advancedFilterCount,
   defaultAdvancedFilters,
@@ -10,6 +11,7 @@ import {
 import { venueCoordinatesShape } from "@/features/venues/coordinates";
 import { z } from "zod";
 export const discoverySessionSchema = z.object({
+  distance_m: z.number().finite().nonnegative().nullable().optional(),
   court_coverage: courtCoverageSchema.nullable().optional(),
   id: z.uuid(),
   title: z.string(),
@@ -38,6 +40,8 @@ export const discoverySessionSchema = z.object({
 });
 export type DiscoverySession = z.infer<typeof discoverySessionSchema>;
 export type DiscoveryFilters = AdvancedFilters & {
+  sort: DiscoverySort;
+  origin: DiscoveryOrigin | null;
   location: string;
   search: string;
   from: string;
@@ -48,6 +52,8 @@ export type DiscoveryFilters = AdvancedFilters & {
 };
 export const defaultFilters: DiscoveryFilters = {
   ...defaultAdvancedFilters,
+  sort: "soonest",
+  origin: null,
   location: "Buenos Aires",
   search: "",
   from: "",

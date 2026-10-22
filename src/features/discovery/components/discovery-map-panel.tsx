@@ -52,10 +52,10 @@ export function DiscoveryMapPanel({
     const timer = setTimeout(() => setFailed(true), 25000);
     return () => clearTimeout(timer);
   }, [loaded, pointKey, retry]);
-  const cards = useMemo(
-    () => venues.points.flatMap((p) => p.sessions),
-    [venues.points]
-  );
+  const cards = useMemo(() => {
+    const located = new Set(venues.points.map((p) => p.id));
+    return sessions.filter((s) => located.has(s.venue.id));
+  }, [venues.points, sessions]);
   const active = cards.find((s) => s.id === selected);
   const [cardHeight, setCardHeight] = useState(0);
   useEffect(() => {

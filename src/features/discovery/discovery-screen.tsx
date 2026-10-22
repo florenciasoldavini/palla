@@ -1,3 +1,4 @@
+import { useDiscoverySort } from "./hooks/use-discovery-sort";
 import { useContext, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -25,6 +26,7 @@ import { NavigationChromeContext } from "@/components/navigation/chrome-context"
 import { AuthContext } from "@/features/auth/auth-provider";
 import {
   defaultFilters,
+  eligibleSession,
   hasFilters,
   sections,
   type DiscoveryFilters,
@@ -90,6 +92,7 @@ export function DiscoveryContent({
   preview?: boolean;
 }) {
   const router = useRouter();
+  const sorting = useDiscoverySort(filters, onFilters);
   const hasNavigationChrome = useContext(NavigationChromeContext);
   const [pullRefreshing, setPullRefreshing] = useState(false);
   const [mapCardHeight, setMapCardHeight] = useState(0);
@@ -129,14 +132,20 @@ export function DiscoveryContent({
     setGroup(null);
   }, [filters]);
   const groups = useMemo(() => sections(sessions), [sessions]);
-  const filtered = hasFilters(filters) || area !== null || group !== null;
+  const filtered =
+    hasFilters(filters) ||
+    filters.sort !== "soonest" ||
+    area !== null ||
+    group !== null;
   const shown = useMemo(
     () =>
       (group
         ? groups[group]
-        : [...groups.soon, ...groups.today, ...groups.upcoming]
+        : filters.sort !== "soonest"
+          ? sessions.filter((s) => eligibleSession(s))
+          : [...groups.soon, ...groups.today, ...groups.upcoming]
       ).filter((s) => area === null || area.includes(s.venue.id)),
-    [groups, group, area]
+    [groups, group, area, sessions, filters.sort]
   );
   const open = (id: string) => {
     if (!preview) router.push({ pathname: "/session", params: { id } });
@@ -194,6 +203,7 @@ export function DiscoveryContent({
         </Pressable>
       )}
       <DiscoverySearchFilters
+        sorting={sorting}
         filters={filters}
         draft={draft}
         onDraftChange={setDraft}
@@ -416,6 +426,7 @@ export function DiscoveryContent({
               }}
             >
               <DiscoverySearchFilters
+                sorting={sorting}
                 floating
                 filters={filters}
                 draft={draft}

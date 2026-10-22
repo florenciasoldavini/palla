@@ -1,6 +1,6 @@
 import { DiscoveryAdvancedFilters } from "./discovery-advanced-filters";
 import { advancedFilterCount } from "../advanced-filters";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { View, Keyboard } from "react-native";
 import {
   AppButton,
@@ -64,8 +64,10 @@ function ChipSelect({
 }
 export function DiscoveryFiltersBar({
   filters,
-  onChange
+  onChange,
+  sortControl
 }: {
+  sortControl?: ReactNode;
   filters: DiscoveryFilters;
   onChange: (f: DiscoveryFilters) => void;
 }) {
@@ -88,6 +90,7 @@ export function DiscoveryFiltersBar({
   return (
     <>
       <FilterChipGroup>
+        {sortControl}
         <FilterChip
           label={count ? `More filters · ${count}` : "More filters"}
           accessibilityLabel="More filters"

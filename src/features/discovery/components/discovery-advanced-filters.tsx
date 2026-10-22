@@ -24,7 +24,14 @@ export function DiscoveryAdvancedFilters({
   onClose: () => void;
 }) {
   const { fontScale } = useWindowDimensions();
-  const [draft, setDraft] = useState<AdvancedFilters>({ ...value });
+  const [draft, setDraft] = useState<AdvancedFilters>({
+    minPrice: value.minPrice,
+    maxPrice: value.maxPrice,
+    coverage: value.coverage,
+    gender: value.gender,
+    sessionAttributes: value.sessionAttributes,
+    venueAttributes: value.venueAttributes
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   function apply() {
     const result = advancedFiltersSchema.safeParse(draft);
