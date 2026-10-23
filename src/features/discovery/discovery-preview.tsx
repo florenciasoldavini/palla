@@ -5,6 +5,7 @@ import { Redirect, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { DiscoveryContent } from "@/features/discovery/discovery-screen";
 import {
+  inBounds,
   defaultFilters,
   type DiscoverySession
 } from "@/features/discovery/domain";
@@ -71,6 +72,13 @@ export default function DiscoveryPreview() {
       : sessions
     ).filter(
       (s) =>
+        (!filters.bounds ||
+          (s.venue.latitude != null &&
+            s.venue.longitude != null &&
+            inBounds(
+              { latitude: s.venue.latitude, longitude: s.venue.longitude },
+              filters.bounds
+            ))) &&
         (advanced.p_min_price === null ||
           s.price_minor >= advanced.p_min_price) &&
         (advanced.p_max_price === null ||
@@ -94,7 +102,11 @@ export default function DiscoveryPreview() {
   if (!__DEV__) return <Redirect href="/sign-in" />;
   return (
     <DiscoveryContent
-      filters={{ ...filters, location: saved.location, city: saved.city }}
+      filters={{
+        ...filters,
+        location: state === "map-bounds" ? "Buenos Aires" : saved.location,
+        city: state === "map-bounds" ? null : saved.city
+      }}
       onFilters={setFilters}
       onLocation={saved.changeLocation}
       sessions={state === "empty" ? [] : matching}

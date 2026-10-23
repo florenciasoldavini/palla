@@ -75,14 +75,16 @@ export function useDiscoverySort(
       apply((current) => ({
         ...current,
         radius,
+        bounds: null,
         origin: current.sort === "nearest" ? current.origin : null
       }));
     } else if (latest.current.radius !== "any" && latest.current.origin) {
-      apply((current) => ({ ...current, radius }));
+      apply((current) => ({ ...current, radius, bounds: null }));
     } else {
       await withLocation("radius", (current, origin) => ({
         ...current,
         radius,
+        bounds: null,
         origin
       }));
     }

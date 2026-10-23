@@ -6,8 +6,9 @@ export async function fetchDiscovery(
   f: DiscoveryFilters,
   signal?: AbortSignal
 ) {
-  const request = requireSupabase().rpc("discover_sessions_by_city", {
+  const request = requireSupabase().rpc("discover_sessions_in_bounds", {
     ...advancedRpcFilters(f),
+    p_bounds: f.bounds ?? null,
     p_city_id: f.city?.id ?? null,
     p_radius_km: radiusKilometers(f.radius),
     p_sort: f.sort,

@@ -1,18 +1,26 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { WebView } from "react-native-webview";
 import { z } from "zod";
+const bounds = z
+  .object({
+    west: z.number().finite().min(-180).max(180),
+    east: z.number().finite().min(-180).max(180),
+    south: z.number().min(-90).max(90),
+    north: z.number().min(-90).max(90)
+  })
+  .refine((b) => b.south < b.north && b.west !== b.east);
 import { MapAttribution } from "./map-attribution";
-import { discoveryMapHtml } from "./discovery-map-html";
+import {
+  discoveryMapHtml,
+  safeMapPoints,
+  serializeMapData
+} from "./discovery-map-html";
 import type { DiscoveryMapProps } from "./discovery-map.types";
-const bounds = z.object({
-  west: z.number().finite(),
-  east: z.number().finite(),
-  south: z.number().min(-90).max(90),
-  north: z.number().min(-90).max(90)
-});
 export function DiscoveryMap({
   points,
+  center,
+  initialBounds,
   topInset = 0,
   bottomInset = 104,
   selectedId,
@@ -22,17 +30,18 @@ export function DiscoveryMap({
   onMove
 }: DiscoveryMapProps) {
   const web = useRef<WebView>(null);
-  const selectionScript = `window.selectPoint && window.selectPoint(${JSON.stringify(selectedId ?? null)}, ${Math.max(104, bottomInset)}); true;`;
+  const selectionScript = `window.selectPoint && window.selectPoint(${JSON.stringify(selectedId ?? null)}, ${Math.max(104, bottomInset)}, ${topInset}); true;`;
   useEffect(() => {
     web.current?.injectJavaScript(selectionScript);
   }, [selectionScript]);
-  const source = useMemo(
-    () => ({
-      html: discoveryMapHtml(points, topInset),
-      baseUrl: "https://palla.vercel.app"
-    }),
-    [points, topInset]
-  );
+  const [source] = useState(() => ({
+    html: discoveryMapHtml(points, topInset, center, initialBounds),
+    baseUrl: "https://palla.vercel.app"
+  }));
+  const pointsScript = `window.updatePoints && window.updatePoints(${serializeMapData(safeMapPoints(points))}); true;`;
+  useEffect(() => {
+    web.current?.injectJavaScript(pointsScript);
+  }, [pointsScript]);
   return (
     <View style={{ flex: 1 }}>
       <WebView
@@ -47,6 +56,7 @@ export function DiscoveryMap({
               data?: unknown;
             };
             if (m.type === "loaded") {
+              web.current?.injectJavaScript(pointsScript);
               web.current?.injectJavaScript(selectionScript);
               onLoad();
             }

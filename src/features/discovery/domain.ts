@@ -42,6 +42,7 @@ export const discoverySessionSchema = z.object({
 });
 export type DiscoverySession = z.infer<typeof discoverySessionSchema>;
 export type DiscoveryFilters = AdvancedFilters & {
+  bounds?: Bounds | null;
   radius: DiscoveryRadius;
   sort: DiscoverySort;
   origin: DiscoveryOrigin | null;

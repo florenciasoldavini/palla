@@ -13,6 +13,8 @@ export type MapBounds = {
 };
 export type DiscoveryMapProps = {
   points: DiscoveryMapPoint[];
+  center?: { latitude: number; longitude: number };
+  initialBounds?: MapBounds | null;
   topInset?: number;
   bottomInset?: number;
   selectedId?: string;

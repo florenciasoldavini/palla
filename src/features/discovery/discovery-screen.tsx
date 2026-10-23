@@ -1,3 +1,4 @@
+import { normalizeMapBounds, sameMapBounds } from "./map-bounds";
 import { cityLabel, type DiscoveryCity } from "./cities";
 import { useDiscoverySort } from "./hooks/use-discovery-sort";
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -93,7 +94,12 @@ export function DiscoveryContent({
   preview?: boolean;
 }) {
   const router = useRouter();
-  const sorting = useDiscoverySort(filters, onFilters);
+  const [mapRevision, setMapRevision] = useState(0);
+  const applyFilters = (next: DiscoveryFilters) => {
+    if (filters.bounds && !next.bounds) setMapRevision((value) => value + 1);
+    onFilters(next);
+  };
+  const sorting = useDiscoverySort(filters, applyFilters);
   const hasNavigationChrome = useContext(NavigationChromeContext);
   const [pullRefreshing, setPullRefreshing] = useState(false);
   const [mapCardHeight, setMapCardHeight] = useState(0);
@@ -110,7 +116,11 @@ export function DiscoveryContent({
   const [draft, setDraft] = useState(filters.search),
     [locationOpen, setLocationOpen] = useState(false),
     [map, setMap] = useState(false);
-  const locationLabel = filters.radius === "any" ? filters.location : "Near me";
+  const locationLabel = filters.bounds
+    ? "Map area"
+    : filters.radius === "any"
+      ? filters.location
+      : "Near me";
   const openLocation = useCallback(() => {
     Keyboard.dismiss();
     setLocationOpen(true);
@@ -126,11 +136,12 @@ export function DiscoveryContent({
     }),
     [locationLabel, openLocation]
   );
-  const [area, setArea] = useState<string[] | null>(null),
-    [group, setGroup] = useState<"soon" | "today" | "upcoming" | null>(null);
+  const area = filters.bounds ?? null;
+  const [group, setGroup] = useState<"soon" | "today" | "upcoming" | null>(
+    null
+  );
   useEffect(() => {
     setDraft(filters.search);
-    setArea(null);
     setGroup(null);
   }, [filters]);
   const groups = useMemo(() => sections(sessions), [sessions]);
@@ -141,20 +152,19 @@ export function DiscoveryContent({
     group !== null;
   const shown = useMemo(
     () =>
-      (group
+      group
         ? groups[group]
         : filters.sort !== "soonest"
           ? sessions.filter((s) => eligibleSession(s))
-          : [...groups.soon, ...groups.today, ...groups.upcoming]
-      ).filter((s) => area === null || area.includes(s.venue.id)),
-    [groups, group, area, sessions, filters.sort]
+          : [...groups.soon, ...groups.today, ...groups.upcoming],
+    [groups, group, sessions, filters.sort]
   );
   const open = (id: string) => {
     if (!preview) router.push({ pathname: "/session", params: { id } });
   };
   const changeFilters = (f: DiscoveryFilters) => {
     Keyboard.dismiss();
-    onFilters(f);
+    applyFilters(f);
   };
   const title =
     group === "soon"
@@ -233,7 +243,6 @@ export function DiscoveryContent({
             color="accent"
             fullWidth={false}
             onPress={() => {
-              setArea(null);
               setGroup(null);
               sorting.cancel();
               changeFilters({
@@ -386,39 +395,37 @@ export function DiscoveryContent({
               { backgroundColor: c.surfaceLow }
             ]}
           >
-            {loading ? (
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <ActivityIndicator
-                  color={c.accent}
-                  accessibilityLabel="Finding sessions on the map"
-                />
-              </View>
-            ) : error ? (
-              <ScrollView
-                contentContainerStyle={{
-                  paddingTop: mapControlsHeight + 36,
-                  paddingHorizontal: 20,
-                  paddingBottom: 96
-                }}
-              >
-                <ErrorState title="Couldn’t load sessions" onRetry={refresh} />
-              </ScrollView>
-            ) : (
-              <DiscoveryMapPanel
-                sessions={shown}
-                topInset={mapControlsHeight + 24}
-                onCardHeight={setMapCardHeight}
-                onArea={(_, ids) => setArea(ids)}
-                onOpen={open}
-                preview={preview}
-              />
-            )}
+            <DiscoveryMapPanel
+              key={`${filters.city?.id ?? filters.location}:${mapRevision}`}
+              sessions={shown}
+              center={
+                filters.radius !== "any" && filters.origin
+                  ? filters.origin
+                  : (filters.city ?? undefined)
+              }
+              initialBounds={filters.bounds}
+              topInset={mapControlsHeight + 24}
+              onCardHeight={setMapCardHeight}
+              searching={loading || refreshing}
+              error={error}
+              onRetry={() => {
+                void refresh();
+              }}
+              onArea={(bounds) => {
+                const next = normalizeMapBounds(bounds);
+                if (sameMapBounds(filters.bounds, next)) return;
+                setGroup(null);
+                sorting.cancel();
+                onFilters({
+                  ...filters,
+                  bounds: next,
+                  radius: "any",
+                  origin: filters.sort === "nearest" ? filters.origin : null
+                });
+              }}
+              onOpen={open}
+              preview={preview}
+            />
             <View
               pointerEvents="box-none"
               onLayout={({ nativeEvent }) =>
@@ -482,7 +489,6 @@ export function DiscoveryContent({
           <DiscoveryLocationSheet
             onClose={() => setLocationOpen(false)}
             onChange={async (v) => {
-              setArea(null);
               setGroup(null);
               sorting.cancel();
               await onLocation(v);
@@ -490,6 +496,7 @@ export function DiscoveryContent({
                 ...filters,
                 location: cityLabel(v),
                 city: v,
+                bounds: null,
                 radius: "any",
                 origin: filters.sort === "nearest" ? filters.origin : null
               });

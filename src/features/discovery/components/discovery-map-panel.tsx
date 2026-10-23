@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, BackHandler, ScrollView, View } from "react-native";
-import { AppButton, AppText, EmptyState } from "@/components/atoms";
+import { ActivityIndicator, BackHandler, View } from "react-native";
+import { AppButton, AppText } from "@/components/atoms";
 import { atomPalette as c } from "@/components/atoms/theme";
 import { DiscoveryMap } from "@/infrastructure/maps/discovery-map";
 import type { Bounds, DiscoverySession } from "../domain";
@@ -12,180 +12,145 @@ export function DiscoveryMapPanel({
   onOpen,
   preview = false,
   topInset = 16,
-  onCardHeight
+  onCardHeight,
+  searching = false,
+  error = false,
+  onRetry,
+  center,
+  initialBounds
 }: {
-  topInset?: number;
-  onCardHeight: (height: number) => void;
   sessions: DiscoverySession[];
-  onArea: (b: Bounds | null, ids: string[]) => void;
+  onArea: (bounds: Bounds) => void;
   onOpen: (id: string) => void;
   preview?: boolean;
+  topInset?: number;
+  onCardHeight: (height: number) => void;
+  searching?: boolean;
+  error?: boolean;
+  onRetry: () => void;
+  center?: { latitude: number; longitude: number };
+  initialBounds?: Bounds | null;
 }) {
   const venues = useDiscoveryVenues(sessions);
   const [loaded, setLoaded] = useState(false),
     [failed, setFailed] = useState(false),
     [retry, setRetry] = useState(0);
-  const [pending, setPending] = useState<Bounds | null>(null),
-    [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null),
+    [cardHeight, setCardHeight] = useState(0);
   const points = useMemo(
     () =>
-      venues.points.map((p) => ({
-        id: p.id,
-        name: p.name,
-        latitude: p.latitude,
-        longitude: p.longitude,
-        count: p.sessions.length
+      venues.points.map(({ id, name, latitude, longitude, sessions }) => ({
+        id,
+        name,
+        latitude,
+        longitude,
+        count: sessions.length
       })),
     [venues.points]
   );
-  const pointKey = JSON.stringify(points) + ":" + topInset;
   useEffect(() => {
     setLoaded(false);
     setFailed(false);
-    setPending(null);
-  }, [pointKey, retry]);
+  }, [retry]);
   useEffect(() => {
-    if (loaded) {
-      setFailed(false);
-      return;
-    }
+    if (loaded) return;
     const timer = setTimeout(() => setFailed(true), 25000);
     return () => clearTimeout(timer);
-  }, [loaded, pointKey, retry]);
+  }, [loaded, retry]);
   const cards = useMemo(() => {
-    const located = new Set(venues.points.map((p) => p.id));
-    return sessions.filter((s) => located.has(s.venue.id));
-  }, [venues.points, sessions]);
+    const ids = new Set(points.map((p) => p.id));
+    return sessions.filter((s) => ids.has(s.venue.id));
+  }, [points, sessions]);
   const active = cards.find((s) => s.id === selected);
-  const [cardHeight, setCardHeight] = useState(0);
   useEffect(() => {
     onCardHeight(active && loaded && !failed ? cardHeight : 0);
-  }, [active, cardHeight, onCardHeight, loaded, failed]);
+  }, [active, loaded, failed, cardHeight, onCardHeight]);
   useEffect(() => {
     if (selected && !cards.some((s) => s.id === selected)) setSelected(null);
   }, [cards, selected]);
   useEffect(() => {
     if (!active) return;
-    const subscription = BackHandler.addEventListener(
-      "hardwareBackPress",
-      () => {
-        setSelected(null);
-        return true;
-      }
-    );
-    return () => subscription.remove();
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      setSelected(null);
+      return true;
+    });
+    return () => sub.remove();
   }, [active]);
   return (
-    <View
-      style={{
-        flex: 1,
-        minHeight: 0,
-        overflow: "hidden",
-        backgroundColor: c.surfaceLow
-      }}
-    >
-      {sessions.length === 0 ? (
-        <MapStatus topInset={topInset}>
-          <EmptyState
-            title="No sessions in this area"
-            description="Try changing your location or filters to find another session."
-          />
-        </MapStatus>
-      ) : points.length === 0 ? (
-        <MapStatus topInset={topInset}>
-          <EmptyState
-            title="No venues on the map"
-            description="Venue map locations haven’t been added yet. You can still browse every session in the list."
-          />
-        </MapStatus>
-      ) : (
-        <>
-          <DiscoveryMap
-            key={retry}
-            points={points}
-            topInset={topInset}
-            bottomInset={active ? cardHeight + 24 : 104}
-            selectedId={active?.venue.id}
-            onLoad={() => setLoaded(true)}
-            onError={() => setFailed(true)}
-            onMove={setPending}
-            onSelect={(id) => {
-              const first = cards.find((s) => s.venue.id === id);
-              if (first) setSelected(first.id);
+    <View style={{ flex: 1, backgroundColor: c.surfaceLow }}>
+      <DiscoveryMap
+        key={retry}
+        points={points}
+        center={center}
+        initialBounds={initialBounds}
+        topInset={topInset}
+        bottomInset={active ? cardHeight + 24 : 104}
+        selectedId={active?.venue.id}
+        onLoad={() => {
+          setLoaded(true);
+          setFailed(false);
+        }}
+        onError={() => setFailed(true)}
+        onMove={onArea}
+        onSelect={(id) => {
+          const first = cards.find((s) => s.venue.id === id);
+          if (first) setSelected(first.id);
+        }}
+      />
+      {(!loaded || searching || error || failed || !points.length) && (
+        <View
+          pointerEvents="box-none"
+          style={{
+            position: "absolute",
+            top: topInset + 8,
+            left: 20,
+            right: 20
+          }}
+        >
+          <View
+            style={{
+              alignSelf: "center",
+              backgroundColor: c.surface,
+              borderRadius: 16,
+              padding: 12,
+              gap: 8,
+              flexDirection: "row",
+              alignItems: "center",
+              flexWrap: "wrap"
             }}
-          />
-          {!loaded && !failed && (
-            <View
-              style={{
-                position: "absolute",
-                top: topInset + 8,
-                left: 16,
-                right: 16,
-                padding: 16,
-                backgroundColor: c.surface,
-                borderRadius: 16
-              }}
-            >
-              <ActivityIndicator
-                color={c.accent}
-                accessibilityLabel="Loading map"
-              />
-            </View>
-          )}
-          {failed && (
-            <View
-              style={{
-                position: "absolute",
-                top: topInset + 8,
-                left: 16,
-                right: 16,
-                backgroundColor: c.surface,
-                borderRadius: 16,
-                padding: 16,
-                gap: 8
-              }}
-            >
-              <AppText>Couldn’t load the map.</AppText>
-              <AppButton size="sm" onPress={() => setRetry((v) => v + 1)}>
-                Retry map
-              </AppButton>
-            </View>
-          )}
-          {pending && loaded && !failed && (
-            <View
-              style={{
-                position: "absolute",
-                top: topInset + 8,
-                alignSelf: "center"
-              }}
-            >
-              <AppButton
-                size="sm"
-                fullWidth={false}
-                onPress={() => {
-                  onArea(
-                    pending,
-                    venues.points
-                      .filter((p) => {
-                        const b = pending;
-                        return (
-                          p.latitude >= b.south &&
-                          p.latitude <= b.north &&
-                          (b.west <= b.east
-                            ? p.longitude >= b.west && p.longitude <= b.east
-                            : p.longitude >= b.west || p.longitude <= b.east)
-                        );
-                      })
-                      .map((p) => p.id)
-                  );
-                  setPending(null);
-                }}
-              >
-                Search this area
-              </AppButton>
-            </View>
-          )}
-        </>
+          >
+            {failed ? (
+              <>
+                <AppText>Couldn’t load the map.</AppText>
+                <AppButton
+                  size="sm"
+                  fullWidth={false}
+                  onPress={() => setRetry((v) => v + 1)}
+                >
+                  Retry map
+                </AppButton>
+              </>
+            ) : error ? (
+              <>
+                <AppText>Couldn’t update this area.</AppText>
+                <AppButton size="sm" fullWidth={false} onPress={onRetry}>
+                  Try again
+                </AppButton>
+              </>
+            ) : !loaded || searching ? (
+              <>
+                <ActivityIndicator color={c.accent} />
+                <AppText variant="bodySm" accessibilityLiveRegion="polite">
+                  {loaded ? "Searching this area…" : "Loading map…"}
+                </AppText>
+              </>
+            ) : (
+              <AppText variant="bodySm" accessibilityLiveRegion="polite">
+                No sessions in this area. Move the map or change filters.
+              </AppText>
+            )}
+          </View>
+        </View>
       )}
       {active && loaded && !failed && (
         <DiscoveryMapCarousel
@@ -198,28 +163,5 @@ export function DiscoveryMapPanel({
         />
       )}
     </View>
-  );
-}
-
-function MapStatus({
-  topInset,
-  children
-}: {
-  topInset: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <ScrollView
-      style={{ flex: 1 }}
-      contentContainerStyle={{
-        flexGrow: 1,
-        justifyContent: "center",
-        paddingTop: topInset + 16,
-        paddingHorizontal: 20,
-        paddingBottom: 96
-      }}
-    >
-      {children}
-    </ScrollView>
   );
 }

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AppState } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { AuthContext } from "@/features/auth/auth-provider";
 import { loadDiscovery } from "../services/discovery.service";
 import type { DiscoveryFilters } from "../domain";
@@ -17,6 +17,7 @@ export function useDiscovery(filters: DiscoveryFilters, enabled = true) {
     enabled: enabled && active,
     queryKey: ["discover-sessions", user?.id ?? "anonymous", filters],
     queryFn: ({ signal }) => loadDiscovery(filters, signal),
+    placeholderData: filters.bounds ? keepPreviousData : undefined,
     staleTime: 15000,
     refetchInterval: 30000,
     retry: 1

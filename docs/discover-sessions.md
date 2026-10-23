@@ -1,6 +1,6 @@
 # Discover sessions
 
-Discover reads live public occurrences through `discover_sessions_by_city` (older RPC signatures remain compatible). It does not expose draft series, private occurrences, roster identities or unpublished venues/organizers. The private implementation and public security-definer entry point use an empty search path and an explicit field projection. Base-table RLS stays unchanged. Anonymous access is intentional, matching public session details; Supabase's definer advisories are expected for this narrow public API ([advisory](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable)).
+Discover reads live public occurrences through `discover_sessions_in_bounds` (older RPC signatures remain compatible). It does not expose draft series, private occurrences, roster identities or unpublished venues/organizers. The private implementation and public security-definer entry point use an empty search path and an explicit field projection. Base-table RLS stays unchanged. Anonymous access is intentional, matching public session details; Supabase's definer advisories are expected for this narrow public API ([advisory](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable)).
 
 ## Eligibility and filters
 
@@ -22,7 +22,9 @@ The Map button switches the same search into a native WebView containing the exi
 
 Venue latitude/longitude are stored on `venues` with the matched address and timestamp, and included in both discovery and public-detail responses. Browsing never calls an address-geocoding provider. The publishing service looks up missing coordinates through the existing Photon adapter, requiring a matching street and house number (and city when returned), and accepts no street/city centroid. Provider failure does not block publishing. Stored pairs are reused; only an active creator can fill a missing pair through the private publishing helper, existing pins cannot be overwritten, and changing the address clears stale coordinates. Unlocated venues remain available in the list and public detail retains Open in Maps. Map-tile failures have a retry state; a slow map times out after 25 seconds. Map browsing itself makes no location permission requests. City detection, Nearest sorting and distance radius request foreground permission only on explicit selection.
 
-Panning exposes Search this area. Applying it filters the shared result set to venues with saved coordinates within those bounds; Changing filters, or using Clear filters in list view, clears the map area. This initial implementation searches the already fetched, bounded results, with the same result-limit notice; it is not a server-side geospatial index.
+The visible viewport is searched automatically after 500 ms without user movement. Bounds are applied in the backend before sorting and the 500-result limit, including viewports crossing the international date line. This replaces the saved city/GPS-radius area; other filters continue to combine. Radius controls remain in list view, where selecting a radius restores that area. Choosing a city or clearing filters resets the map area. List view retains the latest map area until it is reset.
+
+Superseded queries consume the cancellation signal; existing markers stay visible while fetching. Marker/card selection and camera padding do not trigger searches. Marker updates never reload or recenter the map. Empty/error results leave the map pannable, with loading, retry and empty feedback. There is no Search this area button. `supabase/tests/discovery-map-bounds.sql` verifies bounds validation, date-line crossing, privacy, combined filters, legacy defaults and matching sessions beyond 500 out-of-area candidates. Map runtime tests cover debouncing and selection-driven camera movement.
 
 ## Verification
 
@@ -42,7 +44,7 @@ Court roof coverage is stored separately from amenities. Discovery returns the o
 
 The shared **More filters** sheet supports an inclusive min/max price per player (ARS), Covered/Uncovered, gender policy, session inclusions and venue facilities. Blank bounds mean any price; maximum `0` finds free sessions. Decimal commas and dots are accepted; negative/reversed/overflowing bounds are rejected before applying. Larger text stacks price inputs vertically. A fixed Apply/Reset footer remains usable with the keyboard; validation errors are repeated there if the price fields have scrolled away.
 
-Changes stay local until Apply. Closing/back discards the draft. Reset clears only the advanced draft, while the page's Clear filters clears every filter except location. List and map use the same applied state and query; changing filters clears the previous map area/selection.
+Changes stay local until Apply. Closing/back discards the draft. Reset clears only the advanced draft, while the page's Clear filters clears every filter except location. List and map use the same applied state and query; filters retain the current map area; choosing a city or Clear filters resets it.
 
 `discover_sessions_filtered` applies all predicates **before** the 500-result limit. The original seven-argument RPC delegates to the same private core, preserving installed-client behavior. The public wrapper intentionally uses a restricted security-definer projection for unauthenticated discovery, with an empty search path; the private core and base tables stay inaccessible. Its security-advisor public-execution warning is expected for this public API.
 
@@ -64,7 +66,7 @@ Regression: `supabase/tests/discovery-sorting.sql` verifies ranking, free sessio
 
 ## Distance radius
 
-The shared filter row offers **Any distance**, **Within 5 km**, **Within 10 km**, and **Within 25 km**. A bounded radius searches around one foreground device location and shows **Near me** in the header; it replaces the saved text city/area predicate rather than accidentally intersecting a nearby search with a different city. All other filters still combine. Clearing the radius restores the saved city. Choosing a city explicitly disables the radius. Clear filters resets radius, sorting and origin together.
+The list filter row offers **Any distance**, **Within 5 km**, **Within 10 km**, and **Within 25 km**. A bounded radius searches around one foreground device location and shows **Near me** in the header; it replaces the saved text city/area predicate rather than accidentally intersecting a nearby search with a different city. All other filters still combine. Clearing the radius restores the saved city. Choosing a city explicitly disables the radius. Clear filters resets radius, sorting and origin together.
 
 Radius and Nearest sorting share one in-memory origin and one pending native fix. First enabling a radius requests location; changing an active radius reuses its center. Switching from Nearest to price/time retains the origin while a radius needs it; clearing radius retains it only if Nearest still needs it. Reselecting Nearest refreshes the shared center. Denial/failure leaves the previous state unchanged. Changing the selected city or clearing filters cancels pending UI updates, and a newer sort/radius choice wins over an older location request. No location tracking or persisted user-location record is added.
 

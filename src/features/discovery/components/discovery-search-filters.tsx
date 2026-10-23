@@ -39,7 +39,9 @@ export function DiscoverySearchFilters({
         sortControl={
           <>
             <DiscoverySortControl filters={filters} sorting={sorting} />
-            <DiscoveryRadiusControl filters={filters} sorting={sorting} />
+            {!floating && (
+              <DiscoveryRadiusControl filters={filters} sorting={sorting} />
+            )}
           </>
         }
       />
