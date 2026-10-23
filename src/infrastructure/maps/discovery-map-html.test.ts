@@ -124,6 +124,7 @@ function runtime() {
     camera,
     window: window as unknown as {
       updatePoints: (p: unknown[]) => void;
+      recenterMap: (p: unknown) => void;
       selectPoint: (id: string | null, bottom: number, top: number) => void;
     }
   };
@@ -207,4 +208,27 @@ it("cluster expansion zooms in and searches its new viewport without selecting a
   r.handlers.moveend();
   vi.advanceTimersByTime(500);
   expect(r.messages.map((m) => m.type)).toEqual(["move"]);
+});
+
+it("recenters on a device fix and searches once; malformed fixes cannot move the map", () => {
+  vi.useFakeTimers();
+  const r = runtime();
+  r.once.idle();
+  r.messages.length = 0;
+  r.window.recenterMap({ latitude: NaN, longitude: 10 });
+  expect(r.camera.ease).not.toHaveBeenCalled();
+  r.window.recenterMap({ latitude: -34.6, longitude: -58.4 });
+  expect(r.camera.ease).toHaveBeenCalledWith({
+    center: [-58.4, -34.6],
+    zoom: 14,
+    duration: 350
+  });
+  r.handlers.movestart({});
+  r.handlers.moveend();
+  vi.advanceTimersByTime(500);
+  expect(r.messages.map((m) => m.type)).toEqual(["move"]);
+  r.handlers.movestart({});
+  r.handlers.moveend();
+  vi.advanceTimersByTime(500);
+  expect(r.messages).toHaveLength(1);
 });

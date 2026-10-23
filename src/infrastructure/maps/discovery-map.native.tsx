@@ -21,6 +21,7 @@ export function DiscoveryMap({
   points,
   center,
   initialBounds,
+  recenter,
   topInset = 0,
   bottomInset = 104,
   selectedId,
@@ -30,10 +31,20 @@ export function DiscoveryMap({
   onMove
 }: DiscoveryMapProps) {
   const web = useRef<WebView>(null);
+  const [ready, setReady] = useState(false);
+  const lastRecenter = useRef<number | undefined>(undefined);
   const selectionScript = `window.selectPoint && window.selectPoint(${JSON.stringify(selectedId ?? null)}, ${Math.max(104, bottomInset)}, ${topInset}); true;`;
   useEffect(() => {
     web.current?.injectJavaScript(selectionScript);
   }, [selectionScript]);
+  useEffect(() => {
+    if (!ready || !recenter || lastRecenter.current === recenter.requestId)
+      return;
+    lastRecenter.current = recenter.requestId;
+    web.current?.injectJavaScript(
+      `window.recenterMap && window.recenterMap(${serializeMapData(recenter)}); true;`
+    );
+  }, [ready, recenter]);
   const [source] = useState(() => ({
     html: discoveryMapHtml(points, topInset, center, initialBounds),
     baseUrl: "https://palla.vercel.app"
@@ -58,6 +69,7 @@ export function DiscoveryMap({
             if (m.type === "loaded") {
               web.current?.injectJavaScript(pointsScript);
               web.current?.injectJavaScript(selectionScript);
+              setReady(true);
               onLoad();
             }
             if (m.type === "error") onError();

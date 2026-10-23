@@ -15,6 +15,7 @@ export type DiscoveryMapProps = {
   points: DiscoveryMapPoint[];
   center?: { latitude: number; longitude: number };
   initialBounds?: MapBounds | null;
+  recenter?: { latitude: number; longitude: number; requestId: number };
   topInset?: number;
   bottomInset?: number;
   selectedId?: string;

@@ -1,3 +1,5 @@
+import { LocateFixed } from "lucide-react-native";
+import { useMapLocation } from "../hooks/use-map-location";
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, BackHandler, View } from "react-native";
 import { AppButton, AppText } from "@/components/atoms";
@@ -37,6 +39,7 @@ export function DiscoveryMapPanel({
     [retry, setRetry] = useState(0);
   const [selected, setSelected] = useState<string | null>(null),
     [cardHeight, setCardHeight] = useState(0);
+  const location = useMapLocation(() => setSelected(null));
   const points = useMemo(
     () =>
       venues.points.map(({ id, name, latitude, longitude, sessions }) => ({
@@ -83,6 +86,7 @@ export function DiscoveryMapPanel({
         points={points}
         center={center}
         initialBounds={initialBounds}
+        recenter={location.target}
         topInset={topInset}
         bottomInset={active ? cardHeight + 24 : 104}
         selectedId={active?.venue.id}
@@ -91,7 +95,10 @@ export function DiscoveryMapPanel({
           setFailed(false);
         }}
         onError={() => setFailed(true)}
-        onMove={onArea}
+        onMove={(bounds) => {
+          location.cancel();
+          onArea(bounds);
+        }}
         onSelect={(id) => {
           const first = cards.find((s) => s.venue.id === id);
           if (first) setSelected(first.id);
@@ -152,6 +159,65 @@ export function DiscoveryMapPanel({
           </View>
         </View>
       )}
+      <View
+        style={{
+          position: "absolute",
+          right: 20,
+          bottom: (active ? cardHeight : 0) + 104,
+          alignItems: "flex-end",
+          gap: 8,
+          maxWidth: "85%"
+        }}
+      >
+        {!!location.error && (
+          <View
+            style={{
+              backgroundColor: c.surface,
+              padding: 12,
+              borderRadius: 16,
+              gap: 4
+            }}
+          >
+            <AppText variant="bodySm" accessibilityLiveRegion="polite">
+              {location.error}
+            </AppText>
+            <AppButton
+              size="sm"
+              variant="ghost"
+              fullWidth={false}
+              onPress={location.cancel}
+            >
+              Dismiss
+            </AppButton>
+          </View>
+        )}
+        <AppButton
+          icon={LocateFixed}
+          layout="icon"
+          size="iconLg"
+          color="neutral"
+          variant="bordered"
+          fullWidth={false}
+          isDisabled={!loaded || failed}
+          loading={location.pending}
+          onPress={() => {
+            void location.locate();
+          }}
+          accessibilityLabel="Recenter map on my location"
+          style={{
+            width: 56,
+            height: 56,
+            minHeight: 56,
+            paddingVertical: 0,
+            backgroundColor: c.surface,
+            shadowColor: c.text,
+            shadowOpacity: 0.12,
+            shadowRadius: 6,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 3
+          }}
+        />
+      </View>
       {active && loaded && !failed && (
         <DiscoveryMapCarousel
           sessions={cards}

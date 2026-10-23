@@ -52,6 +52,11 @@ function renderMarkers(){
  });
 }
 window.updatePoints=function(next){points=next;renderMarkers()};
+window.recenterMap=function(point){
+ if(!point || !Number.isFinite(point.latitude) || !Number.isFinite(point.longitude) || Math.abs(point.latitude)>90 || Math.abs(point.longitude)>180)return;
+ stopUserSearch();lastSelected=null;renderMarkers();expandSearch=true;
+ map.easeTo({center:[point.longitude,Math.max(-85,Math.min(85,point.latitude))],zoom:14,duration:350});
+};
 window.selectPoint=function(id,bottom,top){
  stopUserSearch();var nextBottom=Math.min(bottom,Math.max(104,window.innerHeight-padding.top-100));
  var nextTop=Math.min(top,Math.max(0,window.innerHeight-160))+24;
