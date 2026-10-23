@@ -12,7 +12,7 @@ it("keeps venue names as data, including a malicious script terminator", () => {
   ]);
   expect(html).not.toContain('</script><script>alert("injected")');
   expect(html).toContain("\\u003c/script>");
-  expect(html).toContain("el.textContent=String(p.count)");
+  expect(html).toContain("el.textContent=String(g.count)");
 });
 it("omits non-finite and out-of-range coordinates instead of embedding them", () => {
   const html = discoveryMapHtml([
@@ -33,6 +33,11 @@ it("omits non-finite and out-of-range coordinates instead of embedding them", ()
 import { runInNewContext } from "node:vm";
 import { afterEach, vi } from "vitest";
 function runtime() {
+  const elements: {
+    onclick?: (event: { stopPropagation: () => void }) => void;
+    textContent?: string;
+    attributes: Record<string, string>;
+  }[] = [];
   const messages: { type: string; data?: unknown }[] = [];
   const handlers: Record<string, (event?: unknown) => void> = {};
   const once: Record<string, () => void> = {};
@@ -47,6 +52,14 @@ function runtime() {
     on: (name: string, fn: (e?: unknown) => void) => {
       handlers[name] = fn;
     },
+    getZoom: () => 12,
+    project: (coords: number[]) => ({
+      x: coords[0] * 10000,
+      y: coords[1] * 10000
+    }),
+    unproject: (pixel: number[]) => ({
+      toArray: () => pixel.map((n) => n / 10000)
+    }),
     getBounds: () => ({
       getWest: () => -58.5,
       getEast: () => -58.3,
@@ -79,10 +92,17 @@ function runtime() {
     report: (type: string, data?: unknown) => messages.push({ type, data }),
     window,
     document: {
-      createElement: () => ({
-        classList: { toggle: () => {} },
-        setAttribute: () => {}
-      })
+      createElement: () => {
+        const element = {
+          attributes: {} as Record<string, string>,
+          classList: { toggle: () => {} },
+          setAttribute(name: string, value: string) {
+            this.attributes[name] = value;
+          }
+        };
+        elements.push(element);
+        return element;
+      }
     },
     maplibregl: {
       Map: class {
@@ -97,6 +117,7 @@ function runtime() {
   };
   runInNewContext(script, context);
   return {
+    elements,
     messages,
     handlers,
     once,
@@ -160,4 +181,30 @@ it("updates markers without fitting the camera and ignores selection-driven came
   expect(r.camera.ease).toHaveBeenCalledTimes(1);
   r.window.selectPoint("club", 200, 20);
   expect(r.camera.ease).toHaveBeenCalledTimes(1);
+});
+
+it("cluster expansion zooms in and searches its new viewport without selecting a session", () => {
+  vi.useFakeTimers();
+  const r = runtime();
+  r.once.idle();
+  r.messages.length = 0;
+  r.window.updatePoints([
+    { id: "a", name: "A", count: 2, longitude: 0, latitude: 0 },
+    { id: "b", name: "B", count: 3, longitude: 0.001, latitude: 0 }
+  ]);
+  const cluster = r.elements.at(-1)!;
+  expect(cluster.textContent).toBe("5");
+  expect(cluster.attributes["aria-label"]).toBe(
+    "5 sessions at 2 venues. Zoom in"
+  );
+  cluster.onclick!({ stopPropagation: () => {} });
+  expect(r.camera.ease).toHaveBeenCalledWith({
+    center: [0.0005, 0],
+    zoom: 14,
+    duration: 350
+  });
+  r.handlers.movestart({});
+  r.handlers.moveend();
+  vi.advanceTimersByTime(500);
+  expect(r.messages.map((m) => m.type)).toEqual(["move"]);
 });

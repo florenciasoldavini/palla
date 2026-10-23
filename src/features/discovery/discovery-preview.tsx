@@ -15,7 +15,14 @@ export default function DiscoveryPreview() {
   const saved = useDiscoveryLocation();
   const [filters, setFilters] = useState(defaultFilters),
     [recovered, setRecovered] = useState(false);
-  useEffect(() => setRecovered(false), [state]);
+  useEffect(() => {
+    setRecovered(false);
+    if (state === "map-clusters")
+      setFilters({
+        ...defaultFilters,
+        bounds: { west: -58.65, east: -58.2, south: -34.8, north: -34.35 }
+      });
+  }, [state]);
   const [sessions] = useState<
     (DiscoverySession & {
       gender: string;
@@ -104,8 +111,12 @@ export default function DiscoveryPreview() {
     <DiscoveryContent
       filters={{
         ...filters,
-        location: state === "map-bounds" ? "Buenos Aires" : saved.location,
-        city: state === "map-bounds" ? null : saved.city
+        location:
+          state === "map-bounds" || state === "map-clusters"
+            ? "Buenos Aires"
+            : saved.location,
+        city:
+          state === "map-bounds" || state === "map-clusters" ? null : saved.city
       }}
       onFilters={setFilters}
       onLocation={saved.changeLocation}
