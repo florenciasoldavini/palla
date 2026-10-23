@@ -1,3 +1,4 @@
+import type { DiscoveryCity } from "./cities";
 import type { DiscoveryRadius } from "./radius";
 import type { DiscoverySort, DiscoveryOrigin } from "./sorting";
 import {
@@ -44,6 +45,7 @@ export type DiscoveryFilters = AdvancedFilters & {
   radius: DiscoveryRadius;
   sort: DiscoverySort;
   origin: DiscoveryOrigin | null;
+  city?: DiscoveryCity | null;
   location: string;
   search: string;
   from: string;

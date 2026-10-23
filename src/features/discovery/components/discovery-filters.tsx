@@ -1,14 +1,13 @@
 import { DiscoveryAdvancedFilters } from "./discovery-advanced-filters";
 import { advancedFilterCount } from "../advanced-filters";
 import { useState, type ReactNode } from "react";
-import { View, Keyboard } from "react-native";
+import { View } from "react-native";
 import {
   AppButton,
   AppText,
   FilterChip,
   FilterChipGroup,
-  SelectMenu,
-  TextField
+  SelectMenu
 } from "@/components/atoms";
 import { AppBottomSheet } from "@/components/atoms/bottom-sheet";
 import { SessionDateTimeField } from "@/features/sessions/components/session-datetime-field";
@@ -195,51 +194,5 @@ export function DiscoveryFiltersBar({
         </AppBottomSheet>
       )}
     </>
-  );
-}
-export function DiscoveryLocationSheet({
-  value,
-  onChange,
-  onClose
-}: {
-  value: string;
-  onChange: (s: string) => void;
-  onClose: () => void;
-}) {
-  const [draft, setDraft] = useState(value),
-    [error, setError] = useState("");
-  function apply() {
-    const text = draft.trim();
-    if (text.length < 3) {
-      setError("Enter at least 3 characters.");
-      return;
-    }
-    Keyboard.dismiss();
-    onChange(text);
-    onClose();
-  }
-  return (
-    <AppBottomSheet
-      title="Where do you want to play?"
-      busy={false}
-      onClose={onClose}
-    >
-      <View style={{ gap: 16 }}>
-        <TextField
-          label="City or area"
-          accessibilityLabel="City or area"
-          value={draft}
-          onChangeText={setDraft}
-          maxLength={120}
-          onSubmitEditing={apply}
-          returnKeyType="done"
-          errorText={error}
-        />
-        <AppText variant="bodySm" tone="muted">
-          Search saved venue names and addresses. Try your city or neighborhood.
-        </AppText>
-        <AppButton onPress={apply}>Apply location</AppButton>
-      </View>
-    </AppBottomSheet>
   );
 }

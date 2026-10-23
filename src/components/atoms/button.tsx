@@ -242,7 +242,10 @@ export function AppButton({
           isVisuallyDisabled
             ? {
                 backgroundColor: disabledVisualStyle.backgroundColor,
-                borderColor: disabledVisualStyle.borderColor,
+                borderColor:
+                  variant === "bordered"
+                    ? atomPalette.borderSubtle
+                    : disabledVisualStyle.borderColor,
                 opacity: disabledVisualStyle.opacity
               }
             : null,
@@ -315,7 +318,7 @@ function getButtonSurfaceStyle(
         : variant === "ghost"
           ? "transparent"
           : color === "neutral"
-            ? atomPalette.borderStrong
+            ? atomPalette.borderSubtle
             : token.bg,
     borderWidth: variant === "ghost" ? 0 : 1
   };

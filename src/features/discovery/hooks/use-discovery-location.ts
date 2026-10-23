@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
+import { cityLabel, type DiscoveryCity } from "../cities";
 import {
   readDiscoveryLocation,
   saveDiscoveryLocation
 } from "../repositories/location.repository";
 export function useDiscoveryLocation() {
-  const [location, setLocation] = useState("Buenos Aires");
+  const [selection, setSelection] = useState<{
+    location: string;
+    city: DiscoveryCity | null;
+  }>({ location: "Buenos Aires", city: null });
   const [ready, setReady] = useState(false);
   useEffect(() => {
     let active = true;
     void readDiscoveryLocation()
       .then((value) => {
-        if (active && value) setLocation(value);
+        if (active) setSelection(value);
       })
       .catch(() => {})
       .finally(() => {
@@ -21,11 +25,11 @@ export function useDiscoveryLocation() {
     };
   }, []);
   return {
-    location,
+    ...selection,
     ready,
-    changeLocation: (value: string) => {
-      setLocation(value);
-      void saveDiscoveryLocation(value).catch(() => {});
+    changeLocation: async (city: DiscoveryCity) => {
+      await saveDiscoveryLocation(city);
+      setSelection({ city, location: cityLabel(city) });
     }
   };
 }

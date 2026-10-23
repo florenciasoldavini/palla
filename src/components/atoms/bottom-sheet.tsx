@@ -2,7 +2,6 @@ import { type ReactNode } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -18,11 +17,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppToastHost } from "@/components/atoms/toast";
 import type { AppIconComponent } from "@/components/icons";
 import { X } from "lucide-react-native";
-import { AppButton, AppHeading } from "@/components/atoms";
+import { AppButton, AppHeading, AppText } from "@/components/atoms";
 import { FieldSurface } from "@/components/atoms/field-surface";
 import { atomPalette as c, atomRadii } from "@/components/atoms/theme";
 export function AppBottomSheet({
   title,
+  description,
   icon: Icon,
   closeLabel = "Close sheet",
   busy,
@@ -31,6 +31,7 @@ export function AppBottomSheet({
   footer
 }: {
   title: string;
+  description?: string;
   icon?: AppIconComponent;
   closeLabel?: string;
   busy: boolean;
@@ -58,8 +59,9 @@ export function AppBottomSheet({
           onPress={onClose}
           disabled={busy}
         />
+        {/* Keep keyboard avoidance independent of the sheet’s changing content height. */}
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior="padding"
           style={{
             flex: 1,
             justifyContent: "flex-end",
@@ -87,9 +89,14 @@ export function AppBottomSheet({
                     </View>
                   </View>
                 ) : (
-                  <AppHeading variant="section" style={{ flex: 1 }}>
-                    {title}
-                  </AppHeading>
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <AppHeading variant="section">{title}</AppHeading>
+                    {description && (
+                      <AppText variant="bodySm" tone="subtle">
+                        {description}
+                      </AppText>
+                    )}
+                  </View>
                 )}
                 <View
                   style={{
@@ -109,7 +116,16 @@ export function AppBottomSheet({
                   />
                 </View>
               </View>
-              {Icon && <AppHeading variant="section">{title}</AppHeading>}
+              {Icon && (
+                <View style={{ gap: 4 }}>
+                  <AppHeading variant="section">{title}</AppHeading>
+                  {description && (
+                    <AppText variant="bodySm" tone="subtle">
+                      {description}
+                    </AppText>
+                  )}
+                </View>
+              )}
             </View>
             <ScrollView
               keyboardShouldPersistTaps="handled"

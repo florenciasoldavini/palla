@@ -1,3 +1,4 @@
+import { useDiscoveryLocation } from "./hooks/use-discovery-location";
 import { rankPreviewSessions } from "./preview-sorting";
 import { advancedRpcFilters } from "./advanced-filters";
 import { Redirect, useLocalSearchParams } from "expo-router";
@@ -10,6 +11,7 @@ import {
 // Development-only states exercise the same presentation without account writes.
 export default function DiscoveryPreview() {
   const { state } = useLocalSearchParams<{ state?: string }>();
+  const saved = useDiscoveryLocation();
   const [filters, setFilters] = useState(defaultFilters),
     [recovered, setRecovered] = useState(false);
   useEffect(() => setRecovered(false), [state]);
@@ -92,9 +94,9 @@ export default function DiscoveryPreview() {
   if (!__DEV__) return <Redirect href="/sign-in" />;
   return (
     <DiscoveryContent
-      filters={filters}
+      filters={{ ...filters, location: saved.location, city: saved.city }}
       onFilters={setFilters}
-      onLocation={(location) => setFilters({ ...filters, location })}
+      onLocation={saved.changeLocation}
       sessions={state === "empty" ? [] : matching}
       loading={state === "loading" && !recovered}
       error={state === "error" && !recovered}

@@ -1,3 +1,4 @@
+import { cityLabel, type DiscoveryCity } from "./cities";
 import { useDiscoverySort } from "./hooks/use-discovery-sort";
 import { useContext, useEffect, useMemo, useState } from "react";
 import {
@@ -34,7 +35,7 @@ import {
 } from "./domain";
 import { useDiscovery } from "./hooks/use-discovery";
 import { useDiscoveryLocation } from "./hooks/use-discovery-location";
-import { DiscoveryLocationSheet } from "./components/discovery-filters";
+import { DiscoveryLocationSheet } from "./components/discovery-location-sheet";
 import { DiscoverySearchFilters } from "./components/discovery-search-filters";
 import { DiscoveryNavigationHeader } from "./components/discovery-navigation-header";
 import { DiscoverySessionCard } from "./components/discovery-session-card";
@@ -44,8 +45,8 @@ export default function DiscoveryScreen() {
   const focused = useIsFocused();
   const [filters, setFilters] = useState(defaultFilters);
   const applied = useMemo(
-    () => ({ ...filters, location: saved.location }),
-    [filters, saved.location]
+    () => ({ ...filters, location: saved.location, city: saved.city }),
+    [filters, saved.location, saved.city]
   );
   const query = useDiscovery(applied, saved.ready && focused);
   const refresh = query.refetch;
@@ -82,7 +83,7 @@ export function DiscoveryContent({
 }: {
   filters: DiscoveryFilters;
   onFilters: (f: DiscoveryFilters) => void;
-  onLocation: (s: string) => void;
+  onLocation: (city: DiscoveryCity) => Promise<void> | void;
   sessions: DiscoverySession[];
   loading: boolean;
   error: boolean;
@@ -235,7 +236,11 @@ export function DiscoveryContent({
               setArea(null);
               setGroup(null);
               sorting.cancel();
-              changeFilters({ ...defaultFilters, location: filters.location });
+              changeFilters({
+                ...defaultFilters,
+                location: filters.location,
+                city: filters.city
+              });
             }}
           >
             Clear filters
@@ -475,16 +480,16 @@ export function DiscoveryContent({
         </View>
         {locationOpen && (
           <DiscoveryLocationSheet
-            value={filters.location}
             onClose={() => setLocationOpen(false)}
-            onChange={(v) => {
+            onChange={async (v) => {
               setArea(null);
               setGroup(null);
               sorting.cancel();
-              onLocation(v);
+              await onLocation(v);
               changeFilters({
                 ...filters,
-                location: v,
+                location: cityLabel(v),
+                city: v,
                 radius: "any",
                 origin: filters.sort === "nearest" ? filters.origin : null
               });
