@@ -1,3 +1,4 @@
+import type { DiscoveryRadius } from "./radius";
 import type { DiscoverySort, DiscoveryOrigin } from "./sorting";
 import {
   advancedFilterCount,
@@ -40,6 +41,7 @@ export const discoverySessionSchema = z.object({
 });
 export type DiscoverySession = z.infer<typeof discoverySessionSchema>;
 export type DiscoveryFilters = AdvancedFilters & {
+  radius: DiscoveryRadius;
   sort: DiscoverySort;
   origin: DiscoveryOrigin | null;
   location: string;
@@ -52,6 +54,7 @@ export type DiscoveryFilters = AdvancedFilters & {
 };
 export const defaultFilters: DiscoveryFilters = {
   ...defaultAdvancedFilters,
+  radius: "any",
   sort: "soonest",
   origin: null,
   location: "Buenos Aires",
@@ -154,6 +157,7 @@ export function inBounds(
 }
 export function hasFilters(f: DiscoveryFilters) {
   return Boolean(
+    f.radius !== "any" ||
     advancedFilterCount(f) ||
     f.search ||
     f.from ||

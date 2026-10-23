@@ -20,7 +20,7 @@ export function DiscoverySortControl({
       renderTrigger={(open) => (
         <FilterChip
           label={
-            sorting.locating
+            sorting.pending === "sort"
               ? "Locating…"
               : `Sort: ${discoverySortOptions.find((o) => o.value === filters.sort)?.label}`
           }

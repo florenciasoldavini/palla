@@ -109,6 +109,7 @@ export function DiscoveryContent({
   const [draft, setDraft] = useState(filters.search),
     [locationOpen, setLocationOpen] = useState(false),
     [map, setMap] = useState(false);
+  const locationLabel = filters.radius === "any" ? filters.location : "Near me";
   const openLocation = useCallback(() => {
     Keyboard.dismiss();
     setLocationOpen(true);
@@ -117,12 +118,12 @@ export function DiscoveryContent({
     () => ({
       header: () => (
         <DiscoveryNavigationHeader
-          location={filters.location}
+          location={locationLabel}
           onLocation={openLocation}
         />
       )
     }),
-    [filters.location, openLocation]
+    [locationLabel, openLocation]
   );
   const [area, setArea] = useState<string[] | null>(null),
     [group, setGroup] = useState<"soon" | "today" | "upcoming" | null>(null);
@@ -183,7 +184,7 @@ export function DiscoveryContent({
       {preview && !hasNavigationChrome && (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Change location, ${filters.location}`}
+          accessibilityLabel={`Change location, ${locationLabel}`}
           onPress={() => {
             Keyboard.dismiss();
             setLocationOpen(true);
@@ -197,7 +198,7 @@ export function DiscoveryContent({
         >
           <MapPin size={21} color={c.accent} />
           <AppHeading variant="section" style={{ flexShrink: 1 }}>
-            {filters.location}
+            {locationLabel}
           </AppHeading>
           <ChevronDown size={20} color={c.text} />
         </Pressable>
@@ -233,6 +234,7 @@ export function DiscoveryContent({
             onPress={() => {
               setArea(null);
               setGroup(null);
+              sorting.cancel();
               changeFilters({ ...defaultFilters, location: filters.location });
             }}
           >
@@ -478,7 +480,14 @@ export function DiscoveryContent({
             onChange={(v) => {
               setArea(null);
               setGroup(null);
+              sorting.cancel();
               onLocation(v);
+              changeFilters({
+                ...filters,
+                location: v,
+                radius: "any",
+                origin: filters.sort === "nearest" ? filters.origin : null
+              });
             }}
           />
         )}

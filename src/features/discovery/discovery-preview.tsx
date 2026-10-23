@@ -61,7 +61,13 @@ export default function DiscoveryPreview() {
   // Only fixture presentation is filtered locally. Production filtering happens in the RPC before LIMIT.
   const advanced = advancedRpcFilters(filters);
   const matching = rankPreviewSessions(
-    sessions.filter(
+    (state === "unlocated"
+      ? sessions.map((s) => ({
+          ...s,
+          venue: { ...s.venue, latitude: null, longitude: null }
+        }))
+      : sessions
+    ).filter(
       (s) =>
         (advanced.p_min_price === null ||
           s.price_minor >= advanced.p_min_price) &&
@@ -80,7 +86,8 @@ export default function DiscoveryPreview() {
         )
     ),
     filters.sort,
-    filters.origin
+    filters.origin,
+    filters.radius
   );
   if (!__DEV__) return <Redirect href="/sign-in" />;
   return (
@@ -88,16 +95,7 @@ export default function DiscoveryPreview() {
       filters={filters}
       onFilters={setFilters}
       onLocation={(location) => setFilters({ ...filters, location })}
-      sessions={
-        state === "empty"
-          ? []
-          : state === "unlocated"
-            ? matching.map((s) => ({
-                ...s,
-                venue: { ...s.venue, latitude: null, longitude: null }
-              }))
-            : matching
-      }
+      sessions={state === "empty" ? [] : matching}
       loading={state === "loading" && !recovered}
       error={state === "error" && !recovered}
       refreshing={false}

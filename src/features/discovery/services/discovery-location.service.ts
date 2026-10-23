@@ -17,7 +17,12 @@ export async function locateForDiscovery() {
         );
       })
     ]);
-    return discoveryOriginSchema.parse(point);
+    const result = discoveryOriginSchema.safeParse(point);
+    if (!result.success)
+      throw new Error(
+        "Couldn’t find your location. Try again or choose another option."
+      );
+    return result.data;
   } finally {
     clearTimeout(timeout);
   }

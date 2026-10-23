@@ -1,3 +1,4 @@
+import { DiscoveryRadiusControl } from "./discovery-radius";
 import { ActivityIndicator } from "react-native";
 import { AppText } from "@/components/atoms";
 import { atomPalette } from "@/components/atoms/theme";
@@ -36,7 +37,10 @@ export function DiscoverySearchFilters({
         filters={filters}
         onChange={onChange}
         sortControl={
-          <DiscoverySortControl filters={filters} sorting={sorting} />
+          <>
+            <DiscoverySortControl filters={filters} sorting={sorting} />
+            <DiscoveryRadiusControl filters={filters} sorting={sorting} />
+          </>
         }
       />
       {sorting.locating && (

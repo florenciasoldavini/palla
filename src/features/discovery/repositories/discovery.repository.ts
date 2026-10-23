@@ -1,3 +1,4 @@
+import { radiusKilometers } from "../radius";
 import { requireSupabase } from "@/infrastructure/supabase/repository-helpers";
 import { advancedRpcFilters } from "../advanced-filters";
 import type { DiscoveryFilters } from "../domain";
@@ -5,8 +6,9 @@ export async function fetchDiscovery(
   f: DiscoveryFilters,
   signal?: AbortSignal
 ) {
-  const request = requireSupabase().rpc("discover_sessions_ranked", {
+  const request = requireSupabase().rpc("discover_sessions_nearby", {
     ...advancedRpcFilters(f),
+    p_radius_km: radiusKilometers(f.radius),
     p_sort: f.sort,
     p_latitude: f.origin?.latitude ?? null,
     p_longitude: f.origin?.longitude ?? null,

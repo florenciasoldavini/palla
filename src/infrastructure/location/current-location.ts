@@ -4,12 +4,12 @@ export async function readCurrentLocation() {
   const permission = await Location.requestForegroundPermissionsAsync();
   if (permission.status !== "granted") {
     throw new Error(
-      "Location access is off. Enable it in your phone’s settings to sort by nearest, or choose another sort."
+      "Location access is off. Enable it in your phone’s settings to find nearby sessions."
     );
   }
   if (!(await Location.hasServicesEnabledAsync())) {
     throw new Error(
-      "Turn on your phone’s location services to sort by nearest."
+      "Turn on your phone’s location services to find nearby sessions."
     );
   }
   const cached = await Location.getLastKnownPositionAsync({
