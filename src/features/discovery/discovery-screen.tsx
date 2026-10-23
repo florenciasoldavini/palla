@@ -1,7 +1,8 @@
+import { mergeDiscoveryPages } from "./pagination";
 import { normalizeMapBounds, sameMapBounds } from "./map-bounds";
 import { cityLabel, type DiscoveryCity } from "./cities";
 import { useDiscoverySort } from "./hooks/use-discovery-sort";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -50,7 +51,26 @@ export default function DiscoveryScreen() {
     [filters, saved.location, saved.city]
   );
   const query = useDiscovery(applied, saved.ready && focused);
+  const sessions = useMemo(
+    () => mergeDiscoveryPages(query.data?.pages ?? []),
+    [query.data]
+  );
   const refresh = query.refetch;
+  const loadMore = useCallback(() => {
+    if (
+      query.canLoadMore &&
+      !query.isFetching &&
+      !query.isPlaceholderData &&
+      query.hasNextPage
+    )
+      void query.fetchNextPage({ cancelRefetch: false });
+  }, [
+    query.canLoadMore,
+    query.isFetching,
+    query.isPlaceholderData,
+    query.hasNextPage,
+    query.fetchNextPage
+  ]);
   useFocusEffect(
     useCallback(() => {
       if (saved.ready) void refresh();
@@ -61,12 +81,16 @@ export default function DiscoveryScreen() {
       filters={applied}
       onFilters={setFilters}
       onLocation={saved.changeLocation}
-      sessions={query.data?.sessions ?? []}
+      sessions={sessions}
       loading={!saved.ready || query.isPending}
-      error={query.isError}
-      refreshing={query.isRefetching}
+      error={query.isError && !query.data}
+      refreshing={query.isRefetching && !query.isFetchingNextPage}
       refresh={() => refresh()}
-      hasMore={query.data?.has_more ?? false}
+      hasMore={!!query.hasNextPage && !query.isPlaceholderData}
+      refreshError={query.isRefetchError}
+      loadingMore={query.isFetchingNextPage}
+      loadMoreError={query.isFetchNextPageError}
+      loadMore={loadMore}
     />
   );
 }
@@ -80,6 +104,10 @@ export function DiscoveryContent({
   refreshing,
   refresh,
   hasMore = false,
+  loadingMore = false,
+  loadMoreError = false,
+  refreshError = false,
+  loadMore,
   preview = false
 }: {
   filters: DiscoveryFilters;
@@ -91,9 +119,22 @@ export function DiscoveryContent({
   refreshing: boolean;
   refresh: () => Promise<unknown> | void;
   hasMore?: boolean;
+  loadingMore?: boolean;
+  loadMoreError?: boolean;
+  refreshError?: boolean;
+  loadMore?: () => void;
   preview?: boolean;
 }) {
   const router = useRouter();
+  const listRef = useRef<FlatList>(null);
+  const filterKey = JSON.stringify(filters);
+  const lastFilterKey = useRef(filterKey);
+  useEffect(() => {
+    if (lastFilterKey.current !== filterKey) {
+      lastFilterKey.current = filterKey;
+      listRef.current?.scrollToOffset({ offset: 0, animated: false });
+    }
+  }, [filterKey]);
   const [mapRevision, setMapRevision] = useState(0);
   const applyFilters = (next: DiscoveryFilters) => {
     if (filters.bounds && !next.bounds) setMapRevision((value) => value + 1);
@@ -116,6 +157,29 @@ export function DiscoveryContent({
   const [draft, setDraft] = useState(filters.search),
     [locationOpen, setLocationOpen] = useState(false),
     [map, setMap] = useState(false);
+  useEffect(() => {
+    if (
+      map &&
+      hasMore &&
+      !loadingMore &&
+      !loadMoreError &&
+      !loading &&
+      !refreshing &&
+      !refreshError &&
+      !error
+    )
+      loadMore?.();
+  }, [
+    map,
+    hasMore,
+    loadingMore,
+    loadMoreError,
+    refreshError,
+    loading,
+    refreshing,
+    error,
+    loadMore
+  ]);
   const locationLabel = filters.bounds
     ? "Map area"
     : filters.radius === "any"
@@ -256,11 +320,23 @@ export function DiscoveryContent({
           </AppButton>
         </View>
       )}
-      {hasMore && (
-        <AppText variant="bodySm" tone="muted">
-          Showing the first 500 sessions. Narrow your dates or search to see
-          more relevant results.
-        </AppText>
+      {refreshError && !error && (
+        <View style={{ gap: 8 }}>
+          <AppText variant="bodySm" accessibilityLiveRegion="polite">
+            Couldn’t refresh sessions. Showing your previous results.
+          </AppText>
+          <AppButton
+            size="sm"
+            variant="ghost"
+            color="accent"
+            fullWidth={false}
+            onPress={() => {
+              void refresh();
+            }}
+          >
+            Try again
+          </AppButton>
+        </View>
       )}
       {error && (
         <ErrorState
@@ -355,11 +431,37 @@ export function DiscoveryContent({
           importantForAccessibility={map ? "no-hide-descendants" : "auto"}
         >
           <FlatList
+            ref={listRef}
             data={rows}
             keyExtractor={(r) =>
               r.kind === "heading" ? "upcoming" : r.session.id
             }
             ListHeaderComponent={header}
+            onEndReached={() => {
+              if (!map && hasMore && !loadMoreError) loadMore?.();
+            }}
+            onEndReachedThreshold={0.3}
+            ListFooterComponent={
+              hasMore && !error ? (
+                <View style={{ gap: 8, paddingVertical: 16 }}>
+                  {loadMoreError && (
+                    <AppText variant="bodySm" accessibilityLiveRegion="polite">
+                      Couldn’t load more sessions. Your results are still here.
+                    </AppText>
+                  )}
+                  <AppButton
+                    color="accent"
+                    variant="ghost"
+                    loading={loadingMore}
+                    onPress={loadMore}
+                  >
+                    {loadMoreError
+                      ? "Retry loading sessions"
+                      : "Load more sessions"}
+                  </AppButton>
+                </View>
+              ) : null
+            }
             renderItem={({ item }) =>
               item.kind === "heading" ? (
                 section("Upcoming sessions", "upcoming")
@@ -406,10 +508,16 @@ export function DiscoveryContent({
               initialBounds={filters.bounds}
               topInset={mapControlsHeight + 24}
               onCardHeight={setMapCardHeight}
-              searching={loading || refreshing}
-              error={error}
+              searching={loading || refreshing || loadingMore}
+              error={error || refreshError || loadMoreError}
+              errorMessage={
+                loadMoreError
+                  ? "Couldn’t load all sessions in this area."
+                  : undefined
+              }
               onRetry={() => {
-                void refresh();
+                if (loadMoreError) loadMore?.();
+                else void refresh();
               }}
               onArea={(bounds) => {
                 const next = normalizeMapBounds(bounds);
@@ -447,20 +555,6 @@ export function DiscoveryContent({
                 onDraftChange={setDraft}
                 onChange={changeFilters}
               />
-              {hasMore && (
-                <AppText
-                  variant="caption"
-                  tone="muted"
-                  style={{
-                    backgroundColor: c.surface,
-                    padding: 8,
-                    borderRadius: 12
-                  }}
-                >
-                  Showing the first 500 sessions. Narrow your filters to see
-                  more relevant results.
-                </AppText>
-              )}
             </View>
           </View>
         )}

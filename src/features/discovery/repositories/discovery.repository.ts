@@ -1,12 +1,16 @@
+import { discoveryPageSize, type DiscoveryCursor } from "../pagination";
 import { radiusKilometers } from "../radius";
 import { requireSupabase } from "@/infrastructure/supabase/repository-helpers";
 import { advancedRpcFilters } from "../advanced-filters";
 import type { DiscoveryFilters } from "../domain";
 export async function fetchDiscovery(
   f: DiscoveryFilters,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  cursor: DiscoveryCursor | null = null
 ) {
-  const request = requireSupabase().rpc("discover_sessions_in_bounds", {
+  const request = requireSupabase().rpc("discover_sessions_page", {
+    p_after: cursor,
+    p_limit: discoveryPageSize,
     ...advancedRpcFilters(f),
     p_bounds: f.bounds ?? null,
     p_city_id: f.city?.id ?? null,

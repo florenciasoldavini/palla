@@ -17,6 +17,7 @@ export function DiscoveryMapPanel({
   onCardHeight,
   searching = false,
   error = false,
+  errorMessage = "Couldn’t update this area.",
   onRetry,
   center,
   initialBounds
@@ -29,6 +30,7 @@ export function DiscoveryMapPanel({
   onCardHeight: (height: number) => void;
   searching?: boolean;
   error?: boolean;
+  errorMessage?: string;
   onRetry: () => void;
   center?: { latitude: number; longitude: number };
   initialBounds?: Bounds | null;
@@ -139,7 +141,7 @@ export function DiscoveryMapPanel({
               </>
             ) : error ? (
               <>
-                <AppText>Couldn’t update this area.</AppText>
+                <AppText>{errorMessage}</AppText>
                 <AppButton size="sm" fullWidth={false} onPress={onRetry}>
                   Try again
                 </AppButton>

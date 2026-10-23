@@ -1,14 +1,12 @@
-import { z } from "zod";
-import { discoverySessionSchema, type DiscoveryFilters } from "../domain";
+import { discoveryPageSchema, type DiscoveryCursor } from "../pagination";
+import type { DiscoveryFilters } from "../domain";
 import { fetchDiscovery } from "../repositories/discovery.repository";
 export async function loadDiscovery(
   filters: DiscoveryFilters,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  cursor: DiscoveryCursor | null = null
 ) {
-  return z
-    .object({
-      sessions: z.array(discoverySessionSchema).max(500),
-      has_more: z.boolean()
-    })
-    .parse(await fetchDiscovery(filters, signal));
+  return discoveryPageSchema.parse(
+    await fetchDiscovery(filters, signal, cursor)
+  );
 }

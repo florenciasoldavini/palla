@@ -1,3 +1,4 @@
+import { DiscoveryPaginationPreview } from "./components/discovery-pagination-preview";
 import { useDiscoveryLocation } from "./hooks/use-discovery-location";
 import { rankPreviewSessions } from "./preview-sorting";
 import { advancedRpcFilters } from "./advanced-filters";
@@ -107,6 +108,17 @@ export default function DiscoveryPreview() {
     filters.radius
   );
   if (!__DEV__) return <Redirect href="/sign-in" />;
+  if (state === "pagination" || state === "pagination-error")
+    return (
+      <DiscoveryPaginationPreview
+        key={state}
+        filters={{ ...filters, location: "Buenos Aires", city: null }}
+        onFilters={setFilters}
+        onLocation={saved.changeLocation}
+        sessions={sessions}
+        failNext={state === "pagination-error"}
+      />
+    );
   return (
     <DiscoveryContent
       filters={{
