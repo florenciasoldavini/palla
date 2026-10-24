@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ScrollView, useWindowDimensions, View } from "react-native";
 import { AppText } from "@/components/atoms";
 import { atomPalette as c } from "@/components/atoms/theme";
@@ -24,7 +24,7 @@ export function DiscoveryMapCarousel({
   const scroll = useRef<ScrollView>(null);
   const [width, setWidth] = useState(0);
   const [cardHeight, setCardHeight] = useState(148);
-  useEffect(() => setCardHeight(148), [fontScale]);
+  useLayoutEffect(() => setCardHeight(148), [fontScale]);
   const index = Math.max(
     0,
     sessions.findIndex((s) => s.id === selected)

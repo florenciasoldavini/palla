@@ -17,6 +17,7 @@ import { atomPalette as c, atomShadows } from "@/components/atoms/theme";
 import { useSessionCover } from "@/features/session-covers/hooks/use-cover";
 import { categoriesLabel } from "@/features/sessions/public/domain";
 import { sessionStatus, type DiscoverySession } from "../domain";
+import { discoveryDistanceLabel } from "../distance";
 export function DiscoverySessionCard({
   session,
   featured = false,
@@ -58,6 +59,32 @@ export function DiscoverySessionCard({
     hourCycle: "h23"
   }).format(new Date(session.ends_at));
   const spots = Math.max(0, session.capacity - session.confirmed_count);
+  const distance = discoveryDistanceLabel(session.distance_m);
+  const venueLabel = (
+    <View
+      style={{
+        flexDirection: "row",
+        flexWrap: "wrap",
+        columnGap: 6,
+        rowGap: 2,
+        flexShrink: 1
+      }}
+    >
+      <AppText
+        variant={mapCard ? "bodySm" : "caption"}
+        tone="muted"
+        numberOfLines={1}
+        style={{ flexShrink: 1 }}
+      >
+        {session.venue.name}
+      </AppText>
+      {distance && (
+        <AppText variant="caption" tone="accent">
+          {distance}
+        </AppText>
+      )}
+    </View>
+  );
   const status =
     session.viewer_is_host || session.viewer_registration || !spots
       ? sessionStatus(session)
@@ -72,7 +99,7 @@ export function DiscoverySessionCard({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${session.title}, ${session.venue.name}, ${categoriesLabel(session.allowed_categories)}, ${day}, ${time}, ${mapCard ? status : sessionStatus(session)}, ${price}`}
+        accessibilityLabel={`${session.title}, ${session.venue.name}${distance ? `, ${distance}` : ""}, ${categoriesLabel(session.allowed_categories)}, ${day}, ${time}, ${mapCard ? status : sessionStatus(session)}, ${price}`}
         onPress={onPress}
         style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
       >
@@ -152,14 +179,7 @@ export function DiscoverySessionCard({
                   style={{ flexDirection: "row", gap: 6, alignItems: "center" }}
                 >
                   <MapPin size={16} color={c.accent} />
-                  <AppText
-                    variant="bodySm"
-                    tone="muted"
-                    numberOfLines={1}
-                    style={{ flex: 1 }}
-                  >
-                    {session.venue.name}
-                  </AppText>
+                  {venueLabel}
                 </View>
                 <View
                   style={{
@@ -200,9 +220,7 @@ export function DiscoverySessionCard({
               </>
             ) : (
               <>
-                <AppText variant="caption" tone="muted" numberOfLines={1}>
-                  {session.venue.name}
-                </AppText>
+                {venueLabel}
                 <AppHeading variant="card" numberOfLines={2}>
                   {session.title}
                 </AppHeading>

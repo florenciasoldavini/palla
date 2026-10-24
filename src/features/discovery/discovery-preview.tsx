@@ -18,6 +18,14 @@ export default function DiscoveryPreview() {
     [recovered, setRecovered] = useState(false);
   useEffect(() => {
     setRecovered(false);
+    if (state === "distance")
+      setFilters({
+        ...defaultFilters,
+        sort: "nearest",
+        radius: "25",
+        bounds: { west: -58.47, east: -58.38, south: -34.63, north: -34.54 },
+        origin: { latitude: -34.6, longitude: -58.44 }
+      });
     if (state === "map-clusters")
       setFilters({
         ...defaultFilters,
