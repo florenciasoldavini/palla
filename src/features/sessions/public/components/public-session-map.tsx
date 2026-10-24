@@ -92,6 +92,7 @@ function VenueMap({
             center={center}
             onLoad={loaded}
             onError={failed}
+            onAttributionPress={onDirections}
           />
         </View>
       ) : null}

@@ -1,0 +1,31 @@
+# Google Maps and venue locations
+
+Palla uses Google Maps on native iOS and Android through SDK 54’s `react-native-maps` 1.20.1. Both Explore and public session detail explicitly select `PROVIDER_GOOGLE`. JSON styling supplies lilac ground, white roads, muted labels and no POI/transit clutter. Google’s own branding remains visible. The old WebView/MapLibre/OpenFreeMap renderer and Photon lookup have been removed. Browser maps are outside the product scope.
+
+## Native setup
+
+Enable Maps SDK for iOS and Maps SDK for Android in the Palla Google Cloud project. Create separate app keys; keep the existing server-side Places key private:
+
+- `GOOGLE_MAPS_IOS_API_KEY`: API restriction to Maps SDK for iOS; application restriction to bundle `com.florenciasoldavini.palla`.
+- `GOOGLE_MAPS_ANDROID_API_KEY`: API restriction to Maps SDK for Android; application restriction to package `com.florenciasoldavini.palla` and each approved signing certificate SHA-1. Local debug and store/release builds have different certificates.
+- `GOOGLE_PLACES_API_KEY`: Supabase Edge Function secret, restricted to Places API (New). Never place it in native/public environment variables.
+
+Configure the two native keys in `.env.local` and the corresponding EAS build environments. Rebuild both native clients after setting/changing them. `app.config.js` embeds them using Expo’s native Google Maps config fields and exposes only configuration booleans to the app. Missing keys produce the existing map error/fallback surface rather than mounting an unconfigured native Google map. Expo Go supplies its own native map configuration and can validate UI; it does not verify Palla’s application-key restrictions or signing configuration.
+
+## Address selection and publication
+
+`places-address` validates the user through Auth and trusted active-organizer state, then reserves the existing rate/monthly quota. Selecting an autocomplete result requests only Google’s ID, formatted address, address types and coordinates. The server validates a finite coordinate pair and a precise address type, stores a private organizer-owned snapshot, and returns an opaque reference. The form keeps the place ID; coordinates are not copied into the durable session draft.
+
+Publication reuses the recent TanStack Query result (24-hour freshness) or resolves the saved place ID again. Manual addresses use Places Text Search and require matching street number, route and city when supplied. A private publisher helper accepts only a current reference owned by the signed-in organizer and matching the venue address. It reads canonical coordinates from the private cache, ignoring forged coordinate fields. The selected address ID is stored separately in `google_address_place_id`, preserving the venue’s `google_place_id` business identity used by photo/directions adapters. Clubs sharing one building/address are not merged; the existing name/address identity rules remain. Client INSERT permissions exclude the new Google-source and refresh metadata. Existing independent-coordinate payloads remain compatible with older app versions and cannot mark their coordinates as Google-sourced.
+
+Google snapshots and venue coordinate pairs expire after 29 days. An hourly cleanup deletes expired coordinates, retaining the place ID. A daily `venue-locations-refresh` worker refreshes coordinates after 20 days, claims at most 50 due venues, reserves requests against the existing global 9,000-request monthly cap, and processes at most five requests concurrently. Failed claims retry the following day. Exhausted quota/provider failure can leave a venue unlocated after expiry; list/detail and Open in Maps remain available. No precise player/device location is persisted by this feature.
+
+The worker uses a dedicated Vault credential checked before claims. Cache writes and refresh RPCs are service-role-only. The private cache has RLS and no client table grants. Address edits invalidate the old location and Google identity. The refresh URL is derived from the project’s existing Vault worker URL. Vault/pg_cron/pg_net must already exist, as they do in the connected Palla project.
+
+## Deployment and verification status
+
+Migration `20261024145753_google_venue_locations.sql` and both Edge Functions were deployed to the connected project on 2026-10-24 after explicit user approval. The dedicated Vault credential and hourly expiry/daily refresh jobs are active. A scheduled-command invocation returned HTTP 200 with zero eligible venues; unsigned worker requests returned 401. Both connected rollback SQL suites passed, including the real publisher integration. Google Cloud has both Maps SDKs enabled and separate restricted native keys. The local Android key currently authorizes only the debug signing certificate; release/store fingerprints still need configuration before distribution. Keys are stored in ignored `.env.local`, not this repository. Both own native debug clients were rebuilt and verified on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Native map rendering, cluster zoom, selected venue cards, viewport searches and static detail maps passed. A real authenticated iOS autocomplete selection produced a valid private Google coordinate snapshot with the 29-day expiry; no session was published by that UI fixture.
+
+Local PostgreSQL tests use the actual existing publisher definition plus minimal schema fixtures and mocked Vault/Cron integrations. They verify migration syntax, location reference authorization, finite coordinates, expiry, business/address identity separation, rejected forged source metadata, ignored forged coordinates, refresh budgeting, place-change safety and cleanup. The connected rollback suite additionally verifies the real publisher, while the scheduled-command invocation verifies private credential delivery to the deployed worker. Real Google refresh of an eligible venue has not yet been exercised. Edge Function tests mock provider/Auth/cache requests; they do not incur Google usage.
+
+References: [Expo SDK 54 map setup](https://docs.expo.dev/versions/v54.0.0/sdk/map-view/), [Google Places details and field masks](https://developers.google.com/maps/documentation/places/web-service/place-details), [Google Maps service-specific terms](https://cloud.google.com/maps-platform/terms/maps-service-terms).

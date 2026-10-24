@@ -91,7 +91,7 @@ export async function fetchOrganizerInventory(
 export interface SaveSessionRequest {
   id: string;
   input: SessionFormValues & {
-    venueCoordinates?: { latitude: number; longitude: number; address: string };
+    venueCoordinates?: { reference: string };
   };
   publish: boolean;
   sessionId?: string;

@@ -503,6 +503,10 @@ export function SessionForm({
                           resetVenueAttributes(id);
                           change("venueName", v?.name ?? "");
                           change("venueAddress", v?.address ?? "");
+                          change(
+                            "venueAddressPlaceId",
+                            v?.google_address_place_id ?? undefined
+                          );
                         }}
                       />
                     )}
@@ -511,9 +515,13 @@ export function SessionForm({
                       value={values.venueAddress}
                       onChange={(v) => {
                         change("venueAddress", v);
+                        change("venueAddressPlaceId", undefined);
                         change("venueId", "");
                         resetVenueAttributes("");
                       }}
+                      onSelect={(selection) =>
+                        change("venueAddressPlaceId", selection.placeId)
+                      }
                       errorText={form.formState.errors.venueAddress?.message}
                     />
                   </>

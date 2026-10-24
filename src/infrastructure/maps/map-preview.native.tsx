@@ -1,47 +1,74 @@
-import { View } from "react-native";
-import { WebView } from "react-native-webview";
-import { mapEmbedHtml } from "./map-embed";
-import { MapAttribution } from "./map-attribution";
+import { useRef } from "react";
+import { Linking, Pressable, StyleSheet, View } from "react-native";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import { googleMapStyle } from "./google-map-style";
 import type { MapPreviewProps } from "./map-preview.types";
-
-export function MapPreview({ center, onLoad, onError }: MapPreviewProps) {
+import {
+  googleMapsConfigured,
+  GoogleMapUnavailable
+} from "./google-map-config.native";
+export function MapPreview(props: MapPreviewProps) {
+  return googleMapsConfigured ? (
+    <GoogleMapPreview {...props} />
+  ) : (
+    <GoogleMapUnavailable onError={props.onError} />
+  );
+}
+function GoogleMapPreview({
+  center,
+  onLoad,
+  onAttributionPress
+}: MapPreviewProps) {
+  const map = useRef<MapView>(null);
+  const camera = { center, zoom: 15.2, heading: 0, pitch: 0 };
   return (
     <View style={{ flex: 1 }}>
       <View
+        style={StyleSheet.absoluteFill}
         pointerEvents="none"
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
-        style={{ flex: 1 }}
       >
-        <WebView
-          source={{
-            html: mapEmbedHtml(center),
-            baseUrl: "https://palla.vercel.app"
-          }}
-          originWhitelist={["*"]}
-          style={{ flex: 1, backgroundColor: "#f0eef8" }}
-          onMessage={({ nativeEvent }) => {
-            if (nativeEvent.data === "loaded") onLoad();
-            if (nativeEvent.data === "error") onError();
-          }}
-          onError={onError}
-          onContentProcessDidTerminate={onError}
-          onRenderProcessGone={onError}
+        <MapView
+          ref={map}
+          provider={PROVIDER_GOOGLE}
+          style={StyleSheet.absoluteFill}
+          initialCamera={camera}
+          onMapReady={() => map.current?.setCamera(camera)}
+          customMapStyle={googleMapStyle}
           scrollEnabled={false}
-          bounces={false}
-          geolocationEnabled={false}
-          allowsLinkPreview={false}
-          javaScriptCanOpenWindowsAutomatically={false}
-          setSupportMultipleWindows={false}
-          sharedCookiesEnabled={false}
-          thirdPartyCookiesEnabled={false}
-          mixedContentMode="never"
-          onShouldStartLoadWithRequest={({ url }) =>
-            url === "about:blank" || url === "https://palla.vercel.app/"
-          }
+          zoomEnabled={false}
+          rotateEnabled={false}
+          pitchEnabled={false}
+          showsCompass={false}
+          showsScale={false}
+          showsTraffic={false}
+          showsIndoors={false}
+          showsBuildings={false}
+          showsPointsOfInterest={false}
+          toolbarEnabled={false}
+          onMapLoaded={onLoad}
         />
       </View>
-      <MapAttribution />
+      {/* Let the surrounding page handle swipes over this static map. Keep the
+          SDK's untouched branding visible and provide its own link hit target. */}
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel="Google Maps"
+        onPress={
+          onAttributionPress ??
+          (() => {
+            void Linking.openURL("https://www.google.com/maps").catch(() => {});
+          })
+        }
+        style={{
+          position: "absolute",
+          left: 0,
+          bottom: 0,
+          width: 100,
+          height: 44
+        }}
+      />
     </View>
   );
 }

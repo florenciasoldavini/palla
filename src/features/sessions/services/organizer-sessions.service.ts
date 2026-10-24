@@ -41,7 +41,11 @@ export async function saveOrganizerSession(request: SaveSessionRequest) {
   if (coverLocalUri && input.coverImagePath)
     await uploadCover(input.coverImagePath, coverLocalUri);
   const venueCoordinates = request.publish
-    ? await coordinatesForPublication(input.venueId, input.venueAddress)
+    ? await coordinatesForPublication(
+        input.venueId,
+        input.venueAddress,
+        input.venueAddressPlaceId
+      )
     : null;
   try {
     const id = await saveSessionRecord({
@@ -110,6 +114,7 @@ export function formFromSession(
     venueId: session.venue_id,
     venueName: venue?.name ?? "",
     venueAddress: venue?.address ?? "",
+    venueAddressPlaceId: venue?.google_address_place_id ?? undefined,
     courtLabel: session.court_label ?? "",
     date: local(session.starts_at).slice(0, 10),
     startTime: local(session.starts_at).slice(11, 16),

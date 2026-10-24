@@ -1,28 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  fetchVenueLocation,
-  lookupAddressCoordinates
-} from "../repositories/venue-location.repository";
-import {
-  coordinatesForPublication,
-  selectPersistentVenueCoordinates
-} from "./venue-location.service";
+import { fetchVenueLocation } from "../repositories/venue-location.repository";
+import { googleAddressForPublication } from "./address-search.service";
+import { coordinatesForPublication } from "./venue-location.service";
 import { storedVenueCoordinates } from "../coordinates";
 vi.mock("../repositories/venue-location.repository", () => ({
-  fetchVenueLocation: vi.fn(),
-  lookupAddressCoordinates: vi.fn()
+  fetchVenueLocation: vi.fn()
+}));
+vi.mock("./address-search.service", () => ({
+  googleAddressForPublication: vi.fn()
 }));
 const address = "Avenida Santa Fe 4000, Buenos Aires";
-const feature = (
-  properties: Record<string, string>,
-  coordinates = [-58.42, -34.58]
-) => ({ geometry: { type: "Point", coordinates }, properties });
-const exact = {
-  features: [feature({ street: "Avenida Santa Fe", housenumber: "4000" })]
-};
+const reference = "10000000-0000-4000-8000-000000000001";
 beforeEach(() => vi.resetAllMocks());
-describe("persistent venue coordinates", () => {
-  it("requires both finite coordinates and accepts zero", () => {
+describe("Google venue coordinates", () => {
+  it("requires a finite pair and accepts zero", () => {
     expect(storedVenueCoordinates({ latitude: 0, longitude: 0 })).toEqual({
       latitude: 0,
       longitude: 0
@@ -35,83 +26,58 @@ describe("persistent venue coordinates", () => {
     ])
       expect(storedVenueCoordinates(value)).toBeNull();
   });
-  it("persists a matching street and building, not an unrelated number or street centroid", () => {
-    expect(selectPersistentVenueCoordinates(exact, address)).toEqual({
-      latitude: -34.58,
-      longitude: -58.42,
-      address
-    });
-    for (const raw of [
-      { features: [] },
-      {
-        features: [feature({ street: "Another street", housenumber: "4000" })]
-      },
-      {
-        features: [feature({ street: "Avenida Santa Fe", housenumber: "4001" })]
-      },
-      { features: [feature({ street: "Avenida Santa Fe", type: "street" })] },
-      {
-        features: [
-          feature({ street: "Avenida Santa Fe", housenumber: "4000" }, [
-            999,
-            NaN
-          ])
-        ]
-      }
-    ])
-      expect(selectPersistentVenueCoordinates(raw, address)).toBeNull();
-  });
-  it("accepts common address abbreviations and rejects another city", () => {
-    const raw = {
-      features: [
-        feature({
-          street: "Avenida Santa Fe",
-          housenumber: "4000",
-          city: "Ciudad Autónoma de Buenos Aires"
-        })
-      ]
-    };
-    expect(
-      selectPersistentVenueCoordinates(raw, "Av. Santa Fe 4000, CABA")
-    ).not.toBeNull();
-    expect(
-      selectPersistentVenueCoordinates(
-        {
-          features: [
-            feature({
-              street: "Avenida Santa Fe",
-              housenumber: "4000",
-              city: "Rosario"
-            })
-          ]
-        },
-        address
-      )
-    ).toBeNull();
-  });
-  it("does not geocode an existing venue with stored coordinates", async () => {
+  it("reuses saved coordinates without a paid lookup", async () => {
     vi.mocked(fetchVenueLocation).mockResolvedValue({
       address,
+      google_address_place_id: "google-place",
       latitude: -34.58,
       longitude: -58.42
     });
     expect(await coordinatesForPublication("venue", address)).toBeNull();
-    expect(lookupAddressCoordinates).not.toHaveBeenCalled();
+    expect(googleAddressForPublication).not.toHaveBeenCalled();
   });
-  it("uses the saved venue address, rather than editable form text", async () => {
+  it("publishes only a server-verified reference, never raw client coordinates", async () => {
+    vi.mocked(googleAddressForPublication).mockResolvedValue({
+      address,
+      placeId: "google-place",
+      reference,
+      latitude: -34.58,
+      longitude: -58.42
+    });
+    expect(
+      await coordinatesForPublication("", address, "google-place")
+    ).toEqual({ reference });
+    expect(googleAddressForPublication).toHaveBeenCalledWith(
+      address,
+      "google-place"
+    );
+  });
+  it("uses the stored venue address and place ID instead of edited form text", async () => {
     vi.mocked(fetchVenueLocation).mockResolvedValue({
       address,
+      google_address_place_id: "stored-place",
       latitude: null,
       longitude: null
     });
-    vi.mocked(lookupAddressCoordinates).mockResolvedValue(exact);
+    vi.mocked(googleAddressForPublication).mockResolvedValue({
+      address,
+      placeId: "stored-place",
+      reference,
+      latitude: 0,
+      longitude: 0
+    });
     expect(
-      await coordinatesForPublication("venue", "Wrong address")
-    ).toMatchObject({ address });
-    expect(lookupAddressCoordinates).toHaveBeenCalledWith(address);
+      await coordinatesForPublication("venue", "Wrong address", "wrong-id")
+    ).toEqual({ reference });
+    expect(googleAddressForPublication).toHaveBeenCalledWith(
+      address,
+      "stored-place"
+    );
   });
-  it("does not block publishing on provider errors or an incomplete address", async () => {
-    vi.mocked(lookupAddressCoordinates).mockRejectedValue(new Error("Timeout"));
+  it("does not block publishing on a lookup failure or incomplete address", async () => {
+    vi.mocked(googleAddressForPublication).mockRejectedValue(
+      new Error("Timeout")
+    );
     expect(await coordinatesForPublication("", address)).toBeNull();
     expect(await coordinatesForPublication("", " ")).toBeNull();
   });

@@ -53,6 +53,10 @@ export const sessionDraftSchema = z.object({
   venueAttributesEdited: z.boolean().optional(),
   title: z.string().max(120),
   venueId: z.string(),
+  venueAddressPlaceId: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]{1,512}$/)
+    .optional(),
   venueName: z.string().max(160),
   venueAddress: z.string().max(300),
   courtLabel: z.string().max(80),
