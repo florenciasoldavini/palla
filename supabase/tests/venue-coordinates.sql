@@ -1,12 +1,21 @@
--- Uses existing QA identities; all venue/session writes roll back.
+-- All account, venue and session fixture writes roll back.
 begin;
+-- Isolated identities generated for this transaction; never reuse real accounts.
+select set_config('qa.host_id',gen_random_uuid()::text,true);
+select set_config('qa.guest_id',gen_random_uuid()::text,true);
+create function pg_temp.qa_host() returns uuid language sql stable as $$ select current_setting('qa.host_id')::uuid $$;
+create function pg_temp.qa_guest() returns uuid language sql stable as $$ select current_setting('qa.guest_id')::uuid $$;
+insert into auth.users(id) values(pg_temp.qa_host()),(pg_temp.qa_guest());
+insert into public.profiles(id,first_name,onboarding_completed_at,category_status,playing_category)
+values(pg_temp.qa_host(),'Rollback host',now(),'known',6),(pg_temp.qa_guest(),'Rollback guest',now(),'known',6);
+insert into public.organizers(profile_id,display_name) values(pg_temp.qa_host(),'Rollback host');
 create function pg_temp.coordinate_rejected(statement text) returns void language plpgsql as $$
 begin
  begin execute statement; exception when others then return; end;
  raise exception 'Expected coordinate rejection: %',statement;
 end $$;
 set local role authenticated;
-select set_config('request.jwt.claim.sub','1bce2362-4dcd-47e7-a885-fa55fc7cd773',true);
+select set_config('request.jwt.claim.sub',pg_temp.qa_host()::text,true);
 do $$
 declare input jsonb; v uuid; result jsonb; sid uuid; version timestamptz;
 begin
@@ -32,7 +41,7 @@ begin
 end $$;
 reset role;
 set local role authenticated;
-select set_config('request.jwt.claim.sub','f8cba57d-ee0a-46a6-b3c5-f1aca57c9c26',true);
+select set_config('request.jwt.claim.sub',pg_temp.qa_guest()::text,true);
 do $$ begin
  perform pg_temp.coordinate_rejected('update public.venues set latitude=0,longitude=0');
 end $$;
@@ -41,16 +50,16 @@ reset role;
 do $$ declare v uuid; begin
  select venue_id into v from public.session_series where id='cd100000-0000-4000-8000-000000000001';
  perform pg_temp.coordinate_rejected(format('update public.venues set latitude=91 where id=%L',v));
- perform pg_temp.coordinate_rejected('insert into public.venues(created_by,google_place_id,latitude,longitude,geocoded_address,geocoded_at) values (''1bce2362-4dcd-47e7-a885-fa55fc7cd773'',''coordinate-null-address'',0,0,''Snapshot'',now())');
+ perform pg_temp.coordinate_rejected('insert into public.venues(created_by,google_place_id,latitude,longitude,geocoded_address,geocoded_at) values (pg_temp.qa_host(),''coordinate-null-address'',0,0,''Snapshot'',now())');
  perform pg_temp.coordinate_rejected(format('update public.venues set longitude=''NaN''::float8 where id=%L',v));
  perform pg_temp.coordinate_rejected(format('update public.venues set longitude=null where id=%L',v));
  update public.venues set address='Changed address' where id=v;
  assert exists(select 1 from public.venues where id=v and latitude is null and longitude is null and geocoded_address is null and geocoded_at is null),'Address edits clear stale coordinates';
 end $$;
--- Give the second existing QA profile temporary organizer access to test ownership.
-insert into public.organizers(profile_id,display_name) values('f8cba57d-ee0a-46a6-b3c5-f1aca57c9c26','Coordinate rollback host B') on conflict(profile_id) do nothing;
+-- Give the isolated guest organizer access to test ownership.
+insert into public.organizers(profile_id,display_name) values(pg_temp.qa_guest(),'Coordinate rollback host B') on conflict(profile_id) do nothing;
 set local role authenticated;
-select set_config('request.jwt.claim.sub','f8cba57d-ee0a-46a6-b3c5-f1aca57c9c26',true);
+select set_config('request.jwt.claim.sub',pg_temp.qa_guest()::text,true);
 do $$ declare v uuid;begin
  select venue_id into v from public.session_series where id='cd100000-0000-4000-8000-000000000001';
  -- The second organizer cannot read the first organizer's series. Obtain the public venue by its test name.

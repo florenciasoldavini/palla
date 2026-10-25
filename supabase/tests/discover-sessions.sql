@@ -1,13 +1,22 @@
 -- Rollback-only discovery eligibility, filters and authorization regression.
 begin;
-insert into public.venues(id,created_by,name,address) values('df100000-0000-4000-8000-000000000001','1bce2362-4dcd-47e7-a885-fa55fc7cd773','Discover SQL QA','DiscoverTestCity');
-insert into public.session_series(id,organizer_id,draft_input) values('df200000-0000-4000-8000-000000000001','1bce2362-4dcd-47e7-a885-fa55fc7cd773','{}');
+-- Isolated identities generated for this transaction; never reuse real accounts.
+select set_config('qa.host_id',gen_random_uuid()::text,true);
+select set_config('qa.guest_id',gen_random_uuid()::text,true);
+create function pg_temp.qa_host() returns uuid language sql stable as $$ select current_setting('qa.host_id')::uuid $$;
+create function pg_temp.qa_guest() returns uuid language sql stable as $$ select current_setting('qa.guest_id')::uuid $$;
+insert into auth.users(id) values(pg_temp.qa_host()),(pg_temp.qa_guest());
+insert into public.profiles(id,first_name,onboarding_completed_at,category_status,playing_category)
+values(pg_temp.qa_host(),'Rollback host',now(),'known',6),(pg_temp.qa_guest(),'Rollback guest',now(),'known',6);
+insert into public.organizers(profile_id,display_name) values(pg_temp.qa_host(),'Rollback host');
+insert into public.venues(id,created_by,name,address) values('df100000-0000-4000-8000-000000000001',pg_temp.qa_host(),'Discover SQL QA','DiscoverTestCity');
+insert into public.session_series(id,organizer_id,draft_input) values('df200000-0000-4000-8000-000000000001',pg_temp.qa_host(),'{}');
 insert into public.sessions(id,organizer_id,series_id,occurrence_date,venue_id,title,capacity,price_minor,starts_at,ends_at,status,visibility,waitlist_enabled,waitlist_capacity,allowed_categories,cancelled_at,completed_at)
-select ('df300000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'1bce2362-4dcd-47e7-a885-fa55fc7cd773','df200000-0000-4000-8000-000000000001',current_date+n,'df100000-0000-4000-8000-000000000001','Discovery QA '||n,1,1000,case when n=8 then now()-interval '1 hour' else now()+n*interval '1 day' end,case when n=8 then now()+interval '30 minutes' else now()+n*interval '1 day'+interval '90 minutes' end,case when n=7 then 'cancelled' when n=9 then 'completed' else 'published' end,case when n=2 then 'private' else 'public' end,n in (4,5),1,array[6,7],case when n=7 then now() end,case when n=9 then now() end from generate_series(1,10)n;
+select ('df300000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,pg_temp.qa_host(),'df200000-0000-4000-8000-000000000001',current_date+n,'df100000-0000-4000-8000-000000000001','Discovery QA '||n,1,1000,case when n=8 then now()-interval '1 hour' else now()+n*interval '1 day' end,case when n=8 then now()+interval '30 minutes' else now()+n*interval '1 day'+interval '90 minutes' end,case when n=7 then 'cancelled' when n=9 then 'completed' else 'published' end,case when n=2 then 'private' else 'public' end,n in (4,5),1,array[6,7],case when n=7 then now() end,case when n=9 then now() end from generate_series(1,10)n;
 update public.sessions set registration_closes_at=now() where id='df300000-0000-4000-8000-000000000003';
 update public.sessions set registration_opens_at=now()+interval '1 day' where id='df300000-0000-4000-8000-000000000006';
-insert into public.registrations(session_id,player_id,status,confirmed_at) select id,'f8cba57d-ee0a-46a6-b3c5-f1aca57c9c26','confirmed',now() from public.sessions where id in ('df300000-0000-4000-8000-000000000004','df300000-0000-4000-8000-000000000005','df300000-0000-4000-8000-000000000010');
-insert into public.registrations(session_id,player_id,status) values('df300000-0000-4000-8000-000000000005','1bce2362-4dcd-47e7-a885-fa55fc7cd773','waitlisted');
+insert into public.registrations(session_id,player_id,status,confirmed_at) select id,pg_temp.qa_guest(),'confirmed',now() from public.sessions where id in ('df300000-0000-4000-8000-000000000004','df300000-0000-4000-8000-000000000005','df300000-0000-4000-8000-000000000010');
+insert into public.registrations(session_id,player_id,status) values('df300000-0000-4000-8000-000000000005',pg_temp.qa_host(),'waitlisted');
 set local role anon;
 select set_config('request.jwt.claim.sub','',true);
 do $$ declare x jsonb; begin
@@ -30,7 +39,7 @@ end $$;
 
 reset role;
 set local role authenticated;
-select set_config('request.jwt.claim.sub','f8cba57d-ee0a-46a6-b3c5-f1aca57c9c26',true);
+select set_config('request.jwt.claim.sub',pg_temp.qa_guest()::text,true);
 do $$ declare x jsonb; begin
  x:=public.discover_sessions('DiscoverTestCity');
  assert jsonb_array_length(x->'sessions')=4,'Own confirmed full sessions remain visible';
@@ -38,7 +47,7 @@ do $$ declare x jsonb; begin
 end $$;
 reset role;
 set local role authenticated;
-select set_config('request.jwt.claim.sub','1bce2362-4dcd-47e7-a885-fa55fc7cd773',true);
+select set_config('request.jwt.claim.sub',pg_temp.qa_host()::text,true);
 do $$ declare x jsonb; begin
  x:=public.discover_sessions('DiscoverTestCity');
  assert jsonb_array_length(x->'sessions')=4,'Host sees own full public sessions but not private or closed';

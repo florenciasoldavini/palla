@@ -1,9 +1,18 @@
--- All writes roll back; existing test profiles only.
+-- All account and session fixtures roll back.
 begin;
+-- Isolated identities generated for this transaction; never reuse real accounts.
+select set_config('qa.host_id',gen_random_uuid()::text,true);
+select set_config('qa.guest_id',gen_random_uuid()::text,true);
+create function pg_temp.qa_host() returns uuid language sql stable as $$ select current_setting('qa.host_id')::uuid $$;
+create function pg_temp.qa_guest() returns uuid language sql stable as $$ select current_setting('qa.guest_id')::uuid $$;
+insert into auth.users(id) values(pg_temp.qa_host()),(pg_temp.qa_guest());
+insert into public.profiles(id,first_name,onboarding_completed_at,category_status,playing_category)
+values(pg_temp.qa_host(),'Rollback host',now(),'known',6),(pg_temp.qa_guest(),'Rollback guest',now(),'known',6);
+insert into public.organizers(profile_id,display_name) values(pg_temp.qa_host(),'Rollback host');
 create function pg_temp.coverage_rejected(statement text) returns void language plpgsql as $$
 begin begin execute statement; exception when others then return; end;raise exception 'Expected coverage rejection: %',statement;end $$;
 set local role authenticated;
-select set_config('request.jwt.claim.sub','1bce2362-4dcd-47e7-a885-fa55fc7cd773',true);
+select set_config('request.jwt.claim.sub',pg_temp.qa_host()::text,true);
 do $$ declare input jsonb;version timestamptz;v uuid;first_id uuid;second_id uuid;response jsonb;begin
  input:=jsonb_build_object('title','Coverage rollback','venueId','','venueName','Coverage rollback club','venueAddress','CoverageRollbackCity 123','courtLabel','Court 1','date',to_char(current_date+14,'YYYY-MM-DD'),'lastDate',to_char(current_date+28,'YYYY-MM-DD'),'startTime','19:00','endTime','20:30','repeat','weekly','capacity','4','price','0','description','','courtConfirmed',true,'categoryMode','all','registrationHours','2','cancellationHours','0',
  'settings',jsonb_build_object('visibility','public','allowed_categories',null,'waitlist_enabled',false,'waitlist_promotion_mode','automatic','waitlist_capacity',null,'registration_opens_minutes_before',null,'registration_closes_minutes_before',120,'cancellation_notice_minutes',0),
@@ -46,9 +55,9 @@ do $$ declare v uuid;begin
  update public.venues set court_coverage='{}' where id=v;
  assert (select count(*) from public.sessions where venue_id=v and court_coverage='uncovered')=3,'Changing venue does not rewrite session history';
 end $$;
-insert into public.organizers(profile_id,display_name) values('f8cba57d-ee0a-46a6-b3c5-f1aca57c9c26','Coverage rollback host B') on conflict(profile_id) do nothing;
+insert into public.organizers(profile_id,display_name) values(pg_temp.qa_guest(),'Coverage rollback host B') on conflict(profile_id) do nothing;
 set local role authenticated;
-select set_config('request.jwt.claim.sub','f8cba57d-ee0a-46a6-b3c5-f1aca57c9c26',true);
+select set_config('request.jwt.claim.sub',pg_temp.qa_guest()::text,true);
 do $$ declare v uuid;begin
  select id into v from public.venues where name='Coverage rollback club';
  perform pg_temp.coverage_rejected(format('select private.prepare_court_coverage(%L,%L::jsonb,null)',v,'{"venueCourtCoverageEdited":true,"venueCourtCoverage":["covered"],"venueCourtCoverageBaseline":[]}'));
