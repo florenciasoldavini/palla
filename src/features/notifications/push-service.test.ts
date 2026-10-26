@@ -4,8 +4,11 @@ const mock = vi.hoisted(() => ({
     executionEnvironment: "bare",
     easConfig: { projectId: "palla-project" }
   },
-  getItem: vi.fn(async () => "installation"),
+  getItem: vi.fn(
+    async (_key: string): Promise<string | null> => "installation"
+  ),
   setItem: vi.fn(),
+  deleteItem: vi.fn(),
   register: vi.fn(),
   unregister: vi.fn(),
   permissions: vi.fn(),
@@ -19,6 +22,7 @@ vi.mock("react-native", () => ({ Platform: { OS: "android" } }));
 vi.mock("expo-constants", () => ({ default: mock.constants }));
 vi.mock("expo-secure-store", () => ({
   getItemAsync: mock.getItem,
+  deleteItemAsync: mock.deleteItem,
   setItemAsync: mock.setItem
 }));
 vi.mock("expo-crypto", () => ({ randomUUID: () => "new-installation" }));
@@ -39,6 +43,10 @@ vi.mock("expo-notifications", () => ({
 beforeEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
+  mock.getItem.mockImplementation(async (key: string) =>
+    key === "palla-push-installation-v1" ? "installation" : null
+  );
+  mock.unregister.mockResolvedValue(undefined);
   mock.constants.executionEnvironment = "bare";
   mock.permissions.mockResolvedValue({ granted: true });
   mock.token.mockResolvedValue({ data: "ExpoPushToken[fake]" });
@@ -93,4 +101,24 @@ describe("push installation lifecycle", () => {
     expect(mock.unregister).toHaveBeenCalledWith("installation");
     expect(mock.dismiss).toHaveBeenCalled();
   });
+});
+
+it("retains failed revocations and retries before registering again", async () => {
+  const service = await import("./services/push.service");
+  mock.unregister.mockRejectedValueOnce(Error("offline"));
+  await expect(service.unregisterCurrentPushDevice()).rejects.toThrow(
+    "offline"
+  );
+  expect(mock.setItem).toHaveBeenCalledWith(
+    "palla-push-pending-revocation-v1",
+    "installation"
+  );
+  expect(mock.deleteItem).not.toHaveBeenCalled();
+  mock.getItem.mockResolvedValue("installation");
+  await service.registerCurrentPushDevice("actor", () => true);
+  expect(mock.unregister).toHaveBeenCalledTimes(2);
+  expect(mock.deleteItem).toHaveBeenCalledWith(
+    "palla-push-pending-revocation-v1"
+  );
+  expect(mock.deleteItem).toHaveBeenCalledBefore(mock.register);
 });

@@ -5,6 +5,7 @@ import {
   supabase
 } from "@/lib/supabase";
 import { Sentry } from "@/lib/sentry";
+import { endAccountSession } from "./services/logout.service";
 import {
   fetchAuthProfile,
   persistUserProfile,
@@ -118,13 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   const logOut = async () => {
     if (supabase) {
-      // Revoke this installation before discarding the session used to authorize cleanup.
-      await unregisterCurrentPushDevice();
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        setAuthError(getSupabaseErrorMessage(error));
-        throw error;
-      }
+      await endAccountSession(supabase.auth, unregisterCurrentPushDevice);
     }
     setSession(null);
     setAuthError(null);
