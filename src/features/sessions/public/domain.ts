@@ -95,11 +95,16 @@ export function canCancelRegistration(s: PublicSession, now = Date.now()) {
 }
 
 export function canJoinWaitlist(s: PublicSession, now = Date.now()) {
+  const state = publicSessionState(s, now);
   return (
-    publicSessionState(s, now) === "full" &&
+    (state === "full" || (state === "available" && s.waitlisted_count > 0)) &&
     s.waitlist_enabled &&
     (s.waitlist_capacity === null || s.waitlisted_count < s.waitlist_capacity)
   );
+}
+
+export function canJoinSession(s: PublicSession, now = Date.now()) {
+  return publicSessionState(s, now) === "available" && s.waitlisted_count === 0;
 }
 export function canLeaveWaitlist(s: PublicSession, now = Date.now()) {
   return (

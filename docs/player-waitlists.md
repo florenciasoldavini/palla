@@ -34,3 +34,11 @@ No new product tables or historical backfill are added. Public detail exposes on
 - Temporary occupancy fixtures used only the existing test accounts; no additional accounts were created. Fixture registrations filled the session, and releasing them provided the promotion opening. All temporary sessions, registrations, venues, notifications and cascading outbox jobs were removed.
 - Checked disabled full-queue actions on both platforms and role-specific settings. No text input or keyboard is introduced. Screenshots: ignored `.impeccable/review/native/player-waitlist/`. Safe no-write preview states: `/sessions-preview/public-session?state=waitlist|waitlist-full|waitlisted`.
 - Actual foreground/background OS push delivery remains unverified pending the existing APNs/FCM setup; see [chat-push.md](chat-push.md). No new Supabase advisor findings.
+
+## Priority when a place opens
+
+An existing queue takes priority over new direct bookings, including in manual mode. When a player cancels, manual mode leaves the opening for the host to assign: newcomers join the end of the existing queue instead of taking that opening. A full or disabled queue does not allow bypassing the waiting players. With no waiting players, an available place can still be booked directly.
+
+Automatic promotion remains in the transaction that releases the place. New and returning queue entries also run first-eligible automatic filling, so an eligible returning player can be confirmed when earlier entries no longer meet the category rules. The session row lock serializes admission, cancellation, and promotion. Duplicate joins retain their existing registration and queue position.
+
+Session details and Explore use the same rule: reserved vacancies are offered as waitlist entry, not as direct spots. The paged `spots`, `waitlist`, and `joinable` discovery filters match admission. Migration: `20261026143512_waitlist_booking_priority.sql`; deploy it before releasing the matching app UI. Regression: `supabase/tests/waitlist-booking-priority.sql`. Native no-write preview states: `/sessions-preview/public-session?state=waitlist-priority|waitlist-priority-full|waitlist-priority-closed`.

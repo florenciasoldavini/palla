@@ -101,7 +101,7 @@ export function eligibleSession(s: DiscoverySession, now = Date.now()) {
 }
 export function waitlistOpen(s: DiscoverySession) {
   return (
-    s.confirmed_count >= s.capacity &&
+    (s.confirmed_count >= s.capacity || s.waitlisted_count > 0) &&
     s.waitlist_enabled &&
     (s.waitlist_capacity === null || s.waitlisted_count < s.waitlist_capacity)
   );
@@ -111,6 +111,8 @@ export function sessionStatus(s: DiscoverySession, now = Date.now()) {
   if (s.viewer_registration === "confirmed") return "Registered";
   if (s.viewer_registration === "waitlisted") return "Waitlisted";
   if (waitlistOpen(s)) return "Waitlist open";
+  if (s.waitlisted_count > 0)
+    return s.waitlist_enabled ? "Waitlist full" : "Waitlist closed";
   const spots = Math.max(0, s.capacity - s.confirmed_count);
   if (!spots) return "Full";
   if (Date.parse(s.starts_at) - now <= 3 * 3600000) {

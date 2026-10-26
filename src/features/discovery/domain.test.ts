@@ -95,3 +95,18 @@ describe("Discover eligibility and grouping", () => {
     expect(inBounds({ longitude: 0, latitude: 0 }, b)).toBe(false);
   });
 });
+
+it("does not advertise queued vacancies as directly available spots", () => {
+  const queued = { ...a, confirmed_count: 3, waitlisted_count: 1 };
+  expect(waitlistOpen(queued)).toBe(true);
+  expect(sessionStatus(queued, now)).toBe("Waitlist open");
+  expect(sessionStatus({ ...queued, waitlisted_count: 2 }, now)).toBe(
+    "Waitlist full"
+  );
+  expect(sessionStatus({ ...queued, waitlist_enabled: false }, now)).toBe(
+    "Waitlist closed"
+  );
+  expect(
+    sessionStatus({ ...queued, viewer_registration: "confirmed" }, now)
+  ).toBe("Registered");
+});

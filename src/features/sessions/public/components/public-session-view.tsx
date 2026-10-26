@@ -16,6 +16,7 @@ import {
   categoriesLabel,
   canCancelRegistration,
   canJoinWaitlist,
+  canJoinSession,
   canLeaveWaitlist,
   publicSessionState,
   type PublicSession
@@ -87,7 +88,10 @@ export function PublicSessionView({
     closed: "Registration closed",
     not_open: "Registration opens soon",
     full: "Session full",
-    available: `${remaining} ${remaining === 1 ? "spot" : "spots"} left`
+    available:
+      s.waitlisted_count > 0
+        ? "Waitlist has priority"
+        : `${remaining} ${remaining === 1 ? "spot" : "spots"} left`
   }[state];
   const price = new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -113,6 +117,7 @@ export function PublicSessionView({
   const waitlisted = s.viewer_registration === "waitlisted";
   const registered = s.viewer_registration === "confirmed" || waitlisted;
   const waitlistAvailable = canJoinWaitlist(s, now);
+  const waitlistPriority = state === "available" && s.waitlisted_count > 0;
   const cancelAllowed = waitlisted
     ? canLeaveWaitlist(s, now)
     : canCancelRegistration(s, now);
@@ -120,7 +125,7 @@ export function PublicSessionView({
     s.viewer_is_host ||
     (registered
       ? !cancelAllowed
-      : (state !== "available" && !waitlistAvailable) ||
+      : (!canJoinSession(s, now) && !waitlistAvailable) ||
         Boolean(s.viewer_registration));
   const action = s.viewer_is_host
     ? "You’re hosting"
@@ -136,11 +141,13 @@ export function PublicSessionView({
           : status
         : waitlistAvailable
           ? "Join waitlist"
-          : state === "full" && s.waitlist_enabled
+          : (state === "full" || waitlistPriority) && s.waitlist_enabled
             ? "Waitlist full"
-            : state === "available"
-              ? "Join session"
-              : status;
+            : waitlistPriority
+              ? "Waitlist closed"
+              : state === "available"
+                ? "Join session"
+                : status;
   return (
     <View style={{ flex: 1, backgroundColor: c.background }}>
       <PublicSessionHeader
@@ -262,6 +269,16 @@ export function PublicSessionView({
           paddingBottom: Math.max(insets.bottom, 16)
         }}
       >
+        {waitlistPriority && !registered && !s.viewer_is_host && (
+          <AppText
+            variant="bodySm"
+            tone="muted"
+            accessibilityLiveRegion="polite"
+            style={{ maxWidth: 560, alignSelf: "center", marginBottom: 12 }}
+          >
+            Players on the waitlist have priority for available places.
+          </AppText>
+        )}
         <View
           style={{
             width: "100%",
