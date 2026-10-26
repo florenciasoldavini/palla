@@ -106,6 +106,19 @@ Deno.serve(async (req) => {
       !/^[A-Za-z0-9+/]*={0,2}$/.test(input.base64)
     )
       return json({ error: "invalid_request" }, 400);
+    // Charge every processing attempt, including retries, before decoding JPEGs.
+    const preflight = await admin.rpc("authorize_chat_photo_processing", {
+      p_actor: actor,
+      p_conversation_id: input.conversation_id
+    });
+    if (preflight.error || preflight.data !== true)
+      return json(
+        {
+          error:
+            preflight.error?.code === "54000" ? "limit_reached" : "not_allowed"
+        },
+        preflight.error?.code === "54000" ? 429 : 403
+      );
     let bytes = Uint8Array.from(atob(input.base64), (c) => c.charCodeAt(0));
     let dimensions: { width: number; height: number };
     try {
