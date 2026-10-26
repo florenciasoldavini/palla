@@ -8,6 +8,7 @@ import {
 } from "../repositories/push.repository";
 
 const installationKey = "palla-push-installation-v1";
+const pendingRevocationKey = "palla-push-pending-revocation-v1";
 let installationPromise: Promise<string> | undefined;
 export function pushSupported() {
   return (
@@ -74,6 +75,13 @@ export function registerCurrentPushDevice(
         permission = await notifications.requestPermissionsAsync();
       if (!current() || version !== generation) return;
       const installation = await installationId();
+      const pendingRevocation =
+        await SecureStore.getItemAsync(pendingRevocationKey);
+      if (pendingRevocation) {
+        await unregisterPushDevice(pendingRevocation);
+        await SecureStore.deleteItemAsync(pendingRevocationKey);
+      }
+      if (!current() || version !== generation) return;
       if (
         !permission.granted &&
         permission.ios?.status !==
@@ -104,7 +112,11 @@ export async function unregisterCurrentPushDevice() {
   if (!pushSupported()) return;
   await pending;
   const installation = await SecureStore.getItemAsync(installationKey);
-  if (installation) await unregisterPushDevice(installation);
+  if (installation) {
+    await SecureStore.setItemAsync(pendingRevocationKey, installation);
+    await unregisterPushDevice(installation);
+    await SecureStore.deleteItemAsync(pendingRevocationKey);
+  }
   const notifications = await import("expo-notifications");
   await notifications.dismissAllNotificationsAsync();
   await notifications.clearLastNotificationResponseAsync();
