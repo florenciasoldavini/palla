@@ -1,3 +1,4 @@
+import { deliverWelcomeEmail, parseWelcomeName } from "./delivery.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.50.3";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 import { renderWelcomeToPallaEmail } from "../_shared/email/welcome-to-palla.tsx";
@@ -15,11 +16,6 @@ const appUrl =
   "https://palla.vercel.app";
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-type UserEmailState = {
-  first_name: string | null;
-  welcome_email_sent_at: string | null;
-};
 
 type AuthenticatedUser = {
   id: string;
@@ -126,111 +122,59 @@ async function handler(req: Request) {
     );
   }
 
-  const sentAt = new Date().toISOString();
-  const { data: claimedUser, error: claimError } = await adminSupabase
-    .from("profiles")
-    .update({ welcome_email_sent_at: sentAt })
-    .eq("id", authUser.id)
-    .is("welcome_email_sent_at", null)
-    .select("first_name, welcome_email_sent_at")
-    .maybeSingle();
-
-  const claimedEmailState = claimedUser as UserEmailState | null;
-
-  if (claimError) {
-    return jsonResponse(
-      { error: "Could not reserve welcome email state." },
-      { status: 500 }
-    );
-  }
-
-  if (!claimedEmailState) {
-    const { data: existingUser, error: existingUserError } = await adminSupabase
-      .from("profiles")
-      .select("first_name, welcome_email_sent_at")
-      .eq("id", authUser.id)
-      .maybeSingle();
-
-    const existingEmailState = existingUser as UserEmailState | null;
-
-    if (existingUserError) {
-      return jsonResponse(
-        { error: "Could not check welcome email state." },
-        { status: 500 }
-      );
-    }
-
-    if (!existingEmailState) {
-      return jsonResponse(
-        { error: "User profile was not found." },
-        { status: 404 }
-      );
-    }
-
-    if (existingEmailState.welcome_email_sent_at) {
-      return jsonResponse({
-        ok: true,
-        skipped: true,
-        welcome_email_sent_at: existingEmailState.welcome_email_sent_at
-      });
-    }
-
-    return jsonResponse(
-      { error: "Could not reserve welcome email state." },
-      { status: 409 }
-    );
-  }
-
-  let body: WelcomeRequestBody = {};
-
+  let requestedName: string | undefined;
   try {
-    body = (await req.json()) as WelcomeRequestBody;
+    requestedName = parseWelcomeName(await req.json());
   } catch {
-    body = {};
-  }
-
-  const name =
-    body.name?.trim() ||
-    claimedEmailState.first_name ||
-    getFirstName(authUser, body);
-
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": `welcome-to-palla-${authUser.id}`
-    },
-    body: JSON.stringify({
-      from: emailFrom,
-      to: authUser.email,
-      subject: "Welcome to Palla",
-      html: await renderWelcomeToPallaEmail({ appUrl, name }),
-      ...(emailReplyTo ? { reply_to: emailReplyTo } : {})
-    })
-  });
-
-  const result = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    await adminSupabase
-      .from("profiles")
-      .update({ welcome_email_sent_at: null })
-      .eq("id", authUser.id)
-      .eq("welcome_email_sent_at", sentAt);
-
     return jsonResponse(
-      { error: "Resend could not send the welcome email.", details: result },
-      { status: response.status }
+      { error: "Provide a valid name of up to 80 characters." },
+      { status: 400 }
     );
   }
-
-  return jsonResponse({
-    id: result.id,
-    ok: true,
-    skipped: false,
-    welcome_email_sent_at: sentAt
-  });
+  const rpc = async (name: string, args: Record<string, unknown>) => {
+    const { data, error } = await adminSupabase.rpc(name, args);
+    if (error) throw Error("Welcome email state unavailable");
+    return data;
+  };
+  try {
+    const result = await deliverWelcomeEmail({
+      claim: () =>
+        rpc("claim_welcome_email", {
+          p_actor: authUser.id,
+          p_name: (requestedName ?? getFirstName(authUser, {})).slice(0, 80)
+        }),
+      send: async (name) => {
+        const response = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          signal: AbortSignal.timeout(15000),
+          headers: {
+            Authorization: `Bearer ${resendApiKey}`,
+            "Content-Type": "application/json",
+            "Idempotency-Key": `welcome-to-palla-${authUser.id}`
+          },
+          body: JSON.stringify({
+            from: emailFrom,
+            to: authUser.email,
+            subject: "Welcome to Palla",
+            html: await renderWelcomeToPallaEmail({ appUrl, name }),
+            ...(emailReplyTo ? { reply_to: emailReplyTo } : {})
+          })
+        });
+        if (!response.ok) throw Error("Email provider unavailable");
+        return response.json();
+      },
+      finish: (token) =>
+        rpc("finish_welcome_email", { p_actor: authUser.id, p_token: token }),
+      release: (token) =>
+        rpc("release_welcome_email", { p_actor: authUser.id, p_token: token })
+    });
+    return jsonResponse(result);
+  } catch {
+    return jsonResponse(
+      { error: "Welcome email could not be sent. Please try again shortly." },
+      { status: 503 }
+    );
+  }
 }
 
 export default { fetch: handler };
