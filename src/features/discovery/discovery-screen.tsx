@@ -50,7 +50,12 @@ export default function DiscoveryScreen() {
     () => ({ ...filters, location: saved.location, city: saved.city }),
     [filters, saved.location, saved.city]
   );
-  const query = useDiscovery(applied, saved.ready && focused);
+  const [mapMode, setMapMode] = useState(false);
+  const query = useDiscovery(
+    applied,
+    saved.ready && focused,
+    mapMode ? "map" : "list"
+  );
   const sessions = useMemo(
     () => mergeDiscoveryPages(query.data?.pages ?? []),
     [query.data]
@@ -78,6 +83,9 @@ export default function DiscoveryScreen() {
   );
   return (
     <DiscoveryContent
+      mapMode={mapMode}
+      onMapChange={setMapMode}
+      mapTruncated={mapMode && !!query.data?.pages[0]?.has_more}
       filters={applied}
       onFilters={setFilters}
       onLocation={saved.changeLocation}
@@ -108,8 +116,14 @@ export function DiscoveryContent({
   loadMoreError = false,
   refreshError = false,
   loadMore,
-  preview = false
+  preview = false,
+  mapMode,
+  onMapChange,
+  mapTruncated = false
 }: {
+  mapMode?: boolean;
+  onMapChange?: (map: boolean) => void;
+  mapTruncated?: boolean;
   filters: DiscoveryFilters;
   onFilters: (f: DiscoveryFilters) => void;
   onLocation: (city: DiscoveryCity) => Promise<void> | void;
@@ -156,30 +170,12 @@ export function DiscoveryContent({
   const { user } = useContext(AuthContext);
   const [draft, setDraft] = useState(filters.search),
     [locationOpen, setLocationOpen] = useState(false),
-    [map, setMap] = useState(false);
-  useEffect(() => {
-    if (
-      map &&
-      hasMore &&
-      !loadingMore &&
-      !loadMoreError &&
-      !loading &&
-      !refreshing &&
-      !refreshError &&
-      !error
-    )
-      loadMore?.();
-  }, [
-    map,
-    hasMore,
-    loadingMore,
-    loadMoreError,
-    refreshError,
-    loading,
-    refreshing,
-    error,
-    loadMore
-  ]);
+    [localMap, setLocalMap] = useState(false);
+  const map = mapMode ?? localMap;
+  const setMap = (next: boolean) => {
+    setLocalMap(next);
+    onMapChange?.(next);
+  };
   const locationLabel = filters.bounds
     ? "Map area"
     : filters.radius === "any"
@@ -500,6 +496,7 @@ export function DiscoveryContent({
             <DiscoveryMapPanel
               key={`${filters.city?.id ?? filters.location}:${mapRevision}`}
               sessions={shown}
+              truncated={mapTruncated}
               center={
                 filters.radius !== "any" && filters.origin
                   ? filters.origin
@@ -574,7 +571,7 @@ export function DiscoveryContent({
             color="neutral"
             onPress={() => {
               Keyboard.dismiss();
-              setMap((v) => !v);
+              setMap(!map);
             }}
             accessibilityLabel={map ? "Show session list" : "Show session map"}
           />

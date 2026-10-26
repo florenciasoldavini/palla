@@ -20,8 +20,10 @@ export function DiscoveryMapPanel({
   errorMessage = "Couldn’t update this area.",
   onRetry,
   center,
-  initialBounds
+  initialBounds,
+  truncated = false
 }: {
+  truncated?: boolean;
   sessions: DiscoverySession[];
   onArea: (bounds: Bounds) => void;
   onOpen: (id: string) => void;
@@ -106,7 +108,12 @@ export function DiscoveryMapPanel({
           if (first) setSelected(first.id);
         }}
       />
-      {(!loaded || searching || error || failed || !points.length) && (
+      {(!loaded ||
+        searching ||
+        error ||
+        failed ||
+        !points.length ||
+        truncated) && (
         <View
           pointerEvents="box-none"
           style={{
@@ -153,6 +160,10 @@ export function DiscoveryMapPanel({
                   {loaded ? "Searching this area…" : "Loading map…"}
                 </AppText>
               </>
+            ) : truncated ? (
+              <AppText variant="bodySm" accessibilityLiveRegion="polite">
+                Showing the first 50 sessions. Zoom in to see more in this area.
+              </AppText>
             ) : (
               <AppText variant="bodySm" accessibilityLiveRegion="polite">
                 No sessions in this area. Move the map or change filters.
