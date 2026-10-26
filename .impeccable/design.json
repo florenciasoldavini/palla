@@ -1,0 +1,864 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T14:41:32.994981+00:00",
+  "title": "Design System: Palla",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "canvas",
+        "tonalRamp": [
+          "#dad9e3",
+          "#e3e1ec",
+          "#e8e7f1",
+          "#eeedf7",
+          "#f4f2fd",
+          "#fbf8ff",
+          "#ffffff"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "surface",
+        "tonalRamp": [
+          "#dad9e3",
+          "#e3e1ec",
+          "#e8e7f1",
+          "#eeedf7",
+          "#f4f2fd",
+          "#fbf8ff",
+          "#ffffff"
+        ]
+      },
+      "surface-low": {
+        "role": "neutral",
+        "displayName": "surface low",
+        "tonalRamp": [
+          "#dad9e3",
+          "#e3e1ec",
+          "#e8e7f1",
+          "#eeedf7",
+          "#f4f2fd",
+          "#fbf8ff",
+          "#ffffff"
+        ]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "surface raised",
+        "tonalRamp": [
+          "#dad9e3",
+          "#e3e1ec",
+          "#e8e7f1",
+          "#eeedf7",
+          "#f4f2fd",
+          "#fbf8ff",
+          "#ffffff"
+        ]
+      },
+      "surface-strong": {
+        "role": "neutral",
+        "displayName": "surface strong",
+        "tonalRamp": [
+          "#dad9e3",
+          "#e3e1ec",
+          "#e8e7f1",
+          "#eeedf7",
+          "#f4f2fd",
+          "#fbf8ff",
+          "#ffffff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "ink",
+        "tonalRamp": [
+          "#0d0e12",
+          "#1a1b22",
+          "#2f3038",
+          "#3a3b43",
+          "#444932",
+          "#5e5e5e",
+          "#c5c9ac",
+          "#f1effa"
+        ]
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "text secondary",
+        "tonalRamp": [
+          "#0d0e12",
+          "#1a1b22",
+          "#2f3038",
+          "#3a3b43",
+          "#444932",
+          "#5e5e5e",
+          "#c5c9ac",
+          "#f1effa"
+        ]
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "text muted",
+        "tonalRamp": [
+          "#0d0e12",
+          "#1a1b22",
+          "#2f3038",
+          "#3a3b43",
+          "#444932",
+          "#5e5e5e",
+          "#c5c9ac",
+          "#f1effa"
+        ]
+      },
+      "text-inverse": {
+        "role": "neutral",
+        "displayName": "text inverse",
+        "tonalRamp": [
+          "#0d0e12",
+          "#1a1b22",
+          "#2f3038",
+          "#3a3b43",
+          "#444932",
+          "#5e5e5e",
+          "#c5c9ac",
+          "#f1effa"
+        ]
+      },
+      "border-subtle": {
+        "role": "neutral",
+        "displayName": "border subtle",
+        "tonalRamp": [
+          "#dad9e3",
+          "#e3e1ec",
+          "#e8e7f1",
+          "#eeedf7",
+          "#f4f2fd",
+          "#fbf8ff",
+          "#ffffff"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "border",
+        "tonalRamp": [
+          "#0d0e12",
+          "#1a1b22",
+          "#2f3038",
+          "#3a3b43",
+          "#444932",
+          "#5e5e5e",
+          "#c5c9ac",
+          "#f1effa"
+        ]
+      },
+      "border-strong": {
+        "role": "neutral",
+        "displayName": "border strong",
+        "tonalRamp": [
+          "#0d0e12",
+          "#1a1b22",
+          "#2f3038",
+          "#3a3b43",
+          "#444932",
+          "#5e5e5e",
+          "#c5c9ac",
+          "#f1effa"
+        ]
+      },
+      "olive": {
+        "role": "primary",
+        "displayName": "olive",
+        "tonalRamp": [
+          "#171e00",
+          "#3e4c00",
+          "#536600",
+          "#6f8400",
+          "#b0d500",
+          "#d4ff00",
+          "#efffa8",
+          "#f7ffd5"
+        ]
+      },
+      "olive-hover": {
+        "role": "primary",
+        "displayName": "olive hover",
+        "tonalRamp": [
+          "#171e00",
+          "#3e4c00",
+          "#536600",
+          "#6f8400",
+          "#b0d500",
+          "#d4ff00",
+          "#efffa8",
+          "#f7ffd5"
+        ]
+      },
+      "olive-pressed": {
+        "role": "primary",
+        "displayName": "olive pressed",
+        "tonalRamp": [
+          "#171e00",
+          "#3e4c00",
+          "#536600",
+          "#6f8400",
+          "#b0d500",
+          "#d4ff00",
+          "#efffa8",
+          "#f7ffd5"
+        ]
+      },
+      "lime": {
+        "role": "primary",
+        "displayName": "lime",
+        "tonalRamp": [
+          "#171e00",
+          "#3e4c00",
+          "#536600",
+          "#6f8400",
+          "#b0d500",
+          "#d4ff00",
+          "#efffa8",
+          "#f7ffd5"
+        ]
+      },
+      "lime-hover": {
+        "role": "primary",
+        "displayName": "lime hover",
+        "tonalRamp": [
+          "#171e00",
+          "#3e4c00",
+          "#536600",
+          "#6f8400",
+          "#b0d500",
+          "#d4ff00",
+          "#efffa8",
+          "#f7ffd5"
+        ]
+      },
+      "lime-pressed": {
+        "role": "primary",
+        "displayName": "lime pressed",
+        "tonalRamp": [
+          "#171e00",
+          "#3e4c00",
+          "#536600",
+          "#6f8400",
+          "#b0d500",
+          "#d4ff00",
+          "#efffa8",
+          "#f7ffd5"
+        ]
+      },
+      "lime-ink": {
+        "role": "primary",
+        "displayName": "lime ink",
+        "tonalRamp": [
+          "#171e00",
+          "#3e4c00",
+          "#536600",
+          "#6f8400",
+          "#b0d500",
+          "#d4ff00",
+          "#efffa8",
+          "#f7ffd5"
+        ]
+      },
+      "selection-lime": {
+        "role": "primary",
+        "displayName": "selection lime",
+        "tonalRamp": [
+          "#171e00",
+          "#3e4c00",
+          "#536600",
+          "#6f8400",
+          "#b0d500",
+          "#d4ff00",
+          "#efffa8",
+          "#f7ffd5"
+        ]
+      },
+      "ink-hover": {
+        "role": "neutral",
+        "displayName": "ink hover",
+        "tonalRamp": [
+          "#0d0e12",
+          "#1a1b22",
+          "#2f3038",
+          "#3a3b43",
+          "#444932",
+          "#5e5e5e",
+          "#c5c9ac",
+          "#f1effa"
+        ]
+      },
+      "ink-pressed": {
+        "role": "neutral",
+        "displayName": "ink pressed",
+        "tonalRamp": [
+          "#0d0e12",
+          "#1a1b22",
+          "#2f3038",
+          "#3a3b43",
+          "#444932",
+          "#5e5e5e",
+          "#c5c9ac",
+          "#f1effa"
+        ]
+      },
+      "error": {
+        "role": "neutral",
+        "displayName": "error",
+        "tonalRamp": [
+          "#2a0003",
+          "#4a0005",
+          "#6f0007",
+          "#93000a",
+          "#ba1a1a",
+          "#ff8a80",
+          "#ffdad6",
+          "#fff1ef"
+        ]
+      },
+      "error-text": {
+        "role": "neutral",
+        "displayName": "error text",
+        "tonalRamp": [
+          "#2a0003",
+          "#4a0005",
+          "#6f0007",
+          "#93000a",
+          "#ba1a1a",
+          "#ff8a80",
+          "#ffdad6",
+          "#fff1ef"
+        ]
+      },
+      "error-surface": {
+        "role": "neutral",
+        "displayName": "error surface",
+        "tonalRamp": [
+          "#2a0003",
+          "#4a0005",
+          "#6f0007",
+          "#93000a",
+          "#ba1a1a",
+          "#ff8a80",
+          "#ffdad6",
+          "#fff1ef"
+        ]
+      },
+      "success": {
+        "role": "neutral",
+        "displayName": "success",
+        "tonalRamp": [
+          "#102b1b",
+          "#1a4329",
+          "#245e3a",
+          "#2f7a4c",
+          "#4a9b69",
+          "#94cda3",
+          "#dcefe1",
+          "#eef9f1"
+        ]
+      },
+      "success-text": {
+        "role": "neutral",
+        "displayName": "success text",
+        "tonalRamp": [
+          "#102b1b",
+          "#1a4329",
+          "#245e3a",
+          "#2f7a4c",
+          "#4a9b69",
+          "#94cda3",
+          "#dcefe1",
+          "#eef9f1"
+        ]
+      },
+      "success-surface": {
+        "role": "neutral",
+        "displayName": "success surface",
+        "tonalRamp": [
+          "#102b1b",
+          "#1a4329",
+          "#245e3a",
+          "#2f7a4c",
+          "#4a9b69",
+          "#94cda3",
+          "#dcefe1",
+          "#eef9f1"
+        ]
+      },
+      "warning": {
+        "role": "neutral",
+        "displayName": "warning",
+        "tonalRamp": [
+          "#37240d",
+          "#533714",
+          "#704b1d",
+          "#8f6126",
+          "#c88d3d",
+          "#e4b87e",
+          "#f6e7d4",
+          "#fdf5ec"
+        ]
+      },
+      "warning-text": {
+        "role": "neutral",
+        "displayName": "warning text",
+        "tonalRamp": [
+          "#37240d",
+          "#533714",
+          "#704b1d",
+          "#8f6126",
+          "#c88d3d",
+          "#e4b87e",
+          "#f6e7d4",
+          "#fdf5ec"
+        ]
+      },
+      "warning-surface": {
+        "role": "neutral",
+        "displayName": "warning surface",
+        "tonalRamp": [
+          "#37240d",
+          "#533714",
+          "#704b1d",
+          "#8f6126",
+          "#c88d3d",
+          "#e4b87e",
+          "#f6e7d4",
+          "#fdf5ec"
+        ]
+      },
+      "info-surface": {
+        "role": "neutral",
+        "displayName": "info surface",
+        "tonalRamp": [
+          "#0c153d",
+          "#152769",
+          "#203a99",
+          "#2d51d1",
+          "#5e84ff",
+          "#b6c4ff",
+          "#e3e6ff",
+          "#f3f6ff"
+        ]
+      },
+      "info-text": {
+        "role": "neutral",
+        "displayName": "info text",
+        "tonalRamp": [
+          "#0c153d",
+          "#152769",
+          "#203a99",
+          "#2d51d1",
+          "#5e84ff",
+          "#b6c4ff",
+          "#e3e6ff",
+          "#f3f6ff"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "hero": {
+        "displayName": "hero",
+        "purpose": "Shared source typography role."
+      },
+      "title": {
+        "displayName": "title",
+        "purpose": "Shared source typography role."
+      },
+      "section": {
+        "displayName": "section",
+        "purpose": "Shared source typography role."
+      },
+      "card": {
+        "displayName": "card",
+        "purpose": "Shared source typography role."
+      },
+      "onboardingTitle": {
+        "displayName": "onboardingTitle",
+        "purpose": "Approved account onboarding role."
+      },
+      "onboardingRole": {
+        "displayName": "onboardingRole",
+        "purpose": "Approved account onboarding role."
+      },
+      "bodyMd": {
+        "displayName": "bodyMd",
+        "purpose": "Shared source typography role."
+      },
+      "bodySm": {
+        "displayName": "bodySm",
+        "purpose": "Shared source typography role."
+      },
+      "caption": {
+        "displayName": "caption",
+        "purpose": "Shared source typography role."
+      },
+      "meta": {
+        "displayName": "meta",
+        "purpose": "Shared source typography role."
+      },
+      "label": {
+        "displayName": "label",
+        "purpose": "Shared source typography role."
+      },
+      "buttonSm": {
+        "displayName": "buttonSm",
+        "purpose": "Shared source typography role."
+      },
+      "buttonMd": {
+        "displayName": "buttonMd",
+        "purpose": "Shared source typography role."
+      },
+      "buttonLg": {
+        "displayName": "buttonLg",
+        "purpose": "Shared source typography role."
+      },
+      "navigationLabel": {
+        "displayName": "Navigation label",
+        "purpose": "Persistent role tab labels; regular at rest, semibold when selected."
+      },
+      "navigationLabelActive": {
+        "displayName": "Selected navigation label",
+        "purpose": "Selected role destination."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0px 1px 2px rgba(26, 27, 34, 0.04)",
+        "purpose": "Shared elevation token; use only where component semantics require it."
+      },
+      {
+        "name": "raised",
+        "value": "0px 8px 24px rgba(26, 27, 34, 0.05)",
+        "purpose": "Raised card tone."
+      },
+      {
+        "name": "floating",
+        "value": "0px 20px 40px rgba(26, 27, 34, 0.06)",
+        "purpose": "Shared elevation token; use only where component semantics require it."
+      }
+    ],
+    "motion": [
+      {
+        "name": "enter",
+        "value": "160ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "exit",
+        "value": "100ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "focus",
+        "value": "120ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "layout",
+        "value": "160ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "pressIn",
+        "value": "100ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "pressOut",
+        "value": "120ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "progress",
+        "value": "650ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "scan",
+        "value": "1800ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "thumb",
+        "value": "160ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "splashFade",
+        "value": "160ms",
+        "purpose": "Shared source duration."
+      },
+      {
+        "name": "measured",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Shared interaction easing."
+      },
+      {
+        "name": "buttonPressed",
+        "value": 0.98,
+        "purpose": "Shared button press scale."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet",
+        "value": "768px"
+      },
+      {
+        "name": "desktop",
+        "value": "1280px"
+      }
+    ],
+    "organizerSessions": {
+      "status": "Functional implementation follows the approved flow; visual refinement deferred. Existing normative tokens and component previews preserved.",
+      "composition": "Existing cards, segmented tabs, skeletons, empty states, fields, buttons, and selectable chips support inventory and three-step editing. Native date/time and select controls use FieldTrigger surfaces matching TextField; date/time triggers expose selected accessibility values. Native selects open scrollable option sheets without measuring the trigger; iOS date/time uses a full-width native spinner sheet and Android native dialogs. Review separates schedule, players/price, and deadlines. Header and paired time/category fields stack above a 1.2 font scale. Shared text inputs and textareas expose meaningful accessibilityLabel/aria-label values.",
+      "confirmation": "White, scrollable native bottom sheet with rounded top corners, safe-area padding, danger confirmation and bordered keep action. Cancellation reason uses the shared bordered textarea. Busy state prevents dismissal; errors remain inline.",
+      "scope": "One/future editing and cancellation show calculated occurrence counts and date ranges. Loaded form/version snapshots remain pinned through background refresh.",
+      "sources": [
+        "src/features/sessions/screens/organizer-sessions-screen.tsx",
+        "src/features/sessions/screens/session-editor-screen.tsx",
+        "src/features/sessions/components/session-form.tsx",
+        "src/features/sessions/components/session-review.tsx",
+        "src/features/sessions/components/session-datetime-field.native.tsx",
+        "src/features/sessions/components/session-confirmation.tsx",
+        "src/components/atoms/textarea.tsx",
+        "docs/organizer-sessions.md",
+        "src/components/atoms/input.tsx",
+        "docs/native-testing.md",
+        "src/components/atoms/field-trigger.tsx",
+        "src/components/atoms/select-menu.tsx",
+        "src/features/venues/components/address-field.tsx",
+        "docs/google-address-search.md"
+      ],
+      "reviewedCaptures": [
+        ".impeccable/review/native/sessions/players-ios.png",
+        ".impeccable/review/native/sessions/review-ios.png",
+        ".impeccable/review/native/sessions/cancel-ios.png",
+        ".impeccable/review/native/sessions/players-android.png",
+        ".impeccable/review/native/sessions/live-list-ios.png",
+        ".impeccable/review/native/sessions/live-cancel-ios.png",
+        ".impeccable/review/native/sessions/large-text-ios.png",
+        ".impeccable/review/native/sessions/discard-large-text-ios.png",
+        ".impeccable/review/native/sessions/cancel-reason-input-ios.png",
+        ".impeccable/review/native/sessions/live-list-android.png",
+        ".impeccable/review/native/sessions/live-edit-review-android.png",
+        ".impeccable/review/native/sessions/live-edited-list-android.png",
+        ".impeccable/review/native/sessions/live-cancel-android.png",
+        ".impeccable/review/native/sessions/live-past-android.png",
+        ".impeccable/review/native/sessions/fields-fixed-ios.png",
+        ".impeccable/review/native/sessions/picker-fields-fixed-android.png",
+        ".impeccable/review/native/sessions/time-picker-fixed-ios.png",
+        ".impeccable/review/native/sessions/select-fixed-ios.png",
+        ".impeccable/review/native/sessions/select-fixed-android.png",
+        ".impeccable/review/native/sessions/google-search-live-ios.png",
+        ".impeccable/review/native/sessions/google-selected-live-ios.png",
+        ".impeccable/review/native/sessions/google-search-live-android.png",
+        ".impeccable/review/native/sessions/google-selected-live-android.png"
+      ],
+      "verificationLimits": "iPhone 17 Pro/iOS 26.5 and Pixel_8/Android 17, Expo Go SDK 54. Software-keyboard avoidance, VoiceOver/TalkBack traversal, Android large text, tablets, restart persistence and live native weekly publication remain unverified. Weekly recurrence covered in SQL fixture rather than live native flow. Fixture reports do not establish account writes; authenticated reports cover bounded single-occurrence flows. Scoped checks do not establish complete native acceptance. Visual refinement remains deferred.",
+      "deferred": [
+        "registrations and attendance",
+        "notification delivery",
+        "visual refinement"
+      ],
+      "reports": [
+        ".impeccable/review/native/sessions/ios-report.json",
+        ".impeccable/review/native/sessions/android-report.json",
+        ".impeccable/review/native/sessions/ios-live-report.json",
+        ".impeccable/review/native/sessions/android-live-report.json",
+        ".impeccable/review/native/sessions/controls-fixed-ios.json",
+        ".impeccable/review/native/sessions/controls-fixed-android.json",
+        ".impeccable/review/native/sessions/google-live-report.json"
+      ],
+      "verification": "Seven no-write fixture checks passed on each native platform. Authenticated iOS publish, query/list reload, edit save, and cancel passed. Additional iOS accessibility-medium layout, Back/Keep/Discard and reason entry/Keep recovery passed. npm run verify passed with 43 unit tests and existing lint warnings. Authenticated Android exact input, single-occurrence publication, inventory reload, capacity 8-to-9 edit, Keep session recovery, cancellation and retained Past history passed. Connected read-only database QA handoff confirms Android capacity 9 and iOS capacity 8, both cancelled.",
+      "addressSearch": {
+        "scope": "Manual club name and saved-venue reuse; Argentina street-address predictions biased to Buenos Aires, with loading, no matches, Google Maps attribution, and manual-entry recovery. Authenticated places-address Edge Function deployed with trusted organizer authorization and private durable per-organizer 30/minute, 300/UTC-day quotas and an app-wide 9,000/month total across autocomplete/details combined. Monthly exhaustion keeps manual full-address entry available.",
+        "setup": "Google Cloud palla-502717 billing active; Places API (New) enabled; API-restricted key stored as Supabase GOOGLE_PLACES_API_KEY, outside repo/client. Applied provider quotas: 250 AutocompletePlacesRequest/day and 250 GetPlaceRequest/day. User-approved configuration complete; approval blockers resolved. Combined 9,000/month proxy cap active. See docs/google-address-search.md.",
+        "verification": "Actual predictions, Google Maps attribution, formatted-address resolution/selection and local form replacement passed on iOS and Android. Android exact Monroe 5765 query verified; iOS automation inserted query into existing Córdoba value, then actual Córdoba 1234 prediction was selected/resolved. No exact iOS query-entry claim. Six monthly reservations observed; no session/profile saves. Earlier Android not-configured fallback evidence retained.",
+        "monthlyCap": {
+          "reservation": "Atomic private monthly-counter reservation before Google across all users; provider failures/timeouts consume slots with no refund. Resets by America/Los_Angeles calendar month.",
+          "limits": "Palla proxy requests only; external key use, other projects, unrelated Google services and shared billing usage are outside this cap. No zero-bill guarantee.",
+          "verification": "Parent handoff reports 43 unit tests, four Deno tests, and isolated SQL boundary/global-cross-user/privacy/previous-month tests passing; no additional native checks."
+        },
+        "liveLimits": "No provider-exhaustion/offline-recovery or broader native acceptance certification from this check. Existing keyboard, screen-reader, large-text, tablet, persistence and weekly-publication limits remain."
+      },
+      "controlCorrection": {
+        "date": "2026-10-14",
+        "scope": "No-write native correction checks. iOS physical touches: Repeat/Weekly, Categories/All categories, Date/Start/End open/Done. Android: Repeat/Weekly, saved-club name/address population, Date/Start/End open/Cancel, unconfigured-search manual fallback. Earlier iOS AXe attempts inconclusive.",
+        "limits": "No new account persistence, software-keyboard, screen-reader, tablet, large-text, or live Google certification. Prior evidence remains scoped to original checks.",
+        "codeVerification": "Parent handoff reports 43 unit tests, four Deno authorization/cap tests, and isolated quota tests passing without paid-provider calls."
+      }
+    },
+    "occurrenceDetails": {
+      "source": [
+        "src/theme/tokens.js",
+        "src/components/atoms/card.tsx",
+        "src/components/atoms/text.tsx",
+        "src/components/atoms/heading.tsx",
+        "src/components/atoms/button.tsx",
+        "src/components/atoms/screen.tsx",
+        "src/features/sessions/components/session-occurrence-detail.tsx",
+        "src/features/sessions/components/occurrence-placeholders.tsx"
+      ],
+      "status": "Implemented source; bounded native card-border correction reviewed on iOS and Android. Full current-screen acceptance is separately scoped.",
+      "safeArea": "Top inset is outside the scrolling content; coming-soon sheet includes bottom inset.",
+      "fontScaling": "Font size and line height are manually scaled together using useWindowDimensions.fontScale; automatic native scaling is disabled to avoid double scaling.",
+      "placeholderScope": "Sample players use initials and illustrative labels. Disabled registration and coming-soon sheets make no account changes and assert no payment or attendance success.",
+      "verification": "npm run verify: 43 unit tests passed; 13 existing lint warnings. No current-screen native pass claimed by this documenter.",
+      "borderCorrection": {
+        "nativeImplementation": "AppCard explicitly applies designTokens.border.widthDefault (1) in native style; default/muted/raised borders use borderSubtle, inverse borders use ink. Registration strip uses a subtle one-unit border; waitlist inset cards inherit it. Summary metric cards intentionally remain borderless.",
+        "captures": [
+          ".impeccable/review/native/occurrence/card-borders-ios.png",
+          ".impeccable/review/native/occurrence/card-borders-android.png"
+        ],
+        "review": "Both native screenshots visually inspected; reviewer ship disposition covers this border correction only. Existing 43 passing unit tests and 13 lint warnings are unchanged."
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Essential button",
+      "kind": "button",
+      "refersTo": "button-essential",
+      "description": "Large-size visual sample of the shared AppButton variant; source owns behavior.",
+      "html": "<button class=\"ds-essential\">Continue</button>",
+      "css": ".ds-essential{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;font-weight:600;line-height:20px;min-height:48px;padding:12px 16px;border:1px solid transparent;border-radius:12px;cursor:pointer}.ds-essential:active{transform:scale(.98)}.ds-essential:disabled{background:#e8e7f1;color:#444932;border-color:#757a60;opacity:.72;cursor:not-allowed}.ds-essential{background:#d4ff00;color:#171e00;border-color:#d4ff00}.ds-essential:hover{background:#ddff45}.ds-essential:active{background:#b0d500}.ds-essential:focus-visible{outline:auto}"
+    },
+    {
+      "name": "Neutral button",
+      "kind": "button",
+      "refersTo": "button-neutral",
+      "description": "Large-size visual sample of the shared AppButton variant; source owns behavior.",
+      "html": "<button class=\"ds-neutral\">Save changes</button>",
+      "css": ".ds-neutral{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;font-weight:600;line-height:20px;min-height:48px;padding:12px 16px;border:1px solid transparent;border-radius:12px;cursor:pointer}.ds-neutral:active{transform:scale(.98)}.ds-neutral:disabled{background:#e8e7f1;color:#444932;border-color:#757a60;opacity:.72;cursor:not-allowed}.ds-neutral{background:#1a1b22;color:#ffffff;border-color:#1a1b22}.ds-neutral:hover{background:#2f3038}.ds-neutral:active{background:#0d0e12}.ds-neutral:focus-visible{outline:auto}"
+    },
+    {
+      "name": "Bordered button",
+      "kind": "button",
+      "refersTo": "button-bordered",
+      "description": "Large-size visual sample of the shared AppButton variant; source owns behavior.",
+      "html": "<button class=\"ds-bordered\">Cancel</button>",
+      "css": ".ds-bordered{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;font-weight:600;line-height:20px;min-height:48px;padding:12px 16px;border:1px solid transparent;border-radius:12px;cursor:pointer}.ds-bordered:active{transform:scale(.98)}.ds-bordered:disabled{background:#e8e7f1;color:#444932;border-color:#e3e1ec;opacity:.72;cursor:not-allowed}.ds-bordered{background:#ffffff;color:#1a1b22;border-color:#e3e1ec}.ds-bordered:hover{background:#f4f2fd}.ds-bordered:active{background:#e8e7f1}.ds-bordered:focus-visible{outline:auto}"
+    },
+    {
+      "name": "Accent ghost button",
+      "kind": "button",
+      "refersTo": "button-ghost-accent",
+      "description": "Large-size visual sample of the shared AppButton variant; source owns behavior.",
+      "html": "<button class=\"ds-ghost\">Sign out</button>",
+      "css": ".ds-ghost{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;font-weight:600;line-height:20px;min-height:48px;padding:12px 16px;border:1px solid transparent;border-radius:12px;cursor:pointer}.ds-ghost:active{transform:scale(.98)}.ds-ghost:disabled{background:#e8e7f1;color:#444932;border-color:#757a60;opacity:.72;cursor:not-allowed}.ds-ghost{background:transparent;color:#536600;border-color:transparent}.ds-ghost:hover{background:#f4f2fd}.ds-ghost:active{background:#e8e7f1}.ds-ghost:focus-visible{outline:auto}"
+    },
+    {
+      "name": "Text field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "Labelled web field sample with hover, focus, invalid, and disabled states.",
+      "html": "<label class=\"ds-field-label\" for=\"ds-name\">First name</label><input id=\"ds-name\" class=\"ds-field\" placeholder=\"Your first name\" required>",
+      "css": ".ds-field-label{display:block;font-family:\"Hanken Grotesk\",sans-serif;font-size:13px;font-weight:500;line-height:18px;color:#444932;margin-bottom:8px}.ds-field{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;font-weight:400;line-height:22px;min-height:48px;padding:0 16px;background:#ffffff;color:#1a1b22;border:1px solid #e3e1ec;border-radius:12px}.ds-field::placeholder{color:#444932}.ds-field:hover{border-color:#c5c9ac}.ds-field:focus{border-color:#536600}.ds-field:focus-visible{outline:auto}.ds-field[aria-invalid=\"true\"]{border-color:#ba1a1a}.ds-field:disabled{background:#f4f2fd;cursor:not-allowed}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Default white card; panel/inset/row surfaces add consistent composition roles.",
+      "html": "<article class=\"ds-card\">Session details</article>",
+      "css": ".ds-card{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;line-height:24px;color:#1a1b22;background:#ffffff;border:1px solid #e3e1ec;border-radius:16px;padding:16px;overflow:hidden}"
+    },
+    {
+      "name": "Selectable chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Selected bordered chip sample.",
+      "html": "<button class=\"ds-chip\" aria-pressed=\"true\">Social</button>",
+      "css": ".ds-chip{font-family:\"Hanken Grotesk\",sans-serif;font-size:13px;font-weight:500;line-height:18px;border:1px solid #536600;border-radius:9999px;min-height:48px;padding:4px 12px;background:#53660010;color:#536600;cursor:pointer}.ds-chip:hover{background:#53660014;border-color:#3e4c00}.ds-chip:active{background:#5366001a;border-color:#171e00}.ds-chip:focus-visible{outline:auto}"
+    },
+    {
+      "name": "Segmented tabs",
+      "kind": "nav",
+      "refersTo": "segmented-tabs",
+      "description": "Ink-selected visual sample; React Native owns the moving indicator.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">Upcoming</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Past</button></div>",
+      "css": ".ds-tabs{display:flex;gap:4px;padding:4px;min-height:56px;background:#f4f2fd;border:1px solid #e3e1ec;border-radius:16px}.ds-tab{flex:1;min-height:48px;padding:8px;border:1px solid transparent;border-radius:12px;font-family:\"Hanken Grotesk\",sans-serif;font-size:14px;font-weight:600;line-height:18px;background:#f4f2fd;color:#444932;cursor:pointer}.ds-tab[aria-selected=\"true\"]{background:#1a1b22;color:#f1effa}.ds-tab[aria-selected=\"false\"]:hover,.ds-tab[aria-selected=\"false\"]:active{background:#eeedf7;border-color:#c5c9ac}.ds-tab:focus-visible{outline:auto}"
+    },
+    {
+      "name": "Onboarding mode panel",
+      "kind": "custom",
+      "refersTo": "mode-choice-selected",
+      "description": "Selected Player radio panel; sample preserves current card tracking.",
+      "html": "<button class=\"ds-mode\" role=\"radio\" aria-checked=\"true\"><svg class=\"ds-mode-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/></svg><span class=\"ds-mode-copy\"><span class=\"ds-mode-title\">Player</span><span class=\"ds-mode-body\">Find sessions and meet people on court.</span></span><span class=\"ds-radio\" aria-hidden=\"true\"><span class=\"ds-radio-dot\"></span></span></button>",
+      "css": ".ds-mode{display:flex;align-items:flex-start;gap:20px;padding:24px;min-height:144px;border:2px solid #536600;border-radius:12px;background:#f7ffd5;color:#1a1b22;text-align:left;cursor:pointer}.ds-mode-icon{width:36px;height:36px;flex-shrink:0;color:#536600}.ds-mode-copy{flex:1;display:flex;flex-direction:column;gap:8px}.ds-mode-title{font-family:\"Hanken Grotesk\",sans-serif;font-size:24px;font-weight:600;line-height:30px;letter-spacing:-.08px}.ds-mode-body{font-family:\"Hanken Grotesk\",sans-serif;font-size:15px;font-weight:400;line-height:22px;color:#444932}.ds-radio{width:24px;height:24px;flex-shrink:0;margin-top:4px;border:2px solid #536600;border-radius:9999px;display:flex;align-items:center;justify-content:center;box-sizing:border-box}.ds-radio-dot{width:12px;height:12px;border-radius:9999px;background:#536600}.ds-mode:focus-visible{outline:auto}"
+    },
+    {
+      "name": "Role bottom navigation",
+      "kind": "nav",
+      "refersTo": "role-navigation",
+      "description": "Native four-tab navigation, including Messages before Profile and a live lime unread badge. Player sample; organizer labels/icons differ as recorded in the brief. HTML is a visual sample, not application routing.",
+      "html": "<nav class=\"ds-role-nav\" aria-label=\"Player\"><button class=\"ds-role-item\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.35-4.35\"/></svg><span>Discover</span></button><button class=\"ds-role-item\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M8 2v4M16 2v4M3 10h18\"/><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/></svg><span>My games</span></button><button class=\"ds-role-item\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg><span>Messages</span></button><button class=\"ds-role-item\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M6 21v-2a6 6 0 0 1 12 0v2\"/></svg><span>Profile</span></button></nav>",
+      "css": ".ds-role-nav{display:flex;gap:12px;min-height:76px;padding:6px;background:#ffffff;border-top:1px solid #e3e1ec}.ds-role-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 0;border:0;border-radius:12px;background:transparent;color:#5e5e5e;font-family:\"Hanken Grotesk\",sans-serif;font-size:12px;line-height:17px;font-weight:400;cursor:pointer;overflow:hidden}.ds-role-item svg{width:24px;height:24px}.ds-role-item[aria-current=\"page\"]{background:#f7ffd5;color:#536600;font-weight:600}.ds-role-item:hover{opacity:.85}.ds-role-item:active{opacity:.7}.ds-role-item:focus-visible{outline:2px solid #536600;outline-offset:2px}"
+    },
+    {
+      "name": "Navigation header",
+      "kind": "nav",
+      "refersTo": "navigation-header",
+      "description": "Native canvas header with Palla identity and 48-unit notification target. Wordmark text here is schematic; production uses the existing PallaWordmark asset. Safe-area inset is added at runtime; no unread badge exists.",
+      "html": "<header class=\"ds-nav-header\"><span class=\"ds-nav-wordmark\">Palla</span><button class=\"ds-nav-bell\" aria-label=\"Notifications\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4\"/></svg></button></header>",
+      "css": ".ds-nav-header{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 24px;background:#fbf8ff;color:#1a1b22}.ds-nav-wordmark{font-family:\"Hanken Grotesk\",sans-serif;font-size:28px;font-weight:700}.ds-nav-bell{display:flex;align-items:center;justify-content:center;width:48px;height:48px;padding:0;border:0;border-radius:24px;background:#f4f2fd;color:#1a1b22;cursor:pointer}.ds-nav-bell svg{width:24px;height:24px}.ds-nav-bell:hover,.ds-nav-bell:active{background:#eeedf7}.ds-nav-bell:focus-visible{outline:2px solid #536600;outline-offset:2px}"
+    },
+    {
+      "name": "Nested panel and inset",
+      "kind": "card",
+      "refersTo": "card-panel",
+      "description": "White panel with a subtly bordered lavender inset. Summary metric blocks intentionally override the border to remain borderless.",
+      "html": "<section class=\"ds-panel\"><h2 class=\"ds-panel-title\">Session information</h2><div class=\"ds-inset\">Categories · 6ta–7ma</div></section>",
+      "css": ".ds-panel{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;line-height:24px;color:#1a1b22;background:#ffffff;border:1px solid #e3e1ec;border-radius:24px;padding:24px}.ds-panel-title{font-size:20px;font-weight:700;line-height:26px;margin:0 0 16px}.ds-inset{background:#f4f2fd;border:1px solid #e3e1ec;border-radius:16px;padding:16px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Palla’s Stitch-inspired club interface",
+    "overview": "Palla’s Stitch-inspired club interface uses a pale lavender canvas, white panels, nested lavender blocks, dark ink, and lime essential actions. Hanken Grotesk carries headings and everyday interface text; proportional Geist supports compact metadata. The existing wordmark anchors the identity.\n\nThe system keeps the color and font character of the user’s Stitch references while correcting spacing, alignment, and mobile readability. Shared semantic tokens and reusable components carry the same visual roles across native iOS and Android; screen-specific composition may adapt without changing the palette.",
+    "keyCharacteristics": [
+      "Light-only lavender and white surfaces.",
+      "Lime actions and olive readable emphasis.",
+      "Rounded white panels with nested lavender blocks and compact roster rows.",
+      "Readable, scalable text and scrollable mobile forms."
+    ],
+    "rules": [
+      {
+        "name": "Light-Only",
+        "body": "Keep the interface light when the platform requests dark mode.",
+        "section": "colors"
+      },
+      {
+        "name": "Readable Accent",
+        "body": "Use lime for backgrounds and highlights; use olive for accent text and focus.",
+        "section": "colors"
+      },
+      {
+        "name": "Shared Roles",
+        "body": "Resolve visual choices through shared tokens and atoms rather than creating local palettes or shadows.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do reuse semantic colors and shared atoms for new screens.",
+      "Do use Hanken Grotesk for headings and body text, and proportional Geist for compact metadata.",
+      "Do preserve visible keyboard focus, readable errors, and controls that expand with text.",
+      "Do retain scrolling, safe areas, and keyboard accommodation in mobile forms.",
+      "Do use panel, inset, and row surface roles to preserve consistent tonal nesting and spacing.",
+      "Do scale font sizes and line boxes together, allowing actions and rows to wrap."
+    ],
+    "donts": [
+      "Don't introduce dark-mode inversion or a second local palette.",
+      "Don't use lime as small text on white or pale surfaces.",
+      "Don't treat Geist or legacy Mono-named token keys as a monospace design direction.",
+      "Don't replace the approved stacked onboarding choices with a new composition."
+    ]
+  }
+}

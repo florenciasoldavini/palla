@@ -1,0 +1,52 @@
+-- Logical storage/RPC authorization fixtures, all rolled back. Native QA verifies actual bytes.
+begin;
+create function pg_temp.cover_rejected(statement text) returns void language plpgsql as $$
+begin begin execute statement; exception when others then return; end; raise exception 'Expected rejection: %',statement; end $$;
+insert into auth.users(id) values('bf200000-0000-4000-8000-000000000001'),('bf200000-0000-4000-8000-000000000002');
+insert into public.profiles(id,first_name,onboarding_completed_at) select id,'Cover QA',now() from auth.users where id::text like 'bf200000-%';
+insert into public.organizers(profile_id,display_name) values('bf200000-0000-4000-8000-000000000001','Cover host A'),('bf200000-0000-4000-8000-000000000002','Cover host B');
+insert into storage.objects(bucket_id,name,owner_id) select 'session-covers','bf200000-0000-4000-8000-000000000001/'||id||'.jpg','bf200000-0000-4000-8000-000000000001' from unnest(array['bf210000-0000-4000-8000-000000000001','bf210000-0000-4000-8000-000000000002','bf210000-0000-4000-8000-000000000003']) id;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','bf200000-0000-4000-8000-000000000001',true);
+do $$
+declare input jsonb; series uuid:='bf220000-0000-4000-8000-000000000001'; first_id uuid; second_id uuid; version timestamptz; a text:='bf200000-0000-4000-8000-000000000001/bf210000-0000-4000-8000-000000000001.jpg'; b text:='bf200000-0000-4000-8000-000000000001/bf210000-0000-4000-8000-000000000002.jpg'; c text:='bf200000-0000-4000-8000-000000000001/bf210000-0000-4000-8000-000000000003.jpg';
+begin
+ input:=jsonb_build_object('title','Cover rollback','venueId','','venueName','Cover rollback club','venueAddress','Rollback address 123','courtLabel','','date',to_char(current_date+14,'YYYY-MM-DD'),'lastDate',to_char(current_date+28,'YYYY-MM-DD'),'startTime','19:00','endTime','20:30','repeat','weekly','capacity','4','price','0','description','Cover QA','courtConfirmed',true,'categoryMode','all','registrationHours','2','cancellationHours','0','coverImagePath',a,'coverEdited',true);
+ perform public.save_organizer_session(series,input,false);
+ assert (select cover_image_path from public.session_series where id=series)=a;
+ select updated_at into version from public.session_series where id=series;
+ input:=input||jsonb_build_object('settings',jsonb_build_object('visibility','public','allowed_categories',null,'waitlist_enabled',false,'waitlist_promotion_mode','automatic','waitlist_capacity',null,'registration_opens_minutes_before',null,'registration_closes_minutes_before',null,'cancellation_notice_minutes',null));
+ perform public.save_organizer_session(series,input,true,null,'one',version);
+ assert (select count(*) from public.sessions where series_id=series and inherited_cover_image_path=a)=3;
+ select id,updated_at into first_id,version from public.sessions where series_id=series order by starts_at limit 1;
+ select id into second_id from public.sessions where series_id=series order by starts_at offset 1 limit 1;
+ assert (public.get_public_session_detail(first_id)->>'has_cover_image')::boolean;
+ assert not(public.get_public_session_detail(first_id)::text like '%bf210000%'),'Public projection does not leak storage keys';
+ input:=input||jsonb_build_object('coverImagePath',b);
+ perform public.save_organizer_session(series,input,true,first_id,'one',version);
+ assert (select cover_image_path from public.sessions where id=first_id)=b;
+ assert (select cover_image_path from public.session_series where id=series)=a;
+ select updated_at into version from public.sessions where id=second_id;
+ input:=input||jsonb_build_object('date',to_char(current_date+21,'YYYY-MM-DD'),'coverImagePath',null,'coverEdited',false);
+ perform public.save_organizer_session(series,input,true,second_id,'future',version);
+ assert (select cover_image_path from public.session_series where id=series)=a,'Unedited cover does not clear series default';
+ select updated_at into version from public.sessions where id=second_id;
+ input:=input||jsonb_build_object('coverImagePath',c,'coverEdited',true);
+ perform public.save_organizer_session(series,input,true,second_id,'future',version);
+ assert (select cover_image_path from public.session_series where id=series)=c;
+ assert (select count(*) from public.sessions where series_id=series and inherited_cover_image_path=c)=2;
+ assert (select inherited_cover_image_path from public.sessions where id=first_id)=a,'Earlier dates retain their inherited image';
+ assert (select cover_image_path from public.sessions where id=first_id)=b,'Earlier override is untouched';
+ perform public.save_organizer_session(series,input||jsonb_build_object('coverImagePath',b),true);
+ assert (select cover_image_path from public.session_series where id=series)=c,'Publish retry cannot rewrite cover';
+ select updated_at into version from public.sessions where id=first_id;
+ input:=input||jsonb_build_object('date',to_char(current_date+14,'YYYY-MM-DD'),'coverImagePath',null);
+ perform public.save_organizer_session(series,input,true,first_id,'one',version);
+ assert (select cover_image_path is null and inherited_cover_image_path=a from public.sessions where id=first_id),'Removing override restores original series cover';
+ perform pg_temp.cover_rejected(format('select public.save_organizer_session(%L,%L::jsonb,false)',gen_random_uuid(),input||jsonb_build_object('coverImagePath','bf200000-0000-4000-8000-000000000002/bf210000-0000-4000-8000-000000000003.jpg')));
+ assert not has_function_privilege('authenticated','public.reserve_cover_photo_request(text)','execute');
+end $$;
+select set_config('request.jwt.claim.sub','bf200000-0000-4000-8000-000000000002',true);
+do $$begin assert not exists(select 1 from storage.objects where bucket_id='session-covers' and name like 'bf200000-0000-4000-8000-000000000001/%'),'Other hosts cannot read covers'; end $$;
+reset role;
+rollback;

@@ -1,51 +1,129 @@
-import 'react-native-url-polyfill/auto';
+import { sessionStorage } from "@/infrastructure/auth/session-storage";
+import { createClient, processLock } from "@supabase/supabase-js";
+import { AppState, Platform } from "react-native";
+import "react-native-url-polyfill/auto";
 
-import { createClient, processLock, type SupabaseClient } from '@supabase/supabase-js';
-import { AppState } from 'react-native';
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseKey =
+  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-import { env } from './env';
-import { supabaseStorage } from './supabase-storage';
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
-let client: SupabaseClient | undefined;
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl!, supabaseKey!, {
+      auth: {
+        ...(Platform.OS !== "web" ? { storage: sessionStorage } : {}),
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false,
+        lock: processLock
+      }
+    })
+  : null;
 
-export const isSupabaseConfigured = Boolean(env.supabaseUrl && env.supabasePublishableKey);
-
-export function getSupabaseClient() {
-  if (!env.supabaseUrl || !env.supabasePublishableKey) {
-    throw new Error(
-      'Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY.',
-    );
-  }
-
-  client ??= createClient(env.supabaseUrl, env.supabasePublishableKey, {
-    auth: {
-      autoRefreshToken: true,
-      detectSessionInUrl: false,
-      lock: processLock,
-      persistSession: true,
-      storage: supabaseStorage,
-    },
+if (supabase && Platform.OS !== "web") {
+  AppState.addEventListener("change", (state) => {
+    if (state === "active") {
+      supabase.auth.startAutoRefresh();
+    } else {
+      supabase.auth.stopAutoRefresh();
+    }
   });
-
-  return client;
 }
 
-export function registerSupabaseAuthLifecycle() {
-  if (process.env.EXPO_OS === 'web' || !isSupabaseConfigured) {
-    return () => undefined;
+function getSupabaseRawErrorMessage(error: unknown) {
+  return typeof error === "object" && error && "message" in error
+    ? String(error.message)
+    : typeof error === "string"
+      ? error
+      : "Unknown Supabase error.";
+}
+
+function getSupabaseRawErrorCode(error: unknown) {
+  if (typeof error !== "object" || !error || !("code" in error)) {
+    return null;
   }
 
-  const supabase = getSupabaseClient();
-  const updateRefreshState = (state: string) => {
-    if (state === 'active') supabase.auth.startAutoRefresh();
-    else supabase.auth.stopAutoRefresh();
-  };
+  return String(error.code);
+}
 
-  updateRefreshState(AppState.currentState);
-  const subscription = AppState.addEventListener('change', updateRefreshState);
+function getSupabaseRawErrorStatus(error: unknown) {
+  if (typeof error !== "object" || !error || !("status" in error)) {
+    return null;
+  }
 
-  return () => {
-    subscription.remove();
-    supabase.auth.stopAutoRefresh();
-  };
+  return Number(error.status);
+}
+
+export function isSupabaseEmailRateLimitError(error: unknown) {
+  const code = getSupabaseRawErrorCode(error);
+  const message = getSupabaseRawErrorMessage(error).toLowerCase();
+  const status = getSupabaseRawErrorStatus(error);
+
+  return (
+    status === 429 ||
+    code === "over_email_send_rate_limit" ||
+    code === "over_request_rate_limit" ||
+    message.includes("email rate limit exceeded") ||
+    message.includes("rate limit") ||
+    message.includes("only request this after") ||
+    message.includes("security purposes")
+  );
+}
+
+export function isSupabaseEmailSendQuotaError(error: unknown) {
+  const code = getSupabaseRawErrorCode(error);
+  const message = getSupabaseRawErrorMessage(error).toLowerCase();
+
+  return (
+    code === "over_email_send_rate_limit" ||
+    message.includes("email rate limit exceeded")
+  );
+}
+
+export function isSupabaseEmailCooldownError(error: unknown) {
+  const code = getSupabaseRawErrorCode(error);
+  const message = getSupabaseRawErrorMessage(error).toLowerCase();
+  const status = getSupabaseRawErrorStatus(error);
+
+  return (
+    !isSupabaseEmailSendQuotaError(error) &&
+    (status === 429 ||
+      code === "over_request_rate_limit" ||
+      message.includes("rate limit") ||
+      message.includes("only request this after") ||
+      message.includes("security purposes"))
+  );
+}
+
+export function isSupabaseEmailNotConfirmedError(error: unknown) {
+  const code = getSupabaseRawErrorCode(error);
+  const message = getSupabaseRawErrorMessage(error).toLowerCase();
+
+  return (
+    code === "email_not_confirmed" || message.includes("email not confirmed")
+  );
+}
+
+export function getSupabaseErrorMessage(error: unknown) {
+  if (!isSupabaseConfigured) {
+    return "Account access is temporarily unavailable. Please try again later.";
+  }
+
+  const message = getSupabaseRawErrorMessage(error);
+
+  if (message.toLowerCase().includes("fetch")) {
+    return "We couldn't connect to Palla. Check your connection and try again.";
+  }
+
+  if (isSupabaseEmailSendQuotaError(error)) {
+    return "Verification emails are temporarily unavailable. Please try again later.";
+  }
+
+  if (isSupabaseEmailCooldownError(error)) {
+    return "Wait about a minute, then resend the verification link.";
+  }
+
+  return message;
 }

@@ -1,0 +1,33 @@
+Create a NEW high-fidelity Palla native mobile UI mockup, focused on a SHORTER TWO-STEP write-review flow. Use supplied prior single-page mockup strictly as style reference. Exactly TWO standard-height phone screen frames side by side, equal width and height, each native 390x844pt equivalent, no hardware bezels, no extended long page. Canvas landscape. Captions below phones "Step 1 · Session experience" and "Step 2 · Host & comment". Do not repeat all content on both screens or show review lists/notification settings/public profiles.
+Current Palla/Stitch look: #fbf8ff pale lilac canvas, white panels with thin #e3e1ec borders and22px corners, charcoal #1a1b22 humanist Hanken Grotesk/Geist-like text. Compact body14-16pt, heading22pt, generous orderly spacing, 20px page margins. Buttons rectangular12px radius and48pt height, primary NEON #d4ff00 DARK text, secondary ghost or white outlined rectangle, never pill-shaped primary buttons. Tag chips ARE rounded pills, pale lilac unselected/dark text; charcoal selected/white text/check. Stars ORANGE #ff9500. Circular back-arrow ghost; no colored icon/background mismatches. Lilac textarea on white panel with REAL padding all sides and modest font size. Small meaningful icons only. No decorative giant gradients or giant headings.
+BOTH screens header: back arrow, "Write a review" and small unambiguous "1 of 2" / "2 of 2" at right; under header a discreet two-segment progress line with current step dark charcoal and remaining pale lilac. Tiny context row "Friday Social Padel" and "Alex Rivera · 23 Oct" with a small padel court thumbnail, content-height only. Do not overwhelm short forms with large photos.
+LEFT STEP1:
+White panel heading "How was your session?".
+One row five large accessible stars, four filled orange and last outline, small "Good".
+Subheading "About the session (optional)".
+Helper "Choose up to 4 tags in total" and right counter "1 / 4".
+TEN EXACT pills wrapping in compact pairs/rows:
+"Started on time" / "Started late"
+"Plenty of playing time" / "Too much waiting"
+"Good court conditions" / "Court issues"
+"Good level match" / "Level mismatch"
+"Matched the description" / "Different from advertised".
+Select ONLY "Good level match" in this screen. Other nine unselected.
+No host tags, no comment field on step1.
+At bottom outside card a quiet clock caption "You can post or edit until 6 Nov."
+Safe-area bottom tray with full-width neon rectangular "Continue" with small right arrow. No Post review button on step1. Entire layout should comfortably fit within standard-height phone.
+RIGHT STEP2:
+Same context compact.
+White form panel heading "Anything else?" and secondary "Host feedback and your comment are optional."
+Subheading "About the host" with right counter "3 / 4 total" (one session tag selected previously plus two host tags selected).
+SIX EXACT pills:
+"Friendly host" / "Unfriendly host"
+"Quick to respond" / "Hard to reach"
+"Well organized" / "Disorganized".
+Select "Friendly host" and "Well organized". Rest unselected. Never select conflicting pair.
+Below, label "Your review (optional)" and pale lilac multiline textarea with text "Great games and a friendly host. Everything ran smoothly." Use small counter "57 / 2,000".
+Small muted helper with tiny profile icon "Published with your profile name and photo."
+Below card quiet clock caption same deadline "You can post or edit until 6 Nov."
+Safe-area bottom action tray: white outlined rectangular "Back" button at left about30% width and neon rectangular "Post review" at right remainingwidth. Two controls aligned equalheight. Explain optionality through already written copy; no extra Skip label needed. No rating or session tags repeated on this second screen. No separate attendance confirmation. Counter applies to FOUR tags ACROSS BOTH STEPS, not4perstep. Standard mobile-screen height, no clipping, no excessively small type, no long-page phoneboards. Two steps of one review, preserves data on Back. Clean polished native mockups, not production screenshot.
+
+Final correction: right-screen progress has both segments dark; left-screen progress keeps only the first segment dark. All tag chips have full pill corners; bottom action buttons retain rectangular 12px corners. Preserve all other content and geometry.

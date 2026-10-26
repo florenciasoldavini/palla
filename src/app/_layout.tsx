@@ -1,31 +1,167 @@
-import '@/global.css';
-import '@/lib/monitoring';
+import { AppToastProvider } from "@/components/atoms/toast";
+import { ChatPushSync } from "@/features/notifications/components/chat-push-sync";
+import { ChatRealtimeSync } from "@/features/chat/components/chat-realtime-sync";
+import { AppText, Screen } from "@/components/atoms";
+import { ActivityIndicator, Platform } from "react-native";
+import { atomPalette } from "@/components/atoms/theme";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { AnimatedSplash } from "@/components/splash/animated-splash";
+import { AuthContext, AuthProvider } from "@/features/auth/auth-provider";
+import { ProfileLoadError } from "@/features/auth/components/profile-load-error";
+import { queryClient } from "@/lib/query-client";
+import { navigationIntegration, Sentry } from "@/lib/sentry";
+import "@/global.css";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { queryPersister } from "@/infrastructure/local-storage/query-persister";
+import { ChatOutboxSync } from "@/features/chat/components/chat-outbox-sync";
+import { useFonts } from "expo-font";
+import { Stack, useNavigationContainerRef, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import * as Sentry from '@sentry/react-native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-
-import { AppProvider } from '@/providers/app-provider';
-import { colors } from '@/theme/tokens';
+if (process.env.EXPO_OS !== "web") {
+  void SplashScreen.preventAutoHideAsync();
+}
 
 function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    "Hanken Grotesk": require("@assets/fonts/HankenGrotesk-Regular.ttf"),
+    "HankenGrotesk-Regular": require("@assets/fonts/HankenGrotesk-Regular.ttf"),
+    "HankenGrotesk-Medium": require("@assets/fonts/HankenGrotesk-Medium.ttf"),
+    "HankenGrotesk-SemiBold": require("@assets/fonts/HankenGrotesk-SemiBold.ttf"),
+    "HankenGrotesk-Bold": require("@assets/fonts/HankenGrotesk-Bold.ttf"),
+    Geist: require("@assets/fonts/Geist-Regular.ttf"),
+    "Geist-Regular": require("@assets/fonts/Geist-Regular.ttf"),
+    "Geist-Medium": require("@assets/fonts/Geist-Medium.ttf"),
+    "Geist-SemiBold": require("@assets/fonts/Geist-SemiBold.ttf"),
+    "Geist-Bold": require("@assets/fonts/Geist-Bold.ttf")
+  });
+
+  useEffect(() => {
+    if (fontError) {
+      Sentry.captureException(fontError);
+    }
+  }, [fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
-    <AppProvider>
-      <StatusBar style="dark" />
-      <Stack
-        screenOptions={{
-          contentStyle: { backgroundColor: colors.canvas },
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: colors.canvas },
-          headerTintColor: colors.ink,
+    <GluestackUIProvider mode="light">
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{
+          persister: queryPersister,
+          buster: "offline-chat-v1",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+          dehydrateOptions: {
+            shouldDehydrateMutation: () => false,
+            shouldDehydrateQuery: (query) =>
+              query.state.data !== undefined &&
+              [
+                "auth-profile",
+                "chat-inbox",
+                "chat-conversation",
+                "chat-messages"
+              ].includes(String(query.queryKey[0]))
+          }
         }}
       >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(player)" options={{ headerShown: false }} />
-        <Stack.Screen name="(organizer)" options={{ headerShown: false }} />
-      </Stack>
-    </AppProvider>
+        <AuthProvider>
+          <ChatOutboxSync />
+          <ChatRealtimeSync>
+            <SafeAreaProvider>
+              <AppToastProvider>
+                <RootNavigator />
+              </AppToastProvider>
+            </SafeAreaProvider>
+          </ChatRealtimeSync>
+        </AuthProvider>
+      </PersistQueryClientProvider>
+    </GluestackUIProvider>
+  );
+}
+
+function RootNavigator() {
+  const { isLoading, session, user } = useContext(AuthContext);
+  const segments = useSegments();
+  const publicSession =
+    segments[0] === "session" || segments[0] === "session-reviews";
+  const authHandoff = segments.some(
+    (segment) => segment === "callback" || segment === "reset-password"
+  );
+  const ready = Boolean(session && user?.onboarding_completed_at);
+  const navigationRef = useNavigationContainerRef();
+  const [splashDone, setSplashDone] = useState(false);
+
+  const handleSplashFinish = useCallback(() => {
+    setSplashDone(true);
+  }, []);
+
+  useEffect(() => {
+    navigationIntegration.registerNavigationContainer(navigationRef);
+  }, [navigationRef]);
+
+  return (
+    <>
+      <ChatPushSync ready={ready && !isLoading && splashDone} />
+      {!isLoading || authHandoff || publicSession ? (
+        session && !user && !authHandoff && !publicSession ? (
+          <ProfileLoadError />
+        ) : (
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              statusBarStyle: Platform.OS === "android" ? "dark" : undefined
+            }}
+          >
+            <Stack.Screen name="index" />
+            <Stack.Screen name="session" />
+            <Stack.Screen name="session-reviews" />
+            {/* Auth callbacks must survive changes to the signed-out guard. */}
+            <Stack.Screen name="callback" />
+            <Stack.Screen name="reset-password" />
+            <Stack.Screen name="onboarding-preview" />
+            <Stack.Protected guard={__DEV__}>
+              <Stack.Screen name="navigation-preview" />
+              <Stack.Screen name="sessions-preview" />
+            </Stack.Protected>
+            <Stack.Protected guard={Boolean(session && user)}>
+              <Stack.Screen name="onboarding" />
+            </Stack.Protected>
+            <Stack.Protected guard={ready}>
+              <Stack.Screen name="(player)" />
+              <Stack.Screen name="notifications" />
+              <Stack.Screen name="messages" />
+              <Stack.Screen name="account" />
+            </Stack.Protected>
+            <Stack.Protected
+              guard={ready && user?.organizer_status === "active"}
+            >
+              <Stack.Screen name="(organizer)" />
+              <Stack.Screen name="organizer-session" />
+              <Stack.Screen name="organizer-reviews" />
+            </Stack.Protected>
+            <Stack.Protected guard={!session}>
+              <Stack.Screen name="(auth)" />
+            </Stack.Protected>
+          </Stack>
+        )
+      ) : null}
+      {isLoading && splashDone && !authHandoff && !publicSession ? (
+        <Screen centered>
+          <ActivityIndicator color={atomPalette.accent} />
+          <AppText style={{ textAlign: "center" }}>
+            Loading your profile…
+          </AppText>
+        </Screen>
+      ) : null}
+      {!splashDone ? (
+        <AnimatedSplash appReady={!isLoading} onFinish={handleSplashFinish} />
+      ) : null}
+    </>
   );
 }
 

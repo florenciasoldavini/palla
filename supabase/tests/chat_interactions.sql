@@ -1,0 +1,90 @@
+-- All account/message mutations roll back in this isolated database test.
+begin;
+insert into auth.users(id) select ('83000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid from generate_series(1,4)n;
+insert into public.profiles(id,first_name,onboarding_completed_at) select id,'Interactions QA',now() from auth.users where id::text like '83000000%';
+insert into public.organizers(profile_id,display_name) values('83000000-0000-4000-8000-000000000001','QA');
+create function pg_temp.reject(q text,expected text) returns void language plpgsql as $$begin execute q;raise exception 'Expected rejection';exception when others then if sqlerrm not like '%'||expected||'%' then raise;end if;end$$;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','83000000-0000-4000-8000-000000000001',true);
+select public.start_chat(auth.uid(),'83000000-0000-4000-8000-000000000002');
+select public.start_chat(auth.uid(),'83000000-0000-4000-8000-000000000003');
+do $$declare c uuid; m jsonb;begin
+ select id into c from public.chat_conversations where player_id='83000000-0000-4000-8000-000000000002';
+ m:=public.send_chat_message('84000000-0000-4000-8000-000000000001',c,'Original text');
+ m:=public.edit_chat_message((m->>'id')::uuid,' Updated text ',1);
+ assert m->>'body'='Updated text' and (m->>'revision')::int=2 and m->>'edited_at' is not null;
+ perform pg_temp.reject('select public.edit_chat_message(''84000000-0000-4000-8000-000000000001'',''stale edit'',1)','Message changed');
+ perform pg_temp.reject('select public.edit_chat_message(''84000000-0000-4000-8000-000000000001'',''   '',2)','Invalid message');
+ perform public.update_chat_preferences(c,'pin');
+ assert public.list_chat_conversations()->0->'conversation'->>'id'=c::text;
+ assert public.list_chat_conversations()->0->>'pinned_at' is not null;
+ perform public.update_chat_preferences(c,'mark_unread');
+ assert (public.list_chat_conversations(c)->0->>'marked_unread')::boolean;
+ perform public.update_chat_preferences(c,'unpin');
+ assert public.list_chat_conversations(c)->0->>'pinned_at' is null;
+ perform pg_temp.reject(format('update public.chat_preferences set profile_id=''83000000-0000-4000-8000-000000000002'' where conversation_id=%L',c),'permission denied');
+end$$;
+select set_config('request.jwt.claim.sub','83000000-0000-4000-8000-000000000002',true);
+do $$declare c uuid; before_read bigint;begin
+ select id into c from public.chat_conversations;
+ assert public.list_chat_conversations(c)->0->>'pinned_at' is null;
+ assert not (public.list_chat_conversations(c)->0->>'marked_unread')::boolean;
+ perform pg_temp.reject('select public.edit_chat_message(''84000000-0000-4000-8000-000000000001'',''spoof'',2)','Message unavailable');
+ perform pg_temp.reject('select public.delete_chat_message(''84000000-0000-4000-8000-000000000001'',2)','Message unavailable');
+ perform public.update_chat_preferences(c,'mark_read');
+ select through_sequence into before_read from public.chat_reads where conversation_id=c and profile_id=auth.uid();
+ perform public.update_chat_preferences(c,'mark_unread');
+ assert (select through_sequence from public.chat_reads where conversation_id=c and profile_id=auth.uid())=before_read;
+ perform public.mark_chat_read(c,before_read);
+ assert not (public.list_chat_conversations(c)->0->>'marked_unread')::boolean;
+end$$;
+select set_config('request.jwt.claim.sub','83000000-0000-4000-8000-000000000001',true);
+do $$declare m jsonb; c uuid;begin
+ m:=public.delete_chat_message('84000000-0000-4000-8000-000000000001',2);
+ assert m->>'body' is null and m->>'deleted_at' is not null and (m->>'revision')::int=3;
+ assert public.delete_chat_message('84000000-0000-4000-8000-000000000001',2)=m;
+ perform pg_temp.reject('select public.edit_chat_message(''84000000-0000-4000-8000-000000000001'',''resurrect'',3)','Message unavailable');
+ select id into c from public.chat_conversations where player_id='83000000-0000-4000-8000-000000000002';
+ perform public.send_chat_message('84000000-0000-4000-8000-000000000002',c,'Keep for other person');
+end$$;
+select set_config('request.jwt.claim.sub','83000000-0000-4000-8000-000000000002',true);
+do $$declare c uuid;begin
+ select id into c from public.chat_conversations;
+ assert jsonb_array_length(public.get_chat_messages(c))=2;
+ assert public.get_chat_messages(c)->0->>'body' is null;
+ perform public.update_chat_preferences(c,'delete');
+ assert public.list_chat_conversations()='[]'::jsonb;
+ assert public.get_chat_messages(c)='[]'::jsonb;
+ assert (select count(*) from public.chat_messages)=0;
+ assert jsonb_array_length(public.list_chat_conversations(c))=1;
+ perform pg_temp.reject(format('select public.update_chat_preferences(%L,''archive'')',c),'Invalid chat action');
+end$$;
+select set_config('request.jwt.claim.sub','83000000-0000-4000-8000-000000000001',true);
+do $$declare c uuid;begin
+ select id into c from public.chat_conversations where player_id='83000000-0000-4000-8000-000000000002';
+ assert jsonb_array_length(public.get_chat_messages(c))=2;
+ perform public.send_chat_message('84000000-0000-4000-8000-000000000003',c,'A new message');
+end$$;
+select set_config('request.jwt.claim.sub','83000000-0000-4000-8000-000000000002',true);
+do $$declare c uuid;begin
+ select id into c from public.chat_conversations;
+ assert jsonb_array_length(public.list_chat_conversations())=1;
+ assert jsonb_array_length(public.get_chat_messages(c))=1;
+ assert public.get_chat_messages(c)->0->>'body'='A new message';
+ assert (public.list_chat_conversations(c)->0->>'unread_count')::int=1;
+ assert (select count(*) from public.chat_messages)=1;
+end$$;
+reset role;
+do $$declare c uuid;begin
+ select id into c from public.chat_conversations where player_id='83000000-0000-4000-8000-000000000002';
+ perform set_config('request.jwt.claim.sub','83000000-0000-4000-8000-000000000004',true);
+ execute 'set local role authenticated';
+ assert (select count(*) from public.chat_preferences)=0;
+ perform pg_temp.reject(format('select public.update_chat_preferences(%L,''delete'')',c),'Chat access denied');
+ perform pg_temp.reject('select public.delete_chat_message(''84000000-0000-4000-8000-000000000003'',1)','Message unavailable');
+ execute 'reset role';
+end$$;
+set local role anon;
+do $$begin perform pg_temp.reject('select * from public.chat_preferences','permission denied');perform pg_temp.reject('select public.delete_chat_message(gen_random_uuid(),1)','permission denied');end$$;
+reset role;
+rollback;

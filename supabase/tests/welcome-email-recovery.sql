@@ -1,0 +1,21 @@
+begin;
+insert into auth.users(id) values('97700000-0000-4000-8000-000000000001');
+insert into public.profiles(id,first_name) values('97700000-0000-4000-8000-000000000001','Welcome QA');
+do $$declare actor uuid:='97700000-0000-4000-8000-000000000001'; first_claim jsonb; next_claim jsonb;begin
+ first_claim:=public.claim_welcome_email(actor,'Alex');
+ assert first_claim->>'state'='claimed';
+ assert (select welcome_email_sent_at is null from public.profiles where id=actor);
+ assert public.claim_welcome_email(actor,'Changed name')->>'state'='busy';
+ perform public.release_welcome_email(actor,(first_claim->>'token')::uuid);
+ next_claim:=public.claim_welcome_email(actor,'Changed name');
+ assert next_claim->>'name'=first_claim->>'name';
+ update private.welcome_email_jobs set lease_until=now()-interval '1 second' where profile_id=actor;
+ next_claim:=public.claim_welcome_email(actor,'Changed name');
+ assert next_claim->>'state'='claimed';
+ begin perform public.finish_welcome_email(actor,(first_claim->>'token')::uuid);raise exception 'Stale token accepted';exception when others then if sqlerrm<>'Welcome claim expired' then raise;end if;end;
+ perform public.finish_welcome_email(actor,(next_claim->>'token')::uuid);
+ assert public.claim_welcome_email(actor,'Alex')->>'state'='sent';
+ assert not exists(select 1 from private.welcome_email_jobs where profile_id=actor);
+ assert not has_function_privilege('authenticated','public.claim_welcome_email(uuid,text)','EXECUTE');
+end$$;
+rollback;
