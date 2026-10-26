@@ -24,6 +24,9 @@ describe("joining a session", () => {
     expect(joinErrorMessage({ message: "JOIN_CATEGORY" })).toContain(
       "playing category"
     );
+    expect(joinErrorMessage({ message: "JOIN_WAITLIST_CLOSED" })).toContain(
+      "already on the waitlist"
+    );
     expect(joinErrorMessage(new Error("network"))).toContain(
       "retrying won’t reserve twice"
     );

@@ -86,7 +86,10 @@ export function DiscoverySessionCard({
     </View>
   );
   const status =
-    session.viewer_is_host || session.viewer_registration || !spots
+    session.viewer_is_host ||
+    session.viewer_registration ||
+    !spots ||
+    session.waitlisted_count > 0
       ? sessionStatus(session)
       : `${spots} ${spots === 1 ? "spot" : "spots"} left`;
   return (

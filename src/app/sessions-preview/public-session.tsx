@@ -30,6 +30,11 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
   const [reviewsError, setReviewsError] = useState(state === "reviews-error");
   const [previewCancelled, setPreviewCancelled] = useState(false);
   const waitlistedPreview = state === "waitlisted" && !previewCancelled;
+  const priorityPreview = [
+    "waitlist-priority",
+    "waitlist-priority-full",
+    "waitlist-priority-closed"
+  ].includes(state ?? "");
   const queuePreview = ["waitlist", "waitlist-full", "waitlisted"].includes(
     state ?? ""
   );
@@ -68,11 +73,14 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
     ...(waitlistedPreview
       ? { viewer_registration: "waitlisted" as const }
       : {}),
-    ...(queuePreview
+    ...(queuePreview || priorityPreview
       ? {
-          waitlist_enabled: true,
+          waitlist_enabled: state !== "waitlist-priority-closed",
           waitlist_capacity: 2,
-          waitlisted_count: state === "waitlist-full" ? 2 : 1
+          waitlisted_count:
+            state === "waitlist-full" || state === "waitlist-priority-full"
+              ? 2
+              : 1
         }
       : {}),
     ...(registeredPreview ? { viewer_registration: "confirmed" as const } : {}),
@@ -83,6 +91,15 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
             ...publicSessionPreview.players,
             { name: "Sofia T.", avatar_url: null, category: 7 }
           ]
+        }
+      : {}),
+    ...(priorityPreview
+      ? {
+          confirmed_count: 3,
+          starts_at: new Date(Date.now() + 86400000).toISOString(),
+          ends_at: new Date(Date.now() + 91800000).toISOString(),
+          registration_closes_at: null,
+          cancellation_deadline_at: null
         }
       : {}),
     ...(state === "cancelled" ? { status: "cancelled" as const } : {}),

@@ -29,6 +29,8 @@ export function joinErrorMessage(error: unknown) {
       "Your playing category doesn’t match this session’s required categories. Check your profile and the session’s player level.",
     JOIN_WAITLIST_FULL:
       "The waitlist is now full. Refresh the session to check availability.",
+    JOIN_WAITLIST_CLOSED:
+      "Players already on the waitlist have priority. The waitlist is closed to new entries.",
     JOIN_FULL: "The last place was just taken. This session is now full."
   };
   return (

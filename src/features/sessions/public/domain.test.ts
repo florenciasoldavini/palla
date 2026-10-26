@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   categoriesLabel,
   canJoinWaitlist,
+  canJoinSession,
   canLeaveWaitlist,
   publicSessionSchema,
   publicSessionState
@@ -86,10 +87,31 @@ describe("player waitlist availability", () => {
     expect(canJoinWaitlist({ ...full, waitlist_enabled: false }, now)).toBe(
       false
     );
-    expect(canJoinWaitlist({ ...full, confirmed_count: 0 }, now)).toBe(false);
+    expect(canJoinWaitlist({ ...full, confirmed_count: 0 }, now)).toBe(true);
+    expect(
+      canJoinWaitlist({ ...full, confirmed_count: 0, waitlisted_count: 0 }, now)
+    ).toBe(false);
     expect(
       canJoinWaitlist(full, Date.parse(full.registration_closes_at!))
     ).toBe(false);
+  });
+  it("reserves vacancies for existing queued players, including full and disabled queues", () => {
+    const vacancy = { ...full, confirmed_count: 3 };
+    expect(canJoinSession(vacancy, now)).toBe(false);
+    expect(canJoinWaitlist(vacancy, now)).toBe(true);
+    expect(canJoinSession({ ...vacancy, waitlisted_count: 2 }, now)).toBe(
+      false
+    );
+    expect(canJoinWaitlist({ ...vacancy, waitlisted_count: 2 }, now)).toBe(
+      false
+    );
+    expect(canJoinSession({ ...vacancy, waitlist_enabled: false }, now)).toBe(
+      false
+    );
+    expect(canJoinWaitlist({ ...vacancy, waitlist_enabled: false }, now)).toBe(
+      false
+    );
+    expect(canJoinSession({ ...vacancy, waitlisted_count: 0 }, now)).toBe(true);
   });
   it("allows departure after cancellation/registration cutoffs, but not once started", () => {
     const queued = {
