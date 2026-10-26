@@ -101,6 +101,8 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
       ? {
           venue: {
             ...publicSessionPreview.venue,
+            latitude: null,
+            longitude: null,
             address: "zzqvxxkqvvxxzqvzzqxxvv"
           }
         }
@@ -109,6 +111,8 @@ function PublicSessionPreviewContent({ state }: { state?: string }) {
       ? {
           venue: {
             ...publicSessionPreview.venue,
+            latitude: null,
+            longitude: null,
             address: null,
             google_place_id: null
           }

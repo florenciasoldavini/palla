@@ -9,8 +9,19 @@ const appJson = require("./app.json");
 module.exports = ({ config }) => ({
   ...config,
   ...appJson.expo,
+  extra: {
+    ...appJson.expo.extra,
+    googleMapsConfigured: {
+      ios: Boolean(process.env.GOOGLE_MAPS_IOS_API_KEY),
+      android: Boolean(process.env.GOOGLE_MAPS_ANDROID_API_KEY)
+    }
+  },
   ios: {
     ...appJson.expo.ios,
+    config: {
+      ...appJson.expo.ios.config,
+      googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_API_KEY
+    },
     associatedDomains: [`applinks:${shareHost}`],
     ...(process.env.APPLE_TEAM_ID
       ? { appleTeamId: process.env.APPLE_TEAM_ID }
@@ -18,6 +29,10 @@ module.exports = ({ config }) => ({
   },
   android: {
     ...appJson.expo.android,
+    config: {
+      ...appJson.expo.android.config,
+      googleMaps: { apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY }
+    },
     intentFilters: [
       {
         action: "VIEW",

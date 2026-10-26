@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.50.3";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
 
-const addressTypes = ["street_address", "premise", "subpremise"];
+import { addressTypes, placeLocation, matchesAddress } from "./location.ts";
 export async function handler(req: Request) {
   if (req.method === "OPTIONS")
     return new Response("ok", { headers: corsHeaders });
@@ -28,13 +28,15 @@ export async function handler(req: Request) {
     const body = JSON.parse(raw);
     if (
       !body ||
-      !["search", "details"].includes(body.action) ||
-      typeof body.token !== "string" ||
-      !/^[a-zA-Z0-9_-]{16,64}$/.test(body.token)
+      !["search", "details", "geocode"].includes(body.action) ||
+      (body.action === "search" && typeof body.token !== "string") ||
+      (body.token !== undefined &&
+        (typeof body.token !== "string" ||
+          !/^[a-zA-Z0-9_-]{16,64}$/.test(body.token)))
     )
       return jsonResponse({ error: "invalid" }, { status: 400 });
     if (
-      body.action === "search" &&
+      ["search", "geocode"].includes(body.action) &&
       (typeof body.input !== "string" ||
         body.input.trim().length < 3 ||
         body.input.length > 300)
@@ -44,6 +46,14 @@ export async function handler(req: Request) {
       body.action === "details" &&
       (typeof body.placeId !== "string" ||
         !/^[a-zA-Z0-9_-]{1,512}$/.test(body.placeId))
+    )
+      return jsonResponse({ error: "invalid" }, { status: 400 });
+    if (
+      body.action === "details" &&
+      body.input !== undefined &&
+      (typeof body.input !== "string" ||
+        body.input.trim().length < 3 ||
+        body.input.length > 300)
     )
       return jsonResponse({ error: "invalid" }, { status: 400 });
     const key = Deno.env.get("GOOGLE_PLACES_API_KEY");
@@ -63,18 +73,25 @@ export async function handler(req: Request) {
       return jsonResponse({ error: quota.data }, { status: 429 });
     if (quota.data !== "allowed")
       return jsonResponse({ error: "unavailable" }, { status: 503 });
-    const searching = body.action === "search";
+    const searching = body.action === "search",
+      geocoding = body.action === "geocode";
     const endpoint = searching
       ? "https://places.googleapis.com/v1/places:autocomplete"
-      : `https://places.googleapis.com/v1/places/${encodeURIComponent(body.placeId)}?languageCode=es&regionCode=AR&sessionToken=${encodeURIComponent(body.token)}`;
+      : geocoding
+        ? "https://places.googleapis.com/v1/places:searchText"
+        : `https://places.googleapis.com/v1/places/${encodeURIComponent(body.placeId)}?languageCode=es&regionCode=AR${body.token ? `&sessionToken=${encodeURIComponent(body.token)}` : ""}`;
     const response = await fetch(endpoint, {
-      method: searching ? "POST" : "GET",
+      method: searching || geocoding ? "POST" : "GET",
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": key,
         "X-Goog-FieldMask": searching
           ? "suggestions.placePrediction.placeId,suggestions.placePrediction.text.text"
-          : "formattedAddress,types"
+          : geocoding
+            ? "places.id,places.formattedAddress,places.types,places.location,places.addressComponents"
+            : body.input
+              ? "id,formattedAddress,types,location,addressComponents"
+              : "id,formattedAddress,types,location"
       },
       body: searching
         ? JSON.stringify({
@@ -90,7 +107,14 @@ export async function handler(req: Request) {
               }
             }
           })
-        : undefined,
+        : geocoding
+          ? JSON.stringify({
+              textQuery: body.input.trim(),
+              languageCode: "es",
+              regionCode: "AR",
+              pageSize: 1
+            })
+          : undefined,
       redirect: "error",
       signal: AbortSignal.timeout(8000)
     });
@@ -112,12 +136,37 @@ export async function handler(req: Request) {
           )
           .slice(0, 5)
       });
+    const rawPlace = geocoding ? data.places?.[0] : data;
+    const place = rawPlace && placeLocation(rawPlace);
     if (
-      !data.types?.some((t: string) => addressTypes.includes(t)) ||
-      typeof data.formattedAddress !== "string"
+      !place ||
+      ((geocoding || body.input !== undefined) &&
+        !matchesAddress(body.input, rawPlace))
     )
       return jsonResponse({ error: "invalid_address" }, { status: 422 });
-    return jsonResponse({ address: data.formattedAddress });
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!serviceKey)
+      return jsonResponse({ error: "unavailable" }, { status: 503 });
+    const admin = createClient(url, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    const { data: reference, error: cacheError } = await admin.rpc(
+      "cache_google_place_location",
+      {
+        p_owner: auth.user.id,
+        p_place_id: place.placeId,
+        p_address: body.input !== undefined ? body.input.trim() : place.address,
+        p_latitude: place.latitude,
+        p_longitude: place.longitude
+      }
+    );
+    if (cacheError || !reference)
+      return jsonResponse({ error: "unavailable" }, { status: 503 });
+    return jsonResponse({
+      ...place,
+      address: body.input !== undefined ? body.input.trim() : place.address,
+      reference
+    });
   } catch {
     return jsonResponse({ error: "unavailable" }, { status: 503 });
   }

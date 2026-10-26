@@ -1,3 +1,4 @@
+import { coverageLabel } from "@/features/venues/court-coverage";
 import { cancellationReasons } from "@/features/cancellations/domain";
 import {
   AppButton,
@@ -271,6 +272,7 @@ export function SessionOccurrenceDetail({
         <AppCard surface="panel" style={{ gap: sp[3] }}>
           <AppHeading variant="section">Session information</AppHeading>
           {venue?.address && <AppText>{venue.address}</AppText>}
+          <AppText>Court coverage: {coverageLabel(s.court_coverage)}</AppText>
           {s.description && <AppText>{s.description}</AppText>}
           {s.cancellation_reason_code && (
             <AppText variant="bodySm" tone="subtle">

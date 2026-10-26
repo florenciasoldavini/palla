@@ -1,0 +1,65 @@
+begin;
+-- These assertions use the imported public reference catalog; no account writes.
+do $$
+declare matches jsonb; city jsonb;
+begin
+ if (select count(*) from private.discovery_cities)<200000 then raise exception 'Catalog import incomplete'; end if;
+ matches:=public.search_discovery_cities('Cordoba');
+ if jsonb_array_length(matches)<2 then raise exception 'Missing homonymous cities'; end if;
+ if not exists(select 1 from jsonb_array_elements(matches) c where c->>'country_code'='AR')
+ or not exists(select 1 from jsonb_array_elements(matches) c where c->>'country_code'='ES') then raise exception 'Missing country disambiguation'; end if;
+ if public.search_discovery_cities('Córdoba')<>matches then raise exception 'Accent insensitive lookup failed'; end if;
+ if public.search_discovery_cities('a')<>'[]'::jsonb or public.search_discovery_cities(null)<>'[]'::jsonb then raise exception 'Short search should be empty'; end if;
+ if public.search_discovery_cities('%%%%')<>'[]'::jsonb then raise exception 'Wildcards should be literal'; end if;
+ if jsonb_array_length(public.search_discovery_cities('San'))>8 then raise exception 'Unbounded autocomplete'; end if;
+ city:=public.locate_discovery_city(-34.6037,-58.3816);
+ if city->>'country_code'<>'AR' or city is null then raise exception 'Reverse lookup failed'; end if;
+ if public.locate_discovery_city(0,0) is not null then raise exception 'No ocean cities'; end if;
+ begin perform public.locate_discovery_city(100,0); raise exception 'Expected invalid GPS failure'; exception when invalid_parameter_value then null; end;
+ begin perform public.discover_sessions_by_city(p_city_id=>-1); raise exception 'Expected unknown city failure'; exception when invalid_parameter_value then null; end;
+ if has_table_privilege('anon','private.discovery_cities','select') or has_table_privilege('authenticated','private.discovery_cities','insert') then raise exception 'Catalog table grants'; end if;
+ if has_function_privilege('anon','private.discover_sessions_by_city(text,text,date,date,integer,text,text,integer,integer,text,text,text,text[],text[],text,double precision,double precision,integer,integer)','execute') then raise exception 'Private core grant'; end if;
+end $$;
+set local role anon;
+select public.search_discovery_cities('Buenos Aires');
+select public.discover_sessions_by_city(p_city_id=>3435910);
+reset role;
+
+insert into private.discovery_cities values (2147483000,'City fixture','Test','AR','Argentina',0,0,100,'city fixture');
+insert into public.venues(id,created_by,name,address,latitude,longitude,geocoded_address,geocoded_at)
+select ('dc100000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'1bce2362-4dcd-47e7-a885-fa55fc7cd773','Radius club '||n,
+ case when n=1 then 'OutsideSavedCity' else 'RadiusTestCity' end,
+ case when n=7 then null else 0 end,
+ case when n=7 then null else degrees((case n when 1 then 4999.99 when 2 then 5000.01 when 3 then 9999.99 when 4 then 10000.01 when 5 then 24999.99 else 25000.01 end)/6371000.0) end,
+ case when n=7 then null when n=1 then 'OutsideSavedCity' else 'RadiusTestCity' end,
+ case when n=7 then null else now() end from generate_series(1,7)n;
+insert into public.session_series(id,organizer_id,draft_input) values('dc200000-0000-4000-8000-000000000001','1bce2362-4dcd-47e7-a885-fa55fc7cd773','{}');
+insert into public.sessions(id,organizer_id,series_id,occurrence_date,venue_id,title,capacity,price_minor,starts_at,ends_at,status,visibility,court_coverage)
+select ('dc300000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'1bce2362-4dcd-47e7-a885-fa55fc7cd773','dc200000-0000-4000-8000-000000000001',current_date+n,
+ ('dc100000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'Radius QA '||n,4,8000-n*1000,now()+n*interval '1 day',now()+n*interval '1 day'+interval '90 minutes','published','public',case when n=1 then 'covered' else 'uncovered' end from generate_series(1,7)n;
+
+set local role anon;
+do $$ declare x jsonb;begin
+ x:=public.discover_sessions_by_city(p_city_id=>2147483000,p_search=>'Radius QA',p_location=>'NonmatchingText');
+ assert jsonb_array_length(x->'sessions')=5,'Selected city filters by trusted center, excluding unknown and outside coordinates';
+ x:=public.discover_sessions_by_city(p_city_id=>2147483000,p_search=>'Radius QA',p_sort=>'price',p_coverage=>'covered');
+ assert jsonb_array_length(x->'sessions')=1,'City combines with sorting/other filters';
+ x:=public.discover_sessions_by_city(p_city_id=>2147483000,p_search=>'Radius QA',p_radius_km=>5,p_latitude=>0,p_longitude=>0);
+ assert jsonb_array_length(x->'sessions')=1,'GPS radius overrides city center';
+ assert public.discover_sessions_by_city(p_search=>'Radius QA')=public.discover_sessions_nearby(p_search=>'Radius QA'),'Null city preserves legacy behavior';
+end $$;
+reset role;
+-- 501 earlier, outside-radius sessions cannot hide a later matching occurrence.
+insert into public.sessions(organizer_id,series_id,occurrence_date,venue_id,title,capacity,price_minor,starts_at,ends_at,status,visibility)
+select '1bce2362-4dcd-47e7-a885-fa55fc7cd773','dc200000-0000-4000-8000-000000000001',current_date+10+n,
+ ('dc100000-0000-4000-8000-'||lpad((case when n=502 then 1 else 6 end)::text,12,'0'))::uuid,
+ 'Radius limit '||n,4,1000,now()+(10+n)*interval '1 day',now()+(10+n)*interval '1 day'+interval '90 minutes','published','public' from generate_series(1,502)n;
+
+set local role anon;
+do $$ declare x jsonb;begin
+ x:=public.discover_sessions_by_city(p_city_id=>2147483000,p_search=>'Radius limit');
+ assert jsonb_array_length(x->'sessions')=1 and x->'sessions'->0->>'title'='Radius limit 502','City filters before LIMIT';
+ assert not (x->>'has_more')::boolean,'Only matching city sessions affect pagination';
+end $$;
+reset role;
+rollback;

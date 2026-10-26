@@ -3,4 +3,5 @@ export type MapPreviewProps = {
   center: MapCenter;
   onLoad: () => void;
   onError: () => void;
+  onAttributionPress?: () => void;
 };

@@ -1,3 +1,7 @@
+import {
+  coverageLabel,
+  effectiveCourtCoverage
+} from "@/features/venues/court-coverage";
 import { AppButton, AppHeading, AppText } from "@/components/atoms";
 import { View, Pressable } from "react-native";
 import { AttributeChips } from "@/features/attributes/components/attribute-chips";
@@ -73,6 +77,15 @@ export function SessionReview({
           {values.courtLabel ? ` · ${values.courtLabel}` : ""}
         </AppText>
         <AppText tone="subtle">{values.venueAddress}</AppText>
+        <AppText>
+          Court coverage:{" "}
+          {coverageLabel(
+            effectiveCourtCoverage(
+              values.venueCourtCoverage ?? [],
+              values.courtCoverage
+            )
+          )}
+        </AppText>
         {values.description && <AppText>{values.description}</AppText>}
         {!!values.sessionAttributes?.length && (
           <>

@@ -19,6 +19,7 @@ import {
   removeUnusedCover
 } from "@/features/session-covers/repositories/cover.repository";
 import type { Venue } from "@/features/venues/domain";
+import { coordinatesForPublication } from "@/features/venues/services/venue-location.service";
 export { fetchOrganizerInventory as loadOrganizerSessions };
 export async function saveOrganizerSession(request: SaveSessionRequest) {
   const input = (
@@ -39,11 +40,19 @@ export async function saveOrganizerSession(request: SaveSessionRequest) {
     : null;
   if (coverLocalUri && input.coverImagePath)
     await uploadCover(input.coverImagePath, coverLocalUri);
+  const venueCoordinates = request.publish
+    ? await coordinatesForPublication(
+        input.venueId,
+        input.venueAddress,
+        input.venueAddressPlaceId
+      )
+    : null;
   try {
     const id = await saveSessionRecord({
       ...request,
       input: {
         ...persisted,
+        ...(venueCoordinates ? { venueCoordinates } : {}),
         ...(request.publish ? { settings: settingsFromForm(input) } : {})
       }
     });
@@ -63,6 +72,10 @@ export function sessionErrorMessage(error: unknown) {
     typeof error === "object" && error && "message" in error
       ? String(error.message)
       : "";
+  if (message.includes("Venue court coverage changed"))
+    return "Venue court coverage changed since you opened this form. Reload before saving.";
+  if (message.includes("court coverage"))
+    return "Check the venue coverage and choose the court for this session.";
   if (message.includes("Venue amenities changed"))
     return "Venue amenities changed since you opened this form. Go back and reload before saving.";
   if (message.includes("Session changed"))
@@ -84,6 +97,10 @@ export function formFromSession(
     new Date(Date.parse(value) - 10800000).toISOString();
   const form: SessionFormValues = {
     ...original,
+    venueCourtCoverage: venue?.court_coverage ?? [],
+    venueCourtCoverageBaseline: venue?.court_coverage ?? [],
+    venueCourtCoverageEdited: false,
+    courtCoverage: session.court_coverage ?? null,
     coverImagePath: session.cover_image_path,
     coverLocalUri: undefined,
     coverEdited: false,
@@ -97,6 +114,7 @@ export function formFromSession(
     venueId: session.venue_id,
     venueName: venue?.name ?? "",
     venueAddress: venue?.address ?? "",
+    venueAddressPlaceId: venue?.google_address_place_id ?? undefined,
     courtLabel: session.court_label ?? "",
     date: local(session.starts_at).slice(0, 10),
     startTime: local(session.starts_at).slice(11, 16),

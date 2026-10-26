@@ -1,20 +1,23 @@
 import { AppText, TextField } from "@/components/atoms";
 import { atomPalette, atomSpacing } from "@/components/atoms/theme";
 import { ActivityIndicator, Keyboard, Pressable, View } from "react-native";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAddressSearch } from "../hooks/use-address-search";
 import {
   addressSearchError,
-  resolveAddress
+  resolveAddress,
+  type GoogleAddress
 } from "../services/address-search.service";
 import type { AddressSuggestion } from "../repositories/address-search.repository";
 export function AddressField({
   value,
   onChange,
+  onSelect,
   errorText
 }: {
   value: string;
   onChange: (value: string) => void;
+  onSelect?: (value: GoogleAddress) => void;
   errorText?: string;
 }) {
   const [active, setActive] = useState(false);
@@ -22,6 +25,12 @@ export function AddressField({
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const revision = useRef(0);
   const search = useAddressSearch(value, active);
+  useEffect(
+    () => () => {
+      revision.current++;
+    },
+    []
+  );
   async function choose(suggestion: AddressSuggestion) {
     const current = ++revision.current;
     setResolving(true);
@@ -30,7 +39,8 @@ export function AddressField({
     try {
       const address = await resolveAddress(suggestion.id, search.token);
       if (revision.current !== current) return;
-      onChange(address);
+      onChange(address.address);
+      onSelect?.(address);
       setActive(false);
       search.resetToken();
     } catch (error) {

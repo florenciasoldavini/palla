@@ -28,6 +28,7 @@ export function useCancelRegistration(sessionId: string) {
       void Promise.all(
         [
           "public-session",
+          "discover-sessions",
           "organizer-roster",
           "organizer-waitlist",
           "organizer-sessions",

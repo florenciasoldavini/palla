@@ -162,6 +162,7 @@ components:
     padding: "12px 16px"
   button-bordered:
     backgroundColor: "{colors.surface}"
+    borderColor: "{colors.border-subtle}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
     padding: "12px 16px"
@@ -306,7 +307,7 @@ All text buttons and form controls use the medium radius (12px), consistently ac
 
 ### Buttons
 
-Essential solid is the lime main action; neutral solid is ink with white text. Accent, danger, success, and warning colors preserve their semantic roles. Bordered and ghost treatments reduce emphasis without changing action meaning. Solid colors follow their shared hover and pressed steps; bordered buttons use low/strong surface feedback. Ghost feedback uses text/icon color and the shared press motion while the surface remains transparent.
+Essential solid is the lime main action; neutral solid is ink with white text. Accent, danger, success, and warning colors preserve their semantic roles. Bordered and ghost treatments reduce emphasis without changing action meaning. Neutral bordered buttons use the subtle lilac border token; disabled bordered buttons use the same light outline. Solid colors follow their shared hover and pressed steps; bordered buttons use low/strong surface feedback. Ghost feedback uses text/icon color and the shared press motion while the surface remains transparent.
 
 All sizes provide a minimum 48-unit target and grow with type. Default padding is 12px vertically and 16px horizontally; labels wrap. Disabled/loading treatment uses a muted strong surface for solid/bordered buttons; ghost actions remain transparent with muted text/icons; loading retains the label, adds a spinner, announces busy state, and prevents duplicate execution. Press feedback scales to 0.98 using shared short timing.
 

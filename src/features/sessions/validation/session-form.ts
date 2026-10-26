@@ -1,3 +1,8 @@
+import {
+  courtCoverageSchema,
+  venueCourtCoverageSchema,
+  effectiveCourtCoverage
+} from "@/features/venues/court-coverage";
 import { z } from "zod";
 import { sessionCreationSettingsSchema } from "./session-settings";
 
@@ -7,6 +12,10 @@ import {
 } from "@/features/attributes/domain";
 
 export const sessionDraftSchema = z.object({
+  venueCourtCoverage: venueCourtCoverageSchema.optional(),
+  venueCourtCoverageBaseline: venueCourtCoverageSchema.optional(),
+  venueCourtCoverageEdited: z.boolean().optional(),
+  courtCoverage: courtCoverageSchema.nullable().optional(),
   settings: z
     .strictObject({
       ...sessionCreationSettingsSchema.shape,
@@ -44,6 +53,10 @@ export const sessionDraftSchema = z.object({
   venueAttributesEdited: z.boolean().optional(),
   title: z.string().max(120),
   venueId: z.string(),
+  venueAddressPlaceId: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]{1,512}$/)
+    .optional(),
   venueName: z.string().max(160),
   venueAddress: z.string().max(300),
   courtLabel: z.string().max(80),
@@ -95,6 +108,18 @@ export const sessionFormSchema = sessionDraftSchema
   .superRefine((v, ctx) => {
     const issue = (path: keyof SessionFormValues, message: string) =>
       ctx.addIssue({ code: "custom", path: [path], message });
+    const coverage = effectiveCourtCoverage(
+      v.venueCourtCoverage ?? [],
+      v.courtCoverage
+    );
+    if ((v.venueCourtCoverage?.length ?? 0) === 2 && !coverage)
+      issue("courtCoverage", "Choose the court coverage for this session.");
+    if (
+      coverage &&
+      v.venueCourtCoverage?.length &&
+      !v.venueCourtCoverage.includes(coverage)
+    )
+      issue("courtCoverage", "Choose a court type available at this venue.");
     if (v.endTime <= v.startTime)
       issue("endTime", "End time must be later on the same day.");
     if (

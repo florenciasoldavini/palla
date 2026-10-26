@@ -17,3 +17,7 @@ verify_jwt = true
 [functions.session-cover]
 # Gateway JWT validation stays enabled; the handler additionally checks occurrence visibility.
 verify_jwt = true
+
+[functions.venue-locations-refresh]
+# Dedicated Vault secret is checked before claiming any bounded refresh jobs.
+verify_jwt = false

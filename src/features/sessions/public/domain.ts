@@ -1,4 +1,9 @@
 import {
+  courtCoverageSchema,
+  venueCourtCoverageSchema
+} from "@/features/venues/court-coverage";
+import { venueCoordinatesShape } from "@/features/venues/coordinates";
+import {
   sessionAttributesSchema,
   venueAttributesSchema
 } from "@/features/attributes/domain";
@@ -12,6 +17,7 @@ export const publicPlayerSchema = z.object({
   category: z.number().int().min(1).max(8).nullable()
 });
 export const publicSessionSchema = z.object({
+  court_coverage: courtCoverageSchema.nullable().optional(),
   has_cover_image: z.boolean().default(false),
   attributes: sessionAttributesSchema.default([]),
   id: z.uuid(),
@@ -38,6 +44,8 @@ export const publicSessionSchema = z.object({
   payment_instructions: z.string().nullable(),
   weekly: z.boolean(),
   venue: z.object({
+    ...venueCoordinatesShape,
+    court_coverage: venueCourtCoverageSchema.optional(),
     attributes: venueAttributesSchema.default([]),
     name: z.string().nullable(),
     address: z.string().nullable(),

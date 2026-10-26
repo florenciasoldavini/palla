@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { PallaWordmark } from "@/components/brand/palla-wordmark";
 import { atomPalette, atomSpacing } from "@/components/atoms/theme";
 import { Bell } from "lucide-react-native";
@@ -7,10 +7,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function NavigationHeader({
   onNotifications,
-  unread = 0
+  unread = 0,
+  leading
 }: {
   onNotifications: () => void;
   unread?: number;
+  leading?: ReactNode;
 }) {
   const insets = useSafeAreaInsets();
   const [pressed, setPressed] = useState(false);
@@ -30,7 +32,13 @@ export function NavigationHeader({
           justifyContent: "space-between"
         }}
       >
-        <PallaWordmark />
+        {leading ? (
+          <View style={{ flex: 1, minWidth: 0, marginRight: 16 }}>
+            {leading}
+          </View>
+        ) : (
+          <PallaWordmark />
+        )}
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <Pressable
             accessibilityRole="button"

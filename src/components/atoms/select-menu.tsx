@@ -9,7 +9,7 @@ import {
   atomSpacing
 } from "@/components/atoms/theme";
 import { Check, ChevronDown, type LucideIcon } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
   Modal,
   ScrollView,
@@ -38,8 +38,10 @@ export function SelectMenu<TValue extends string>({
   minWidth = 192,
   onChange,
   options,
-  value
+  value,
+  renderTrigger
 }: {
+  renderTrigger?: (open: () => void, expanded: boolean) => ReactNode;
   accessibilityLabel?: string;
   icon?: LucideIcon;
   labelPrefix?: string;
@@ -106,7 +108,9 @@ export function SelectMenu<TValue extends string>({
         ref={triggerRef}
         style={{ alignSelf: "stretch" }}
       >
-        {Platform.OS !== "web" ? (
+        {renderTrigger ? (
+          renderTrigger(openMenu, isOpen)
+        ) : Platform.OS !== "web" ? (
           <FieldTrigger
             label={accessibilityLabel ?? labelPrefix ?? "Choose an option"}
             value={

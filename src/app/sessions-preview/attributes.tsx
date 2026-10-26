@@ -32,10 +32,17 @@ export default function AttributesPreview() {
     <AttributesPreviewContent
       key={state ?? "default"}
       failFirst={state === "error"}
+      coveragePreview={state === "coverage"}
     />
   );
 }
-function AttributesPreviewContent({ failFirst }: { failFirst: boolean }) {
+function AttributesPreviewContent({
+  failFirst,
+  coveragePreview
+}: {
+  failFirst: boolean;
+  coveragePreview: boolean;
+}) {
   const router = useRouter();
   const failed = useRef(false);
   const [saved, setSaved] = useState<SessionFormValues | null>(null);
@@ -43,7 +50,11 @@ function AttributesPreviewContent({ failFirst }: { failFirst: boolean }) {
   const [values, setValues] = useState<SessionFormValues>({
     ...initialSessionForm(),
     title: "Friday Social Padel",
-    venueId: venue.id,
+    venueId: coveragePreview ? "" : venue.id,
+    venueCourtCoverage: coveragePreview ? ["covered", "uncovered"] : [],
+    venueCourtCoverageBaseline: [],
+    venueCourtCoverageEdited: coveragePreview,
+    courtCoverage: coveragePreview ? "covered" : null,
     venueName: venue.name!,
     venueAddress: venue.address!,
     description:
@@ -62,9 +73,15 @@ function AttributesPreviewContent({ failFirst }: { failFirst: boolean }) {
         previewCoverUri={saved.coverLocalUri}
         session={{
           ...publicSessionPreview,
+          court_coverage:
+            saved.courtCoverage ??
+            (saved.venueCourtCoverage?.length === 1
+              ? saved.venueCourtCoverage[0]
+              : null),
           attributes: saved.sessionAttributes ?? [],
           venue: {
             ...publicSessionPreview.venue,
+            court_coverage: saved.venueCourtCoverage ?? [],
             attributes: saved.venueAttributes ?? []
           }
         }}

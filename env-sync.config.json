@@ -130,6 +130,24 @@
       "vercel": {
         "environments": ["development", "preview", "production"]
       }
+    },
+    "GOOGLE_MAPS_IOS_API_KEY": {
+      "section": "Google Maps / Native Build",
+      "comment": "Native client key, restricted to Maps SDK for IOS and Palla bundle identifier. Separate from the server Places key. Requires rebuilding the native client.",
+      "example": "your_ios_maps_key",
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "sensitive"
+      }
+    },
+    "GOOGLE_MAPS_ANDROID_API_KEY": {
+      "section": "Google Maps / Native Build",
+      "comment": "Native client key, restricted to Maps SDK for ANDROID and Palla package and signing fingerprint. Separate from the server Places key. Requires rebuilding the native client.",
+      "example": "your_android_maps_key",
+      "eas": {
+        "environments": ["development", "preview", "production"],
+        "visibility": "sensitive"
+      }
     }
   }
 }

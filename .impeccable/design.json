@@ -745,7 +745,7 @@
       "refersTo": "button-bordered",
       "description": "Large-size visual sample of the shared AppButton variant; source owns behavior.",
       "html": "<button class=\"ds-bordered\">Cancel</button>",
-      "css": ".ds-bordered{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;font-weight:600;line-height:20px;min-height:48px;padding:12px 16px;border:1px solid transparent;border-radius:12px;cursor:pointer}.ds-bordered:active{transform:scale(.98)}.ds-bordered:disabled{background:#e8e7f1;color:#444932;border-color:#757a60;opacity:.72;cursor:not-allowed}.ds-bordered{background:#ffffff;color:#1a1b22;border-color:#757a60}.ds-bordered:hover{background:#f4f2fd}.ds-bordered:active{background:#e8e7f1}.ds-bordered:focus-visible{outline:auto}"
+      "css": ".ds-bordered{font-family:\"Hanken Grotesk\",sans-serif;font-size:16px;font-weight:600;line-height:20px;min-height:48px;padding:12px 16px;border:1px solid transparent;border-radius:12px;cursor:pointer}.ds-bordered:active{transform:scale(.98)}.ds-bordered:disabled{background:#e8e7f1;color:#444932;border-color:#e3e1ec;opacity:.72;cursor:not-allowed}.ds-bordered{background:#ffffff;color:#1a1b22;border-color:#e3e1ec}.ds-bordered:hover{background:#f4f2fd}.ds-bordered:active{background:#e8e7f1}.ds-bordered:focus-visible{outline:auto}"
     },
     {
       "name": "Accent ghost button",

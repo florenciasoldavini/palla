@@ -900,3 +900,184 @@ zero. The cover was reset through the native editor and its Storage object count
 is zero. Both apps were returned to the dashboard. The final static export and
 HTTP metadata check passed (one title and one `og:title`). No public deployment
 was changed.
+
+### Public sharing after PR #14 merge — 21 October 2026
+
+GitHub confirms merge commit `4b04f4506bcb4a045558ab7cca75e60c48fe7a6e` and
+its Vercel status is successful. Unauthenticated HTTPS requests to
+`palla-pink.vercel.app` still return platform `NOT_FOUND` 404 responses for
+`/session`, `/api/session-image`, and both well-known association files. These
+are hosting 404s rather than the sharing handler's unavailable-session response.
+The development branch preview redirects to Vercel login. Both the scoped Vercel
+connector and existing CLI login deny access to the owning team; deployment/domain
+mapping cannot be inspected with current access.
+
+On iPhone 17 Pro / iOS 26.5 the HTTPS link opens Safari. On Pixel 8 / Android
+17 API 37 the implicit VIEW intent opens Chrome, rather than Palla. No new native
+build was installed. This does not validate the new native association declarations.
+Actual WhatsApp rendering and end-to-end live sharing remain unverified until the
+public routes and signing associations are available. No account/test data was
+created or changed during this check.
+
+### Development preview sharing check — 21 October 2026
+
+Targeted only the Preview deployment for merge commit `4b04f45`:
+`palla-lke9yax3q-florencias-projects-aebbb448.vercel.app` (Vercel deployment
+`QUANF7s7zQGQkqEZ4u5w61qVN9NR`). The authenticated Chrome session can access it.
+Vercel Resources confirms all three sharing functions deployed. Direct
+`/api/session?id=invalid` returns the intended unavailable-session page; a
+well-formed absent UUID returns the handler's temporary-unavailable response.
+The project's environment-variable list explicitly shows no variables configured,
+so the preview cannot connect to the backend and has no preview share origin.
+`/api/app-links?platform=ios` reports the signing team is not configured.
+
+The `/session` route serves the exported static app instead of the sharing
+handler. Its inspected DOM still contains generic Palla Open Graph title,
+description and the old global image origin, not occurrence metadata. This
+confirms a deployed routing problem independent of production domain mapping.
+Unauthenticated sharing-crawler requests to the preview are blocked by Vercel
+Authentication. Actual WhatsApp preview rendering remains unverified/blocked.
+No environment values, deployment-protection settings, or production resources
+were changed during this preview-only check; no account fixtures were created.
+
+## Discover sessions — 2026-10-22
+
+- iOS: iPhone 17 Pro, iOS 26.5, simulator `BB29D950-04DB-4EF5-B328-30948C3DB802`.
+- Android: Pixel 8, Android 17 / API 37, `emulator-5554`.
+- Existing native development builds with Metro; no browser app validation.
+- Live backend inventory: three explicitly labeled temporary public occurrences at two temporary venues, using the two existing QA accounts. No new authentication accounts. These fixtures were removed after verification.
+- Both: live Starting soon / Available today / Upcoming grouping, floating date/category menus, tomorrow empty results, category filter, native date-range sheet, keyboard search and clear, map/list switching, real minimal map tiles and provider credits, venue counts grouped as 2 + 1, marker -> venue sheet, venue sheet -> real public occurrence detail, Back, explicit Search this area and clear-area behavior.
+- List remains mounted at the same layout size under the map overlay; native card coordinates were compared before/after switching at a settled scroll offset. Automatic polling does not activate pull-to-refresh or move the list; that indicator is reserved for the user gesture. UI automation used actual accessibility bounds (and inspected screenshot coordinates for map markers).
+- Large text: iOS extra-extra-extra-large and Android font scale 1.3; restored iOS large / Android 1.0 after checking. Horizontal chips remain scrollable; cards wrap their titles, and the page scrolls.
+- Loading, error/retry recovery and empty states also exercised with the development-only Discover preview. Fixture states do not prove backend behavior; the live checks above and rollback SQL assertions cover that separately.
+- Shared search now exposes input and Search button as separate native accessibility targets. Map's native venue-list button exposes the same sessions without relying on marker accessibility.
+- Map locations are approximate address geocodes. Unresolved venues remain in the list; precise stored venue coordinates and server-side geographic pagination are future work.
+- `npm run verify`: typecheck, lint, 255 tests and formatting passed. Rollback-only `supabase/tests/discover-sessions.sql` passed authenticated/anonymous visibility, capacity/waitlist, own status, date/category/search filters and private-field checks. Intentional public discovery-definer advisory is documented in `docs/discover-sessions.md`.
+
+### Discover header refinement — 2026-10-22
+
+Verified the location selector replacing the wordmark on Discover, opening/closing its sheet, the circular icon-only Map/List control, and returning between Discover and Profile on iOS 26.5 and Android 17. Other tabs retain the wordmark. `npm run verify` passed (255 tests). No QA database fixtures or account changes were needed.
+
+### Discover map button removal — 2026-10-22
+
+Removed the aggregate View sessions control and its unused all-venues sheet state. Checked the native map surface on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 using the development-only map fixture: no View sessions control remains; provider credits, location notice and circular List toggle remain. Venue marker selection still uses the existing single-venue sheet. `npm run verify` passed (255 tests); no backend or account changes.
+
+### Discover map header removal — 2026-10-22
+
+Removed the Sessions on the map heading and Edit filters action above the map. Native map surfaces checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17; the circular List toggle remains available. `npm run verify` passed (255 tests). No backend or account changes.
+
+### Discover controls in map view — 2026-10-22
+
+Added the shared search/filter controls above the map, aligned with the list controls. Checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17: anchored date menu in map view, Tomorrow selection retained in list view, native keyboard search and shared search value, clearing filters and returning to map. `npm run verify` passed (255 tests). Used the actual Discover screen without database fixtures or account changes.
+
+### Discover map/list toggle color — 2026-10-22
+
+Changed both circular toggle states to the existing essential button variant (neon background, dark olive icon). Checked both toggle states on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17. `npm run verify` passed (255 tests). No backend or account changes.
+
+### Discover action hierarchy — 2026-10-22
+
+Updated Search to the essential neon variant and the circular Map/List toggle to the neutral charcoal variant with a white icon. Checked both view states on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17. `npm run verify` passed (255 tests). No backend or account changes.
+
+### Discover location banner removal — 2026-10-22
+
+Removed the Approximate locations / Based on venue addresses / unresolved-address count banner from the map. Checked its absence on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17; the List toggle and map provider attribution remain. No backend or account changes.
+
+Also removed the Clear map area action. On both devices, panned the map and applied Search this area, then verified the clear-area button stays absent and the List toggle remains accessible. `npm run verify` passed (255 tests).
+
+### Discover full-screen map and floating controls — 2026-10-22
+
+Checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 (API 37). The map fills the body between the shared header and bottom tabs, reaching both screen edges. Search, filter chips and the circular List button float above it; map attribution remains visible. Verified anchored date menus, shared filter selection, panning and Search this area below the controls, native keyboard search, clearing filters and returning to map. Checked iOS extra-extra-extra-large text and Android font scale 1.3, then restored large / 1.0. Used read-only sample results through `navigation-preview/player/home`; no backend or account writes. Screenshots are under `.impeccable/review/native/discovery/`. `npm run verify` passed (255 tests).
+
+### Discover compact map cards — 2026-10-22
+
+Checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 (API 37), using read-only development fixtures with three occurrences at two sample venues. Verified marker selection opens the horizontal carousel, side photo and availability badge, title/location/time order, location and calendar icons, text-only category chip, price, swipe pagination and synchronized highlighted marker/camera across venues. The List toggle stays above the carousel and map attribution remains below it. Android Back dismisses selected cards. Checked iOS extra-extra-extra-large text and Android font scale 1.3, then restored large / 1.0. Preview card navigation intentionally remains disabled for fake occurrence IDs; production cards use the existing public-detail navigation. No account or database writes. Screenshots: `.impeccable/review/native/discovery/*map-cards*.png`. `npm run verify` passed (255 tests).
+
+### Stored venue coordinates — 2026-10-22
+
+Checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 (API 37). Read-only discovery fixtures now carry latitude/longitude directly in venue data, with no geocoding cache or provider request on map opening. Verified mapped-venue pins, missing-coordinate empty state (`state=unlocated`) with List navigation, and public session detail tiles / Open in Maps using saved coordinates. Public `map-unavailable` and `map-missing` fixtures clear coordinates explicitly. Production publishing enrichment is covered by the service tests and connected-project rollback SQL tests, rather than committing a native test session. The SQL suite checks coordinate storage and public projections, bounds/pair validation, immutable existing pins, creator-only filling, blocked general client updates and address invalidation. All test data rolled back. The only existing venue has an unresolved QA address; no guessed coordinates were saved. Security advisory names/counts unchanged after migration. `npm run verify` passed (256 tests). Screenshots: `.impeccable/review/native/discovery/*stored-coordinates*.png`.
+
+### Covered / uncovered courts — 2026-10-22
+
+Checked on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 (API 37), using `palla://sessions-preview/attributes?state=coverage` with no account writes. Verified venue Covered / Uncovered chips, removing/restoring one choice, automatic single-type session coverage, mixed-venue missing-choice validation, an anchored dropdown below its field, choosing Uncovered, saving/resuming a draft, and the Uncovered court label in public details. Checked large text (iOS extra-extra-extra-large, Android font scale 1.3) and restored normal settings. Scrolling and the fixed form actions remained usable. The new connected-project rollback SQL suite passed for venue/session persistence, immutable historical snapshots, single/future edit scopes, public projections, constraints and creator authorization. Existing coordinates, covers, attributes and discovery SQL suites also passed. All database test rows rolled back. `npm run verify` passed (259 tests). Native screenshots: `.impeccable/review/native/discovery/*court-coverage*.png`.
+
+### Discover advanced filters — 22 October 2026
+
+Verified on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37 using the installed development clients and shared `navigation-preview/player/home` fixture. Checked the More filters sheet, dropdown menus anchored to their triggers, covered courts + new balls, women-only sessions, min/max keyboard entry, free sessions (`maximum=0`), reversed-price validation with the keyboard visible, resetting, scroll to venue amenities and selecting both Showers + Free parking, map/list state consistency, sheet dismissal/back, safe areas and larger text (iOS XXXL; Android font scale 1.3). Restored device text settings afterwards. Screenshots: ignored `.impeccable/review/native/discovery-filters/`.
+
+Native result interactions use read-only fixtures; they do not prove live fixture persistence. Backend matching and privacy were verified separately using rollback-only SQL in `supabase/tests/discovery-advanced-filters.sql` and the existing discovery regression (anonymous, player and host roles). No QA data remains. The deployed RPC returned HTTP 200 through the public REST API with combined filters; the connected project currently has no matching live sessions. `npm run verify`: 57 files / 268 tests passed, plus typecheck, ESLint and formatting.
+
+### Discover sorting — 22 October 2026
+
+Verified the installed development clients on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Both native platforms exercised the anchored Sort dropdown, chronological default, free-first Lowest price, Nearest using a controlled simulator/emulator GPS origin, list/map state sharing, location denial with the previous sort preserved, and larger-text menus (iOS XXXL and Android scale 1.3). iOS also combined price sorting with Covered; Android exercised the sorted map-card carousel/swiping. Text sizes were restored. Screenshots are in ignored `.impeccable/review/native/discovery-sorting/`.
+
+The Android test exposed a network-only balanced-fix timeout with GPS-only positioning. The foreground request now uses a GPS-capable fix and avoids requiring Google's network-location accuracy setting. Android's timeout/error path and successful GPS fix were both observed. UI fixture results use `rankPreviewSessions`; they are not live persisted sessions. The server-side ranking, filters, privacy, tie-breaking and pre-limit behavior were verified separately by rollback-only `discovery-sorting.sql`, plus the existing discovery and advanced-filter regressions. Both price and nearest RPC requests returned HTTP 200 through the public REST API (no matching live sessions). No QA rows remain. Final `npm run verify`: 58 test files / 272 tests passed, plus typecheck, ESLint and formatting.
+
+### Discover distance radius — 22 October 2026
+
+Verified the installed native development clients on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37, using a controlled origin at -34.60, -58.48 and read-only discovery fixtures. Checked the anchored Any distance / 5 / 10 / 25 km menu, first activation with a native location lookup, Near me header, empty 5 km results, matching 10/25 km results, price sorting while radius stays active, shared map/list filters, empty map state and restoring the saved city when clearing the radius. Evidence is in ignored `.impeccable/review/native/discovery-radius/`. Fixture ranking is local only for these native UI states; production radius matching runs in the backend.
+
+The deployed endpoint returned HTTP 200 through the public REST API with radius and price sorting. Rollback-only `discovery-radius.sql` tests all radius boundaries, unknown coordinates, city replacement, combined filters, invalid input, privacy, legacy calls and filtering before the result limit; existing discovery, advanced-filter and sorting SQL regressions also passed. No QA rows remain. Permission failure and stalled-fix handling reuse the existing native location adapter and service, with its automated failure/timeout tests.
+
+Radius menus were also visually checked with iOS XXXL and Android font scale 1.3, including Android Back dismissal. Device text sizes were restored. Final `npm run verify`: 59 test files / 274 tests passed, plus typecheck, ESLint and formatting.
+
+### Discover city autocomplete — 23 October 2026
+
+Verified the installed development clients on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Both platforms exercised live city-RPC suggestions with region/country context, result selection and explicit Use this city confirmation, a foreground location fix at a simulated Buenos Aires point, confirmed-city restoration after process restart, no-match search, and location-denial recovery through manual search. iOS used signed-in Discover. Android used the development-only Discover preview: its session cards are fixtures, while city search, GPS and the local-preference hook are real. These checks performed no registration, notification or account writes.
+
+Checked software-keyboard search, scrolling and larger text (iOS accessibility size and Android font scale 1.3). The shared sheet keeps confirmation outside its scrolling body; Android Back first dismisses the keyboard, then the sheet. Visually inspected `ios-worldwide-scroll-keyboard.png`, `ios-confirmation-large.png`, `android-search-large.png` and `android-denied-final.png` in ignored `.impeccable/review/native/discovery-city/`, alongside source review of the shared sheet, city picker, service and local storage. Other captures in that directory record GPS confirmation, empty states and restored city. Shared colors, typography, buttons, field and bottom sheet retain the incumbent design system; no design-token changes were required.
+
+The selected catalog center defines a disclosed 25 km proximity area; GPS radius filtering remains a separate override. Saved city-center coordinates are public reference data, not the user's precise device fix. GeoNames cities500 attribution is visible and catalog coverage excludes some settlements and neighborhoods. The schema migration is deployed and the full catalog import was verified at 236,563 city/town records across 246 country/territory codes. Rollback-only `supabase/tests/discovery-cities.sql` passed, including anonymous access, city disambiguation, accent matching, coordinate validation, legacy compatibility, radius override and city filtering before pagination; all session fixtures rolled back. `npm run verify` passed 61 test files / 284 tests, plus typecheck, ESLint and formatting. Android additionally passed disconnected-network messaging and automatic/refetch recovery to live results after restoring connectivity. This test caught and corrected a misleading no-results state while offline. Evidence: `android-offline-error-full.png` and `android-offline-recovered-full.png` (plus keyboard-visible variants). Device text sizes, network access and foreground location permissions were restored after checks. VoiceOver/TalkBack traversal and tablets are not certified by this record. No browser validation was used.
+
+### City search keyboard feedback fix — 23 October 2026
+
+After the user reported an Android loop while typing, reproduced native UI instability during incremental input. The shared bottom sheet used height-based keyboard avoidance on Android alongside the native window's `adjustResize`; growing autocomplete content fed back into its measured height. The sheet now uses padding-based avoidance, retaining the existing iOS behavior. Retested slow, character-by-character Madrid entry, pauses between characters, three successive settled Android accessibility snapshots, result selection and city confirmation on Pixel 8 / Android 17. Retested Madrid typing/selection/confirmation on iPhone 17 Pro / iOS 26.5. Evidence: `discovery-city/android-typing-fixed-keyboard.png` and `discovery-city/ios-typing-ios-regression.png`. These native checks supersede the earlier short-input check for this typing case. `npm run verify` passed 61 files / 284 tests. No database changes or account writes.
+
+### Automatic map-boundary search — 23 October 2026
+
+Verified native development clients on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Using read-only `sessions-preview/discovery?state=map-bounds` fixtures (three occurrences, two venues), panned repeatedly into an empty area, observed automatic disappearance of matches without a button, panned back and observed marker recovery. Switched list/map and checked restored area/results. Selected a marker and swiped the occurrence carousel: selected cards stayed present after the camera moved, with no feedback loop or map reload. Search/filter controls and attribution remain visible. Native screenshots are in ignored `.impeccable/review/native/discovery-map-bounds/`. No browser validation or account writes.
+
+The signed-in iOS Discover also exercised the real backend with the saved Madrid city, initial map viewport and a subsequent pan: Map area appeared in the header, the empty map remained pannable, and Supabase API logs confirmed HTTP 200 from `discover_sessions_in_bounds`. No eligible live sessions matched. Android live-account integration remains unverified because the development client is signed out; its native marker/panning tests used fixtures. Database behavior was independently checked against the connected project with rollback-only `supabase/tests/discovery-map-bounds.sql`, including filtering before the result cap, date-line crossing, combined filters and authorization. The migration is deployed; no fixture rows were kept.
+
+Runtime tests execute the embedded map script with fake timers to verify 500 ms debounce, replacement of pending searches, dynamic point updates without fitting/reloading, and no searches from selection/padding movement. `npm run verify` passed 62 files / 288 tests, typecheck, ESLint and formatting. Source review followed the React best-practices skill; server state remains in TanStack Query with consumed cancellation signals and previous data during viewport refreshes.
+
+### Discovery map clustering — 23 October 2026
+
+Checked the installed development clients on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37 using read-only `sessions-preview/discovery?state=map-clusters` fixtures: three matching occurrences at two venues, initially viewed from a wide area. The black cluster shows 3 sessions; tapping expands into olive pins showing 2 and 1, without opening a session card. Individual pin selection opens the existing carousel and retains the selected venue. iOS list/map switching restores the area; Android Back dismisses selected cards. Screenshots: ignored `.impeccable/review/native/discovery-clusters/`. These are native fixture checks, with no backend/account writes or browser substitution.
+
+Unit/runtime regressions execute the actual embedded clustering script: stable grouping, session totals, selected-venue exclusion, individual pins at high zoom, cluster expansion followed by viewport search, and existing pan debounce / selection-camera behavior. `npm run verify` passed 63 files / 291 tests, typecheck, ESLint and formatting. Clustering uses the already filtered, capped backend response and adds no database schema.
+
+### Recenter discovery map — 23 October 2026
+
+Verified the installed development clients on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Read-only map fixtures started at a wide cluster view; an explicit Recenter tap used a controlled native GPS fix at -34.583, -58.421, moved to a neighborhood view and automatically filtered the viewport to the Palermo session results. List/map switching retained the searched area. The white circular control remains above the black List control and outside map attribution. Location acquisition exposes a busy/spinner state. Permission denial on both platforms showed dismissible feedback while retaining the camera; dismissal restored the normal controls. Location permission was restored afterwards. Evidence is in ignored `.impeccable/review/native/discovery-recenter/`. No session/account writes or browser testing.
+
+The existing foreground-location service handles permission, service availability, recent-fix validation and a 20-second deadline. Pending results are ignored after leaving the map or a later viewport move. The embedded runtime regression verifies valid/invalid recenter targets, neighborhood zoom and one debounced viewport search, with no repeated search from later programmatic movement. `npm run verify` passed 63 files / 292 tests plus typecheck, ESLint and formatting. This change adds no tracking or persisted GPS coordinates.
+
+### Discovery pagination — 23 October 2026
+
+Verified the installed native development clients on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Read-only `state=pagination-error` fixtures contain 75 sessions in three pages of 25 and deliberately fail the first continuation. On both platforms, scrolled to the failed next page, confirmed existing cards remained, used Retry loading sessions, continued through session 75, and checked the final page has no continuation button. Map/list switching retained the loaded results. Both platforms also opened `state=pagination` directly in map view and automatically loaded every page, displaying a cluster total of 75 with no continuation tap. Evidence is under ignored `.impeccable/review/native/discovery-pagination/`. No browser substitution, accounts, registrations or notifications were created.
+
+The signed-in iOS Discover successfully queried the actual paged endpoint with the saved Madrid city and returned its live empty state without errors. Android session inventory checks used presentation fixtures because its development client is signed out. Backend pagination was independently verified against the connected database using rollback-only `supabase/tests/discovery-pagination.sql`: 605 public sessions across 13 pages in each sort, a private exclusion fixture, ties, NULL distance handling, combined filters, invalid cursors/page sizes, legacy API compatibility and boundary-row deletion. An initial test exposed raw floating-point JSON rounding repeating nearest cursors; the deployed precision migration fixes comparison/order/cursor keys consistently at millimetre precision. All 606 fixture sessions were rolled back.
+
+The migrations are deployed. Security review confirmed narrow public projections, intentional anon/authenticated RPC execution with empty search path, and inaccessible private cores; the new security-definer advisor warnings are expected for public discovery (see linked rationale in discovery docs). Unit checks cover cursor parsing, malformed page rejection and page deduplication. `npm run verify` passed 64 files / 294 tests, plus typecheck, ESLint and formatting.
+
+### Google Maps migration — 24 October 2026
+
+Verified Google Maps rendering in Expo Go (SDK 54) on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Both Explore and public session detail use the explicit Google provider with lilac/white styling and visible Google branding. Read-only fixtures exercised wide clustering, descriptive native pin accessibility labels, cluster zoom, selected venue cards, and automatic viewport filtering through to the empty-area state. Static venue maps retain the centered white Open in Maps control. Testing exposed and fixed Android custom-pin clipping, Android initial-camera fallback to city zoom, and iOS page swipes intercepted by the static map. The static map now lets the parent page scroll while its untouched Google logo retains a separate link hit target. Evidence is in ignored `.impeccable/review/native/google-maps/`.
+
+The iOS Recenter path returned to a controlled synthetic venue location. Android permission/busy/timeout feedback was observed, but a repeatable successful fresh GPS recenter was not certified in Expo Go during this run; its synthetic system GPS/fused location was present. Android later exited because the OS revoked its one-time location permission, confirmed by `dumpsys activity exit-info`; the crash buffer was empty. No real player location, account, session or notification writes were made by the native fixture checks. Full VoiceOver/TalkBack traversal, tablets and production signing/key restrictions are not certified by these checks.
+
+`npm run verify` passes with 62 files / 289 tests and existing lint warnings only. Ten Deno Edge Function tests pass with mocked Auth/Google/cache requests. The final migration and rollback-only location authorization, identity separation, expiry and quota tests pass in disposable local PostgreSQL with mocked Vault/Cron; the production publisher integration phase is intentionally skipped in that minimal harness. After explicit user approval, the connected migration and both Edge Functions were deployed. Connected rollback tests passed for trusted references, permissions, expiry, budgeting, address/business identity and the full publisher; the original venue-coordinate regression also passed. Both recurring jobs are active. Invoking the actual scheduled HTTP command returned 200 with zero eligible refresh rows, and unsigned HTTP returned 401. Both Google Maps SDKs were enabled and separate app/API-restricted keys saved locally. Native own-client rebuild verification is recorded below. See `google-maps.md`.
+
+Both Palla own Debug clients were subsequently rebuilt with the restricted keys: iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. Google tiles loaded with the application restrictions in force. Both exercised cluster zoom, selected venue cards, panning with automatic viewport filtering, detail-map overlay and page scrolling. Android also exercised empty-area feedback, native Back and large text at font scale 1.3; original font size was restored. iOS recenter filtered to the synthetic Palermo location. Android fresh-location timeout feedback and a retry after a new synthetic GPS sample were observed; the map moved, but its final camera zoom was not independently instrumented. No VoiceOver/TalkBack traversal or store signing is certified. The initial iOS build exceeded the MCP response deadline while compilation continued; a subsequent incremental build reported success, and the resulting app was installed and launched through XcodeBuildMCP.
+
+A real authenticated iOS Google autocomplete selection stored one private snapshot with finite coordinates and the expected 29-day TTL, confirming the deployed Places function/provider/cache path. The form fixture did not publish a session. Full publication was verified separately through the connected rollback SQL test. Android's own client is signed out, so live authenticated address selection was not repeated there. Real refresh of an eligible Google-sourced venue remains unverified; the deployed scheduled HTTP command completed with zero eligible rows. Evidence uses `*-own-client-*` in ignored `.impeccable/review/native/google-maps/`. Final code checks passed: 62 files / 289 tests plus typecheck, lint and formatting. Existing unsigned-simulator push-keychain and duplicate-linking development warnings were observed; maps remained functional. Release Android signing fingerprints and EAS key environment configuration are still required before distribution.
+
+### Discovery card distances — 24 October 2026
+
+Verified the installed Palla native development clients on iPhone 17 Pro / iOS 26.5 and Pixel 8 / Android 17 API 37. The read-only `sessions-preview/discovery?state=distance` fixture uses a fixed synthetic nearby-search origin and the existing QA distance calculator; no device location, account or session writes occur. Both list and map cards show 2.6 km / 3.8 km labels, include distance in the accessible card name, and omit it after clearing filters. Existing featured cards remain unchanged without an origin. Checked larger text (iOS XXXL and Android font scale 1.3), map-card selection, and Android Back dismissal. The large-text check exposed a carousel measurement reset after layout; moving that reset to the layout effect keeps the expanded card, price and category visible. Text sizes were restored. Android’s boot snapshot initially restored a pre-Maps client; reinstalled the current already-built native APK before map verification. Native screenshots are in ignored `.impeccable/review/native/discovery-distance/` (final map-large captures show the corrected layout).
+
+Production cards consume the existing backend `distance_m`, with no new permission prompt, tracking or database change. Formatting tests cover absent/invalid distances, near-zero values and the metres/kilometres rounding boundary. `npm run verify` passed 63 files / 301 tests, typecheck, lint and formatting. Native inventory uses read-only fixtures, not newly persisted sessions; full VoiceOver/TalkBack traversal was not certified.
+
+### Isolated discovery SQL identities — 25 October 2026
+
+The discovery eligibility, venue-coordinate, court-coverage and Google-coordinate rollback suites now generate separate host/guest identities inside each transaction instead of embedding existing QA account IDs. Their temporary Auth users, profiles, organizer capabilities and product fixtures all roll back. The four updated suites passed against the connected database, including authenticated/anonymous visibility, cross-owner rejection, publication, coordinate expiry and refresh budgeting. GitGuardian had classified the former fixed user UUIDs beside simulated JWT subject settings as signing secrets; these values were profile identifiers, not signing keys or bearer tokens. No authentication key rotation or product behavior change is part of this test-only correction.
