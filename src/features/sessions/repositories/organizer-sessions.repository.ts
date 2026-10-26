@@ -9,6 +9,11 @@ import { venueSchema, type Venue } from "@/features/venues/domain";
 import { z } from "zod";
 import { removeUnusedCover } from "@/features/session-covers/repositories/cover.repository";
 
+import {
+  readInventoryPages,
+  readInventoryAttributes
+} from "./inventory-pagination";
+
 export const seriesRecordSchema = sessionSeriesSchema;
 export type SeriesRecord = z.infer<typeof seriesRecordSchema>;
 export interface OrganizerInventory {
@@ -23,43 +28,71 @@ function client() {
 export async function fetchOrganizerInventory(
   userId: string
 ): Promise<OrganizerInventory> {
-  const [
-    series,
-    sessions,
-    venues,
-    seriesAttributes,
-    sessionAttributes,
-    venueAttributes
-  ] = await Promise.all([
-    client()
-      .from("session_series")
-      .select("*")
-      .eq("organizer_id", userId)
-      .order("created_at", { ascending: false }),
-    client()
-      .from("sessions")
-      .select("*")
-      .eq("organizer_id", userId)
-      .order("starts_at"),
-    client().from("venues").select("*").eq("is_active", true).order("name"),
-    client()
-      .from("session_series_attributes")
-      .select("series_id, attribute_code"),
-    client().from("session_attributes").select("session_id, attribute_code"),
-    client()
-      .from("organizer_venue_attributes")
-      .select("venue_id, attribute_code")
-      .eq("organizer_id", userId)
+  const [series, sessions, venues] = await Promise.all([
+    readInventoryPages((from, to) =>
+      client()
+        .from("session_series")
+        .select("*")
+        .eq("organizer_id", userId)
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to)
+    ),
+    readInventoryPages((from, to) =>
+      client()
+        .from("sessions")
+        .select("*")
+        .eq("organizer_id", userId)
+        .order("starts_at")
+        .order("id")
+        .range(from, to)
+    ),
+    readInventoryPages((from, to) =>
+      client()
+        .from("venues")
+        .select("*")
+        .eq("is_active", true)
+        .order("name")
+        .order("id")
+        .range(from, to)
+    )
   ]);
-  for (const result of [
-    series,
-    sessions,
-    venues,
-    seriesAttributes,
-    sessionAttributes,
-    venueAttributes
-  ])
-    if (result.error) throw result.error;
+  const ids = (data: unknown[]) =>
+    z
+      .array(z.object({ id: z.string() }))
+      .parse(data)
+      .map((row) => row.id);
+  const [seriesAttributes, sessionAttributes, venueAttributes] =
+    await Promise.all([
+      readInventoryAttributes(ids(series.data), (ids, from, to) =>
+        client()
+          .from("session_series_attributes")
+          .select("series_id, attribute_code")
+          .in("series_id", ids)
+          .order("series_id")
+          .order("attribute_code")
+          .range(from, to)
+      ),
+      readInventoryAttributes(ids(sessions.data), (ids, from, to) =>
+        client()
+          .from("session_attributes")
+          .select("session_id, attribute_code")
+          .in("session_id", ids)
+          .order("session_id")
+          .order("attribute_code")
+          .range(from, to)
+      ),
+      readInventoryAttributes(ids(venues.data), (ids, from, to) =>
+        client()
+          .from("organizer_venue_attributes")
+          .select("venue_id, attribute_code")
+          .eq("organizer_id", userId)
+          .in("venue_id", ids)
+          .order("venue_id")
+          .order("attribute_code")
+          .range(from, to)
+      )
+    ]);
   const group = (data: unknown, key: string) => {
     const rows = z.array(z.record(z.string(), z.string())).parse(data);
     const result = new Map<string, string[]>();
