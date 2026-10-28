@@ -4,9 +4,16 @@ import {
   HelpCircle,
   Info,
   LockKeyhole,
+  Languages,
   Shield
 } from "lucide-react-native";
 export const profileMenu = [
+  {
+    id: "language",
+    title: "Language",
+    description: "Device language, Español or English",
+    icon: Languages
+  },
   {
     id: "notifications",
     title: "Notifications",

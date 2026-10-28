@@ -1,3 +1,4 @@
+import { useAppLanguage } from "@/infrastructure/localization/language-provider";
 import {
   HostRecognitionBanner,
   type HostRecognitionMilestone
@@ -40,6 +41,7 @@ export function ProfileOverview({
   hostMilestone
 }: Props) {
   const { fontScale } = useWindowDimensions();
+  const { language } = useAppLanguage();
   const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
   const isOrganizer = mode === "organizer";
   const name =
@@ -106,8 +108,18 @@ export function ProfileOverview({
           {profileMenu.map((item) => (
             <MenuRow
               key={item.id}
-              title={item.title}
-              description={item.description}
+              title={
+                item.id === "language" && language === "es"
+                  ? "Idioma"
+                  : item.title
+              }
+              description={
+                item.id === "language"
+                  ? language === "es"
+                    ? "Dispositivo, español o inglés"
+                    : "Device language, Español or English"
+                  : item.description
+              }
               Icon={item.icon}
               onPress={() => onMenu(item.id)}
             />

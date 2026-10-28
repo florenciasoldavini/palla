@@ -64,6 +64,14 @@ export default function ProfileSettingsPlaceholder() {
             "Return to your profile to choose another setting."
           }
         />
+        {__DEV__ && section === "about" && (
+          <AppButton
+            variant="bordered"
+            onPress={() => router.push("/sessions-preview/legal")}
+          >
+            Preview legal drafts / Ver borradores legales
+          </AppButton>
+        )}
         {content && (
           <AppText
             variant="caption"

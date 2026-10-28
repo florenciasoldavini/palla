@@ -29,11 +29,13 @@ export default function ProfileScreen({
       }
       onMenu={(section) =>
         router.push(
-          section === "notifications"
-            ? { pathname: "/account/notifications", params: { mode } }
-            : section === "security"
-              ? "/account/security"
-              : { pathname: "/account/[section]", params: { section } }
+          section === "language"
+            ? "/account/language"
+            : section === "notifications"
+              ? { pathname: "/account/notifications", params: { mode } }
+              : section === "security"
+                ? "/account/security"
+                : { pathname: "/account/[section]", params: { section } }
         )
       }
       onLogout={() =>

@@ -89,7 +89,8 @@
           "savePhotosPermission": "Allow Palla to save chat photos to your photo library.",
           "granularPermissions": ["photo"]
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

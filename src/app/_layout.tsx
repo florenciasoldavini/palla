@@ -1,3 +1,4 @@
+import { LanguageProvider } from "@/infrastructure/localization/language-provider";
 import { AppToastProvider } from "@/components/atoms/toast";
 import { ChatPushSync } from "@/features/notifications/components/chat-push-sync";
 import { ChatRealtimeSync } from "@/features/chat/components/chat-realtime-sync";
@@ -74,7 +75,9 @@ function RootLayout() {
           <ChatRealtimeSync>
             <SafeAreaProvider>
               <AppToastProvider>
-                <RootNavigator />
+                <LanguageProvider>
+                  <RootNavigator />
+                </LanguageProvider>
               </AppToastProvider>
             </SafeAreaProvider>
           </ChatRealtimeSync>
